@@ -1,6 +1,7 @@
 ---
 title: Home
 share: "true"
+template: blog.html
 ---
 
 Материал в разделах:
