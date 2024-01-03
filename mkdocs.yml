@@ -1,7 +1,9 @@
-site_name: $site_name # Change this to your site name
-site_description: $site_description
-site_url: $site_url # Change this to your site URL
-site_author: $site_author
+site_name: DevOps in a Nutshell
+site_description: >-
+   Статьи по Devops (Linux, Gitlab, Docker, Ansible, Kubernetes, Terraform, базы данных, etc.)
+   и некоторые статьи по моей старой работе (телефония, контактные центры, видеоконференцсвязь).
+site_url: https://anutator.github.io/blog/
+site_author: Anna T
 
 theme:
     name: 'material'
@@ -11,7 +13,7 @@ theme:
     font:
         text: Ubuntu
         code: Ubuntu Mono
-    language: $language
+    language: ru
     palette:
 
     # Light mode
@@ -39,8 +41,17 @@ theme:
         - navigation.expand
         - search.suggest
         - search.highlight
+        - announce.dismiss # добавила начиная отсюда
+        - content.action.edit
+        - content.action.view
+        - content.code.annotate  # добавления аннотаций к блокам кода (пояснения по отрывкам кода при нажатии на номер аннотации)
+        - content.code.copy  # иконка в правом верхнем углу блоков кода для копирования кода
+      # - content.code.select
+      # - content.tabs.link
+        - content.tooltips
 
 # Extensions
+# pymdownx.tabbed
 markdown_extensions:
   - footnotes
   - nl2br
@@ -51,6 +62,12 @@ markdown_extensions:
   - tables
   - mdx_breakless_lists
   - def_list
+  - pymdownx.tabbed:
+    alternate_style: true
+    combine_header_slug: true
+    slugify: !!python/object/apply:pymdownx.slugs.slugify
+      kwds:
+        case: lower
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.details
@@ -82,11 +99,14 @@ plugins:
   - search
   - meta-descriptions
   - git-revision-date-localized:
-      type: date
+      type: iso_datetime
+      timezone: Europe/Moscow
       fallback_to_build_date: true
-      locale: $language
-      custom_format: "%A %d %B %Y"
-      enable_creation_date: true
+      locale: ru
+      # custom_format: "%A %d %B %Y"
+      enable_creation_date: false
+      exclude:
+        - index.md
   - ezlinks:
         wikilinks: true
   - awesome-pages
