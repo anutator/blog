@@ -22,11 +22,13 @@ Cкрипт очистит все старые пайплайны. Надо вв
 
 Предварительно установить утилиту jq.
 
+Токен для gitlab.investpalata.tech glpat-xGAXxWvx8vYSgU_neQL_
+
 ```sh title="cleanup-gitlab-pipelines.sh"
 #!/bin/bash
 # Purpose: Bulk-delete GitLab pipelines older than a given date
 # Author: github.com/chrishoerl
-# New features: Anna Toropova https://github.com/anutator
+# New features: github.com/anutator
 # GitLab API: v4
 # Requirements: jq must be instaled ($ sudo apt install jq)
 # API example: https://gitlab.example.com/api/v4/projects
