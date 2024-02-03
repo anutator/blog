@@ -115,7 +115,7 @@ ip ssh version 2
 ip ssh rsa keypair-name R1.lab.local
 username admin privilege 15 password cisco
 line vty 0 4
- login local
+ login local
 
 show crypto key mypubkey rsa
 ssh -v 2 -l admin 192.168.0.1
@@ -176,17 +176,17 @@ aaa new-model
 radius-server host 1.1.1.1 auth-port 1645 acct-port 1646 timeout 5 retransmit 3 key cisco
 
 radius server RADIUS
- address ipv6 1::1 auth-port 1812 acct-port 1813
- timeout 3
- retransmit 0
- key cisco
+ address ipv6 1::1 auth-port 1812 acct-port 1813
+ timeout 3
+ retransmit 0
+ key cisco
 
 aaa authentication login default group radius local
 aaa authorization exec default group radius local
 
 line vty 0 4
- login authentication default
- authorization exec default
+ login authentication default
+ authorization exec default
 
 show radius server-group all
 debug radius
@@ -204,15 +204,15 @@ aaa new-model
 radius-server host 1.1.1.1 auth-port 1645 acct-port 1646 timeout 5 retransmit 3 key cisco
 
 radius server RADIUS
- address ipv6 1::1 auth-port 1812 acct-port 1813
- timeout 3
- retransmit 0
- key cisco
+ address ipv6 1::1 auth-port 1812 acct-port 1813
+ timeout 3
+ retransmit 0
+ key cisco
 
 aaa group server radius MYRADIUS
- server name RADIUS
- server 1.1.1.1
- server-private 2.2.2.2 timeout 5 retransmit 0 key cisco
+ server name RADIUS
+ server 1.1.1.1
+ server-private 2.2.2.2 timeout 5 retransmit 0 key cisco
 
 aaa authentication login default group MYRADIUS local
 aaa authorization exec default group MYRADIUS local
@@ -233,9 +233,9 @@ show aaa servers
 ```
 aaa new-model
 aaa server radius dynamic-author
- client 1.1.1.1 server-key cisco
- port 3799
- auth-type all
+ client 1.1.1.1 server-key cisco
+ port 3799
+ auth-type all
 
 show aaa clients
 ```
@@ -258,17 +258,17 @@ aaa authentication login default local
 aaa authorization exec default local
 
 parser view VIEW
- secret cisco
- commands exec include configure terminal
- commands configure ...
+ secret cisco
+ commands exec include configure terminal
+ commands configure ...
 
 show parser view
 enable view VIEW
 
 parser view SUPERVIEW superview
- secret cisco
- view VIEW1
- view VIEW2
+ secret cisco
+ view VIEW1
+ view VIEW2
 ```
 
 ## Tacacs+
@@ -285,18 +285,18 @@ aaa new-model
 tacacs-server host 1.1.1.1 single-connection port 49 timeout 5 key cisco
 
 tacacs server TACACS
- address ipv6 1::1
- key cisco
- timeout 5
- single-connection
+ address ipv6 1::1
+ key cisco
+ timeout 5
+ single-connection
 
 aaa authentication login default group tacacs+ local
 aaa authorization exec default group tacacs+ local
 aaa accounting commands 15 default start-stop group tacacs+
 
 line vty 0 4
- login authentication default
- authorization exec default
+ login authentication default
+ authorization exec default
 
 show tacacs
 debug tacacs
@@ -314,15 +314,15 @@ debug tacacs packets
 ```
 tacacs-server host 1.1.1.1 single-connection port 49 timeout 5 key cisco
 tacacs server TACACS
- address ipv6 1::1
- key cisco
- timeout 5
- single-connection
+ address ipv6 1::1
+ key cisco
+ timeout 5
+ single-connection
 
 aaa group server tacacs+ MYTACACS
- server name TACACS
- server 1.1.1.1
- server-private 2.2.2.2 single-connection port 49 timeout 5 key cisco
+ server name TACACS
+ server 1.1.1.1
+ server-private 2.2.2.2 single-connection port 49 timeout 5 key cisco
 
 aaa authentication login default group MYTACACS local
 aaa authorization exec default group MYTACACS local
@@ -348,19 +348,19 @@ show access-list compiled
 
 ```
 ip access-list standard VTY_IN
- 10 permit host 192.168.0.1
- 99 deny any log
+ 10 permit host 192.168.0.1
+ 99 deny any log
 
 ip access-list standard VTY_OUT
- 10 permit host 192.168.0.2
- 99 deny any log
+ 10 permit host 192.168.0.2
+ 99 deny any log
 
 ip access-list logging interval 1
 ip access-list log-update threshold 1  
 
 line vty 0 4
- access-class VTY_OUT out
- access-class VTY_IN in
+ access-class VTY_OUT out
+ access-class VTY_IN in
 ```
 
 ## Dynamic
@@ -385,7 +385,7 @@ ip access-list extended DYNAMIC
  access-list dynamic-extended
 
 int fa0/0
- ip access-group DYNAMIC in
+ ip access-group DYNAMIC in
 ```
 
 ## IPv6
@@ -2474,8 +2474,6 @@ router eigrp EIGRP
    fast-reroute per-prefix all
 ```
 
-  
-
 ## Route-Tags
 **Route Tag Enhancements**
 - The route tag enhancements allow the route tag to be formatted as a dotted decimal tag.
@@ -2705,4 +2703,1603 @@ interface virtual-template 1
  ppp chap hostname R2
  ppp chap password cisco
  ppp authentication pap
+```
+
+# IP Routing
+**Administrative Distance and Route Selection**
+- Hardcoded original administrative distance will win if different routing protocols are configured to use the same AD.
+- The metrics between different routing protocols or different routing processes are not compared in the route selection.
+- When receiving the same route from different OSPF  processes with the same AD, the route learned first wins.
+- OSPF does not differentiate between internal and external routes to the same destination. Only the AD matters.
+- When receiving the same route from different EIGRP ASs with the same AD, the route from the lower AS wins.
+
+**IP Source-Routing**
+- Allows the originator of a packet to decide which routers the packet will flow through.
+- Basically a custom path of all hops specified at the source and set in the actual IP header by the source.
+- Enabled by default but is a security risk. Disable with no ip source-route command.
+
+**IP Accounting**
+- Counts the number of IP packets and logs source/destination.
+- Only works for transit egress traffic, not local traffic.
+
+```
+int fa0/0
+ ip accounting output-packets
+
+show ip accounting
+```
+
+**IP Redirects**
+- ICMP redirect messages are send by default when routers have to forward a packet on the same interface it was received.
+- Routers will notify hosts of better next-hop through redirects.
+
+```
+int fa0/0
+ no ip redirects
+ no ipv6 redirects
+```
+
+**IP Unreachables**
+- By default the router will respond with an IP unreachable ICMP message in case the neighbor router pings an unknown address.
+- Disable to block UDP port scans. These have a destination of an unused or unreachable UDP port.
+- IP packets for unknown destinations are sent to null0. Disable redirects for unknown traffic on the null0 interface.
+- Other interfaces will still respond with unreachable if traffic is destined to the local interface address.
+
+```
+int fa0/0
+ no ip unreachables  
+ no ipv6 unreachables
+
+int null0
+ no ip unreachables  
+ no ipv6 unreachables
+```
+
+**IP Local Proxy-ARP**
+- Enable proxy of ARP request on the same subnet with the `ip local proxy-arp` interface command.
+- The `ip proxy-arp` feature is for ARP requests to different subnets. Enabled by default.
+- Use in Private-VLANs to allow communication between isolated hosts. Configure on the promiscuous port.
+- Instead of configuring local proxy-arp, you can also statically configured the IP to MAC mappings for individual hosts.
+
+```
+arp 10.0.123.2 abcd.1234.abcd arpa
+arp 10.0.123.3 1234.abcd.1234 arpa
+```
+
+**IP Directed-Broadcast (SMURF)**
+- Disabled by default. Exploited in SMURF attacks.
+- Enable with `ip directed-broadcasts` command on interfaces.
+
+**Gratuitous ARP**
+- Update ARP tables after a MAC address for an IP changes, or a MAC address is now on a different port.
+- Sends special ARP packet when interface goes up to notify other hosts in advance so that ARP requests are not needed.
+- Does not expect a reply. When a reply is received there is an IP address conflict in the network.
+- Used by FHRP to update MAC tables on L2 devices with the virtual MAC address.
+
+**IP Event Dampening**
+- Suppress flapping interface effects on routing protocols and routing tables.
+- Can only be configured on physical interfaces, not on sub-interfaces or virtual-templates.
+
+```
+int fa0/0
+ dampening 5 1000 2000 20
+
+show interfaces dampening
+```
+
+## Redistribution
+Redistribution
+- Redistribution only redistributes routes that are present in the RIB.
+- There is no direct redistribution between protocols.
+- Routing protocol redistribution also redistributes the connected networks that the protocol is enabled for.
+- Include IGP interfaces when filtering redistributed connected routes (loopbacks).
+- Another way to include the connected interfaces is to advertise them into the protocols and optionally configure as passive.
+- OSPF default static route cannot be redistributed with the `redistribute static` command, even if a route-map is specified.
+- Always redistribute the default route into OSPF using the `default-information originate` command.
+
+BGP Redistribution
+- Only internal OSPF routes will be redistributed into BGP by default.
+- A default route learned by an IGP is not redistributed into BGP by default.
+- Advertise the redistributed default route with network 0.0.0.0 mask 0.0.0.0.
+
+```
+ip route profile
+show ip route profile
+debug ip routing
+```
+
+Redistribution using Direct Tags
+
+```
+route-map EIGRP_ROUTES deny 10
+ match tag 90
+route-map EIGRP_ROUTES permit 99
+
+router ospf 1
+ redistribute eigrp 1 subnets tag 90
+  distribute-list route-map EIGRP_ROUTES in
+```
+
+Mutual MultiPoint Redistribution using Prefix-Lists
+
+```
+ip prefix-list OSPF_ROUTES permit 3.0.0.1/32
+ip prefix-list OSPF_ROUTES permit 3.0.0.2/32
+ip prefix-list OSPF_ROUTES permit 3.0.0.3/32
+
+ip prefix-list EIGRP_ROUTES permit 4.0.0.1/32
+ip prefix-list EIGRP_ROUTES permit 4.0.0.2/32
+ip prefix-list EIGRP_ROUTES permit 4.0.0.3/32
+
+route-map EIGRP_TO_OSPF deny 10
+ match ip address prefix-list OSPF_ROUTES
+route-map EIGRP_TO_OSPF permit 20
+ match ip address prefix-list EIGRP_ROUTES
+
+route-map OSPF_TO_EIGRP deny 10
+  match ip address prefix-list EIGRP_ROUTES
+route-map OSPF_TO_EIGRP permit 20
+ match ip address prefix-list OSPF_ROUTES
+
+router eigrp 1
+ redistribute ospf 1 metric 1000000 10 255 1 1500 route-map OSPF_TO_EIGRP
+
+router ospf 1
+ redistribute eigrp 1 metric-type 1 subnets route-map EIGRP_TO_OSPF
+```
+
+**Three-Way Redistribution using Tags**
+
+```
+route-map EIGRP_TO_RIP deny 10
+ match tag 120
+route-map EIGRP_TO_RIP permit 20
+ match tag 110
+ set tag 110
+route-map EIGRP_TO_RIP permit 30
+ set tag 90
+
+route-map RIP_TO_EIGRP deny 10
+ match tag 90
+route-map RIP_TO_EIGRP permit 20
+ match tag 110
+ set tag 110
+route-map RIP_TO_EIGRP permit 30
+ set tag 120
+
+route-map OSPF_TO_RIP deny 10
+ match tag 120
+route-map OSPF_TO_RIP permit 20
+ match tag 90
+ set tag 90
+route-map OSPF_TO_RIP permit 30
+ set tag 110
+
+route-map RIP_TO_OSPF deny 10
+ match tag 110
+route-map RIP_TO_OSPF permit 20
+ match tag 90
+ set tag 90
+route-map RIP_TO_OSPF permit 30
+ set tag 120
+
+route-map OSPF_TO_EIGRP deny 10
+ match tag 90
+route-map OSPF_TO_EIGRP permit 20
+ match tag 120
+ set tag 120
+route-map OSPF_TO_EIGRP permit 30
+ set tag 110
+
+route-map EIGRP_TO_OSPF deny 10
+ match tag 110
+route-map EIGRP_TO_OSPF permit 20
+ match tag 120
+ set tag 120
+route-map EIGRP_TO_OSPF permit 30
+ set tag 90
+
+router eigrp 1
+ redistribute ospf 1 metric 1000000 10 255 1 1500 route-map OSPF_TO_EIGRP
+ redistribute rip metric 1000000 10 255 1 1500 route-map RIP_TO_EIGRP
+
+router ospf 1
+ redistribute eigrp 1 metric-type 1 subnets route-map EIGRP_TO_OSPF
+ redistribute rip metric 1 subnets route-map RIP_TO_OSPF
+
+router rip
+ redistribute eigrp 1 metric 3 route-map EIGRP_TO_RIP
+ redistribute ospf 1 metric 3 route-map OSPF_TO_RIP
+```
+
+## VRF-Lite
+**VRF-Lite**
+- Divide interfaces into VRFs and create separate routing tables.
+- Do not implement L3VPN afterwards, this is why its called VRF-Lite.
+
+```
+vrf definition 10
+ add ipv4
+vrf definition 172
+ add ipv4
+int fa0/0
+ vrf forwarding 10
+ ip add 10.0.12.1 255.255.255.0
+int fa0/1
+ vrf forwarding 10
+ ip add 10.0.13.1 255.255.255.0
+int se1/0
+ vrf forwarding 172
+ ip add 172.0.12.1 255.255.255.0
+int se1/1
+ vrf forwarding 172
+ ip add 172.0.13.1 255.255.255.0
+
+router eigrp EIGRP
+ address-family ipv4 unicast vrf 10 autonomous-system 10
+  no auto-summary
+  network 10.0.12.0 0.0.0.255
+  network 10.0.13.0 0.0.0.255
+address-family ipv4 unicast vrf 172 autonomous-system 172
+  no auto-summary
+  network 172.0.12.0 0.0.0.255
+  network 172.0.13.0 0.0.0.255
+```
+
+Non-VRF neighbors:
+
+```
+router eigrp 10
+  no auto-summary
+  network 10.0.12.0 0.0.0.255
+router eigrp 172
+  no auto-summary
+  network 172.0.12.0 0.0.0.255
+```
+
+# IP services
+**Secure Copy Protocol (SCP)**
+- Requires SSH and AAA Authorization.
+- Has to be enabled on both routers to allow mutual copying.
+
+```
+aaa new-model  
+aaa authentication login default local  
+aaa authorization exec default local
+username bpin privilege 15 password cisco
+ip scp server enable
+
+copy scp://bpin@10.0.12.1/nvram:startup-config null:
+```
+
+**RCMD Remote-Copy (RCP) and Remote-Shell (RSH)**
+- Allow remote users to copy files to router with RCP.
+- Allow remote users to execute commands with RSH.
+- Server side has two names in the rcmd command.
+  - First one must match /user on client.
+  - Second one must match client hostname or client remote-username command.
+  - The enable keyword allows execution of exec commands.
+
+Configure the server:
+
+```
+ip rcmd rcp-enable
+ip rcmd rsh-enable  
+ip rcmd remote-host remoteadmin 10.0.12.2 R2 enable
+```
+
+Configure the client:
+
+```
+ip rcmd remote-username R2
+
+rsh 10.0.12.1 /user remoteadmin show ip interface brief
+copy rcp://remoteadmin@10.0.12.1/nvram:startup-config null:
+```
+
+The boot/service config enables auto-loading of configuration files from a network server:
+
+```
+service config
+ip rcmd remote-username R2
+boot network rcp://10.0.12.1/BOOT
+boot network tftp:BOOT
+```
+
+**Local TFTP-Server**
+- Specify all files that are eligible for TFTP transfer separately.
+- Optionally create an `alias` for the file and limit access.
+
+```
+access-list 1 permit host 192.168.0.2
+tftp-server nvram:startup-config alias STARTUP 1
+```
+
+Configure client:
+
+```
+ip tftp source-interface loopback0
+copy tftp://10.0.12.1/STARTUP null:
+```
+
+**DNS Services**
+- Create individual host entries on the DNS server.
+
+Server:
+
+```
+ip domain-lookup
+ip domain-name lab.local
+ip dns server
+ip host Server1 2.2.2.2
+ipv6 host Server2 2::2
+```
+
+Client:
+
+```
+ip domain-lookup
+ip name-server 1.1.1.1
+ip name-server 1::1
+```
+
+Configuration Generation Performance Enhancement (Parser)
+- Caches interface configuration in memory, thus allowing faster execution of show run, write memory, etc.
+- Enable with the `parser config cache interface` command.
+
+**TCP small servers**
+- Echo (7): Echoes back whatever you type.
+- Chargen (19): Generates a stream of ASCII data.
+- Discard (9): Throws away whatever you type.
+- Daytime (13): Returns system date and time.
+
+```
+telnet 10.0.12.1 19
+```
+
+Terminate on server with:
+
+```
+show tcp brief
+clear tcp tcb <tcb-value>
+```
+
+**UDP small servers:**
+- Echo (7): Echoes the payload of the datagram you send.
+- Discard (9): Silently pitches the datagram you send.
+- Chargen (19): Pitches the datagram you send, and generates a stream of ASCII data.
+
+**Misc. Services**
+The X28 editor is enabled by default:
+
+```
+no service pad
+```
+
+Ensure that abnormally terminated TCP sessions are removed:
+
+```
+service tcp-keepalives-in
+service tcp-keepalives-out
+```
+
+The finger service (TCP port 79) gives line information and is disabled by default:
+
+```
+ip finger
+service finger
+```
+
+## BFD
+**Bidirectional Forwarding Detection (BFD)**
+- Requires CEF, sent unicast to UDP 3784.
+- Only supports asynchronous mode, must be enabled on both sides.
+- Only works for directly connected neighbors, BFD itself has no neighbor detection.
+- Is not tied to any routing protocol, and can be used as a generic and consistent failure detection mechanism.
+- Parts of BFD can be distributed to the data plane (echo), better than reduced IGP timers that exist only at the control plane.
+
+BFD Echo Mode
+- BFD echo packets are are sourced from UDP 3785 and sent to 3785.
+- Enabled by default and can be enabled on either side. Does not work alongside ip redirects or uRPF (or IPv6 on CSR).
+- Echo mode is supported on single-hop only. The packets are sent on the negotiated BFD timer interval.
+- BFD packets are processed in fast switching instead of the control plane.
+- Control plane packets are still sent but they are transmitted at the slow timers speed (1000 ms by default).
+
+BFD Timers
+- The time at which 'hello' messages are sent is configured with the `interval` timer.
+- The `min_rx` timer is the receive timer, if no message is received within this time the neighbor is considered timed-out
+- The `multiplier` specifies how many BFD messages can be missed before neighbor interface is considered down.
+- BFD timers work like EIGRP. The send and receive timer do not have to match on both sides
+- The slower receive timer of the neighbor will decide the value of the local send timer.
+
+```
+bfd slow-timers 1000
+int gi0/0
+ bfd echo
+ bfd interval 500 min_rx 500 multiplier 3
+```
+
+**BFD Authentication**
+
+```
+key chain BFD_KEY
+ key 1
+  key-string cisco
+
+bfd-template single-hop BFD
+ echo
+ interval both 500 multiplier 3
+ authentication md5 keychain BFD_KEY
+
+int gi0/0
+ bfd template BFD
+```
+
+**BFD Static**
+- Static routes that support BFD must specify an egress interface in single-hop mode.
+- The neighbor must point back with a static route, or an unassociated route.
+- Static routes can be dependent on a group. If one location becomes inaccessible the depending (passive) routes are also removed from the routing table.
+
+Configure R1:
+
+```
+ip route static bfd gi0/0 10.0.12.2
+ip route 0.0.0.0 0.0.0.0 gi0/0 10.0.12.2
+```
+
+Configure R2:
+
+```
+ip route static bfd gi0/0 10.0.12.1 unassociate
+```
+
+BFD Static Groups
+
+```
+ip route static bfd gi0/0 10.0.12.2 group BFD
+ip route 33.33.33.0 255.255.255.0 gi0/1 10.0.13.3
+ip route static bfd gi0/1 10.0.13.3 group BFD passive
+```
+
+## CPPr
+**IOS Control Plane**
+- Handles packets that are not CEF switched, meaning the CPU takes time to handle these packets.
+- Maintains keep-alives for routing adjacencies.
+- Handles traffic directed at the device itself (management traffic).
+
+**Control Plane Protection (CPPr)**
+- Framework that consists of traffic classifiers, protection and policing.
+- Improvement over Control Plane Policing (CoPP) by allowing finer policing granularity.
+- Management Plane Protection (MPP) is a part of CPPr and is basically just specifying a `management-interface`.
+- Depends on CEF. When disabled, CPPr is disabled on sub-interfaces but not on the `aggregate` interface.
+
+**Control Plane Interfaces**
+- Host. Handles traffic destined for the router or one of its own interfaces (MGMT, EIGRP, iBGP)
+- Transit. Handles software switched IP traffic.
+- CEF-Exception. Handles non-IP related packets such as OSPF, eBGP, ARP, LDP and CDP (or packets with TTL <=1) .
+- Aggregate interface `<cr>`.  Configuration applied here applies to all the sub-interfaces.
+- It is not possible to apply a L3 policy-map to the `aggregate` and any of the other interfaces at the same time.
+- A L3 policy-map applied to the control plane can only use `police` or `drop`, not shape...etc.
+- The `port-filter` keyword polices packets going to closed/non-listening TCP/UDP ports.
+- The `queue-threshold` keyword limits the number of protocol packets that are allowed in the input queue.
+  - Rate limit OSPF and eBGP on the `cef-exception` sub-interface, iBGP on the `host` and EIGRP on the `aggregate`.
+
+Police all ICMP traffic:
+
+```
+ip access-list extended ICMP_ACL
+ permit icmp any any
+
+class-map match-all ICMP_CM
+ match access-group name ICMP_ACL
+policy-map ICMP_PM
+ class ICMP_CM
+  police 10000 conform-action transmit exceed-action drop
+
+control-plane host
+ service-policy input ICMP_PM
+```
+
+Drop connections to closed ports:
+
+```
+class-map type port-filter match-all CLOSED_PORTS_CM
+ match closed-ports
+
+policy-map type port-filter CLOSED_PORTS_PM
+ class CLOSED_PORTS_CM
+  drop
+
+control-plane host
+ service-policy type port-filter input CLOSED_PORTS_PM
+```
+
+Queue SNMP traffic to 75 and any other open UDP/TCP ports to 100:
+
+```
+class-map type queue-threshold SNMP_CM
+ match protocol snmp
+class-map type queue-threshold HOST_CM
+ match host-protocols
+
+policy-map type queue-threshold QUEUE_PM
+ class SNMP_CM
+  queue-limit 75
+ class HOST_CM
+  queue-limit 100
+
+control-plane host
+ service-policy type queue-threshold input QUEUE_PM
+```
+
+Rate limit EIGRP traffic (requires egress direction):
+
+```
+ip access-list extended EIGRP
+permit eigrp any any
+
+class-map match-all EIGRP_CM
+ match access-group name EIGRP
+
+policy-map EIGRP_PM
+ class EIGRP_CM
+  police 10000 conform-action transmit exceed-action drop
+
+control-plane
+ service-policy output EIGRP_PM
+```
+
+**Management Plane Protection (MPP)**
+Multiple interfaces can be specified for different protocols:
+
+```
+control-plane host
+ management-interface fa0/0 allow ssh
+ management-interface fa0/1 allow snmp
+```
+
+## DHCPv4
+DHCP Messages
+
+| Сообщение  | Описание  |
+|---|---|
+|DHCPDiscover|Sent by client to 0.0.0.0 to find a DHCP server (broadcast).|
+|DHCPOffer|Response to client with DHCP server information and IP address assignment (unicast or broadcast).|
+|DHCPRequest|Sent by client in response to DHCPOffer, client accepts IP address assignment (broadcast).|
+|DHCPAcknowledge|Acknowledgement by the DHCP server (unicast or broadcast).|
+
+The DHCPOFFER and DHCPACK are sent broadcast by default. Disable with the `no ip dhcp-client broadcast-flag` command.
+
+Disable DHCP and do not reply to Bootstrap Protocol request packets received:
+
+```
+no service dhcp
+ip dhcp bootp ignore
+```
+
+**DHCP Conflict Logging**
+Similar function to excluded-addresses. Logs conflicts with a syslog message and stores the address on an exclusion list.
+ - Conflicted addresses are stored and need clearing or restart to become usable again.
+ - Enabled by default. Disable with the `no ip dhcp conflict logging` command.
+
+```
+service dhcp
+no ip dhcp conflict logging
+ip dhcp excluded-address 10.0.123.1 10.0.123.99
+ip dhcp excluded-address 10.0.123.200 10.0.123.254
+ip dhcp pool DHCP
+ default-router 10.0.123.1
+ network 10.0.123.0 /24
+ dns-server 192.168.0.1
+
+int fa0/0
+ no ip dhcp-client broadcast-flag
+ ip address dhcp
+```
+
+**DHCP Reservation**
+Cisco routers use the Client-Identifier to identify themselves.
+ - This is a combination of the hardware address, interface name and cisco.
+ - This client-identifier is then turned into a HEX string and presented to the server.
+ - Add 00 to the beginning of a client-identifiers hex string.
+ - The easiest way to acquire the client-identifier is by first giving out a regular DHCP address and debug ip dhcp server packets.
+
+```
+ip dhcp pool R2
+ host 10.0.123.2 /24  
+ client-identifier 0063.6973.636f.2d63.6130.332e.3065.3434.2e30.3030.382d.4661.302f.30
+ip dhcp pool R3
+ host 10.0.123.3 /24  
+ client-identifier 0063.6973.636f.2d63.6130.342e.3138.6638.2e30.3030.382d.4661.302f.30
+```
+
+**DHCP Relay Agent and Information Option 82**
+ - Relay agents receive DHCP messages and then generate a new DHCP message to send out on another interface.
+ - DHCP option 82 (relay information option) identifies hosts by both the MAC-Address and the switchport. Disabled by default on routers, enabled by default on switches. It allows DHCP relays to inform the DHCP server where the original request came from.
+ - The reply from the server is forwarded back to the client after removing option 82.
+ - Enable the option with either the global or interface level command, `ip dhcp relay information` option. (interface takes preference)
+
+```
+service dhcp
+int fa0/0
+ description CLIENTS
+ ip helper address 10.0.12.1
+```
+
+A DHCP relay agent may receive a message from another DHCP relay agent that already contains relay information (Relayed twice).
+ - By default, the relay information from the previous agent is replaced. Customize with `ip dhcp relay information policy` command.
+ - If the information policy is changed, also disable the information check with the `no ip dhcp relay information check` command.
+
+## EEM
+Embedded Event Manager (EEM)
+ - The `skip` keyword prevents the command from being executed. Default is `skip no`.
+ - The `sync` keyword runs the script before the command. Default is `sync yes`.
+ - `_exit_status 1` means that the command is run.
+ - `_exit_status 0` means that the command is skipped.
+ - `$_cli_result` is the outcome of a cli command that was executed, can be pasted into the console with the `puts` keyword.
+ - `$_cli_msg` is the pattern matched with the event keyword. Can be pasted into the console with the `syslog msg` keyword.
+ - The cli command is not executed until the EEM policy exits.
+
+```
+show event manager policy registered
+debug event manager action cli
+debug event manager action mail
+```
+
+**EEM Examples**
+
+Disable show running-config command:
+
+```
+event manager applet DIS_SH_RUN
+ event cli pattern "show run" skip yes sync no
+ action 1.0 cli command "enable"
+ action 1.1 syslog msg "$_cli_msg not executed, function disabled"
+ action 1.2 mail server ....
+```
+
+Hide interfaces from the running configuration:
+
+```
+event manager applet SH_RUN_NO_INT
+ event cli pattern "show run" sync yes
+ action 1.0 syslog msg "$_cli_msg executed"
+ action 1.1 cli command "enable"
+ action 1.2 cli command "show run | section exclude interface"
+ action 1.3 puts "$_cli_result"
+```
+
+Re-enable manually shut down interfaces:
+
+```
+event manager applet NO_SHUT_INT
+ event syslog pattern "Interface FastEthernet0/0, changed state to administratively down"
+ action 1.0 cli command "enable"
+ action 1.1 cli command "configure terminal"
+ action 1.2 cli command "interface Fa0/0"
+ action 1.3 cli command "no shut"
+```
+
+Print confirmation to the terminal:
+
+```
+event manager applet WRITE_MEMORY
+ event cli pattern "write memory" sync yes
+ action 1.0 syslog msg "$_cli_msg Command Executed"
+ set 2.0 _exit_status 1
+```
+
+Disable OSPF and EIGRP:
+
+```
+event manager applet DIS_OSPF_EIGRP
+ event cli pattern "router [eEoO].*" sync no skip yes
+ action 1.0 syslog msg "Routing protocols OSPF and EIGRP have been disabled"
+```
+
+Send ICMP requests based on tracking object:
+
+```
+event manager applet TRACK_1_DOWN
+ event syslog pattern "1 ip sla 1 state Up->Down"
+ action 1.0 syslog msg "IP SLA 1 Transferred to Down State, Testing ICMP"
+ action 1.1 cli command "enable"
+ action 1.2 cli command "ping 10.0.12.2 repeat 5 time 1"
+ action 1.3 syslog msg "ping 10.0.12.2 repeat 5 time 1"
+ action 1.4 puts "$_cli_result"
+
+event manager applet TRACK_1_UP
+ event syslog pattern "1 ip sla 1 state Down->Up"
+ action 1.0 syslog msg "IP SLA 1 Returned to UP State, Testing ICMP"
+ action 1.1 cli command "enable"
+ action 1.2 cli command "ping 10.0.12.2 repeat 5 time 1"
+ action 1.3 syslog msg "ping 10.0.12.2 repeat 5 time 1"
+ action 1.4 puts "$_cli_result"
+```
+
+Or:
+
+```
+event manager applet TRACK_1_DOWN
+ event track 1 state down
+ ...
+```
+
+Periodically send output to the console:
+
+```
+ip sla 1
+ udp-jitter 192.168.0.2 16384 codec g729a
+  frequency 5
+
+event manager applet IP_SLA_1
+ event timer watchdog time 3600
+ action 1.0 cli command "show ip sla statistics 1"
+ action 1.2 puts "$_cli_result"
+ action 1.3 mail ...
+```
+
+Create a log message based on added routes (does not disable function):
+
+```
+event manager applet STATIC_ROUTES
+ event routing type add protocol static network 0.0.0.0/0  le 32
+ action 1.0 syslog msg "Static routes are not allowed, notifying admin"
+ action 1.1 mail server ....
+```
+
+## EPC
+**Old Method**
+Association (and disassociation) are actions that can be performed in order to bind a capture point to a capture buffer.
+ - A capture point can only be associated with one capture buffer (an ACL filter can also be applied).
+ - A capture buffer can be associated with many capture points.
+ - A buffer can collect data from many points but a point can send data to only one buffer.
+ - Capture local traffic with the `monitor capture point ip process-switched LOCAL from-u`s command.
+
+```
+monitor capture buffer BUFFER
+monitor capture point ip cef PCAP fa0/0 both
+monitor capture point associate PCAP BUFFER
+
+show monitor capture buffer BUFFER dump
+show monitor capture buffer BUFFER parameters
+show monitor capture point PCAP
+
+monitor capture buffer BUFFER export
+```
+
+New Method
+
+```
+monitor capture PCAP match any int gi0/0 both
+monitor capture PCAP start
+
+show monitor capture PCAP
+
+monitor capture PCAP export
+```
+
+## IPCP
+**Internet Protocol Control Protocol (IPCP)**
+ - IPCP relies on PPP.
+ - IOS ignores mask requests and offers. This is a problem when running RIP.
+ - Use PPPoE with import IPCP into DHCP to acquire the correct mask.
+ - Disable `validate-update source` in RIP when using IPCP.
+
+```
+ip local pool IPCP 10.0.12.2
+int se1/0
+ ip add 10.0.12.1 255.255.255.0
+ encapsulation ppp
+ peer default ip address pool IPCP
+ peer default ip address 10.0.12.2
+ ppp ipcp mask 255.255.255.0
+ peer neighbor-route
+
+int se1/0
+ encapsulation ppp
+ ip address negotiated
+ ppp ipcp mask request
+ peer neighbor-route
+ no shut
+
+router rip
+ no auto
+ version 2
+ network 10.0.12.0
+ network 192.168.0.0
+ no validate-update source
+```
+
+**Import IPCP subnet settings to local DHCP**
+ - This will allow the import of the correct subnet mask.
+ - The imported IPCP pool will always start at the first address (.1) even if only a single address is specified in the pool.
+ - This will ignore additional IPCP settings, such as the default route installed through IPCP.
+
+```
+ip dhcp pool LOCAL
+ import all
+ origin ipcp
+
+int se1/0
+ encapsulation ppp
+ ppp ipcp mask request
+ no ppp ipcp route default
+ no ip add negotiated
+ ip add pool LOCAL
+```
+
+## IRDP
+ICMP Router Discovery Protocol (IRDP)
+ - Allows routers to discover gateways.
+ - IP routing has to be disabled on client.
+
+```
+int fa0/0
+ ip irdp
+ ip irdp maxadvertinterval 30
+ ip irdp minadvertinterval 10
+ ip irdp holdtime 90
+ ip irdp preference 200
+
+show ip irdp fa0/0
+```
+
+Client:
+
+```
+no ip routing
+ip gdp irdp
+```
+
+## FHRP
+**Hot Standby Router Protocol (HSRP)**
+ - Preemption is disabled by default.
+ - Highest priority router is active, if priority is equal the highest IP-address wins.
+ - Hello timer is 3 seconds by default, and hold timer is 10 seconds by default.
+
+|   |   |   |   |
+|---|---|---|---|
+|HSRPv1|0000.0c07.acXX|UDP 1985|224.0.0.2|
+|HSRPv2|0000.0C9F.F000 through 0000.0C9F.FFFF|UDP 1985|224.0.0.102|
+|HSRPv6|0005.73A0.0000 through 0005.73A0.0FFF|UDP 2029|FF02::66|
+
+XX = Group number in HEX
+
+**Virtual Router Redundancy Protocol (VRRP)**
+ - Preemption is enabled by default.
+ - Highest priority router is active, if priority is equal the highest IP-address wins.
+ - Advertisement interval (hello timer) is 1 second by default, automatically sets the hold-timer to 3x hello.
+ - IPv6 VRRP requires version3.
+
+|   |   |   |   |
+|---|---|---|---|
+|VRRPv2|0000.5e00.01XX|UDP 112|224.0.0.18|
+|VRRPv3|0000.5e00.01XX|UDP 112|FF02::12|
+
+XX = Group number in HEX
+
+```
+fhrp version vrrp v3
+int fa0/0
+ vrrp 1 address-family ipv6
+  address 2001:10:0:12::254/64
+  address fe80::254 primary
+```
+
+**Gateway Load Balancing Protocol (GLBP)**
+ - AVG preemption is disabled by default.
+ - AVF preemption is enabled by default, with a delay of 30 seconds. Useful when preempting lower weighted routers.
+ - Highest priority router is AVG, if priority is equal the highest IP-address wins.
+ - Hello timer is 3 seconds by default, and hold timer is 10 seconds by default.
+ - Up to 4 AVF per group, this includes the AVG.
+
+|   |   |   |   |
+|---|---|---|---|
+|GLBP|0007.b400.XXYY|UDP 3222|224.0.0.102|
+|GLBPv6|0007.b400.XXYY|UDP 3222|FF02::66|
+
+XX = Group number in HEX
+YY = AVF number
+
+**GLBP Load-Balancing and Weighting**
+- Host-dependent. Same AVF is used for the same host (based on mac address).
+- Round-robin. Default. Each AVF is used in turn.
+- Weighted. Dependent on the weighting value.
+  - The maximum weighting value is the default 'normal' value (100 by default).
+  - If devices go below the lower weighting value, they lose their AVF status (1 by default)
+  - If devices go above the upper weighting value, they regain their AVF status after a loss (same as maximum by default)
+
+Device will lose AVF status if only 1 tracking object is up. Will regain status if 2/3 tracking objects are up:
+
+```
+int fa0/0
+ glbp 1 load-balancing weighted
+ glbp 1 weighting 100 51 74
+ glbp 1 weighting track 1 decrement 25
+ glbp 1 weighting track 2 decrement 25
+ glbp 1 weighting track 3 decrement 25
+```
+
+**GLBP Redirection**
+ - Redirect timer is 10 minutes, timeout timer is 4 hours by default.
+
+In case of an unreachable AVF the AVG redirects traffic:
+ - During redirecting time, the AVG points a new AVF for any new request with old virtual MAC address.
+ - After the redirect timer expires, the AVG stops pointing a new AVF for any new request with old virtual MAC address.
+ - Hosts that using old mac-address can get responses and are able to use old mac address until the timeout timer expires.
+ - If the AVF doesn't return until the timeout timer expires, all GLBP peers flush the record of the old MAC address and old AVF.
+
+## KRON
+**Command Scheduler (KRON)**
+ - Only works for exec mode commands, not global or interface configuration commands.
+ - Choose either the `oneshot` or recurr`ing keyword to schedule KRON occurrence once or repeatedly.
+ - The `system-startup` keyword will set the occurrence to be at system startup.
+
+Show routes every 5 minutes:
+
+```
+kron policy-list KRON_POLICY
+ cli show ip route
+
+kron occurrence KRON_OCC in 5 recurring
+ policy-list KRON_POLICY
+
+sh kron schedule
+debug kron all
+```
+
+## Logging
+**Archive Log**
+
+Configure archiving and optionally log commands to syslog:
+
+```
+archive
+ log config
+  logging enable
+  notify syslog
+  exit
+alias exec sal show archive log config all provisioning
+```
+
+**Archive Config**
+Configure archiving of configs to TFTP server:
+
+```
+archive
+ path tftp://192.168.10.1/archive
+
+archive config
+
+show archive
+show archive config differences
+```
+
+**Logging**
+ - Logging to the console and or buffer might be disabled in the lab. Verify with the `show run all | i logging` command.
+ - Show timestamps (on by default) on debug messages with the `service timestamps debug datetime` command.
+ - Show timestamps (on by default) on log messages with the `service timestamps log datetime` command.
+ - Show sequence numbers (off by default) on log messages with the s`ervice sequence-numbers` command.
+
+Enable logging:
+
+```
+logging console guaranteed 
+logging buffered 8192 debugging
+logging console debugging
+logging monitor debugging
+logging on
+```
+
+History
+
+```
+show run all | i history
+show history
+```
+
+Reset history:
+
+```
+term history 0
+term history 10
+```
+
+## NetFlow
+NetFlow Versions
+
+| Версия  | Описание  |
+|---|---|
+|5|NetFlow v5 is fixed format, cannot be extended or added to. IPv4 only.<br>Added BGP AS information and sequence numbers.<br>Exports data from main cache only. |
+|8|Added support for data export from aggregation caches.|
+|9|NetFlow v9 can add additional information to flows, template based.<br>Added support for MPLS, BGP next-hop and IPv6 headers.<br>Exports data from main and aggregation cache. |
+
+**NetFlow IP Flows**
+- NetFlow Requires CEF in order to function.
+- In original NetFlow if all of characteristics match, they're considered the same flow.
+- An IP Flow can be characterized by a set of 5 and up to 7 packet attributes:
+  - Source / destination IP address
+  - Source / destination port
+  - L3 protocol type
+  - Class of Service
+  - Router or switch interface
+
+**NetFlow Collector**
+ - NetFlow Collector = NetFlow server.
+ - The Collection Engine (local) sends NetFlow data to the collector with 1.5% export data overhead.
+ - The NetFlow Cache creates cache entries (flow records) for every active flow.
+ - Flow records store IP flow information.
+ - NetFlow export, unlike SNMP polling, pushes information periodically to the collector.
+ - Flows that have terminated or expired (Based on cache) are exported as well.
+
+NetFlow v5
+ - NetFlow v5 does not have a concept of 'ingress' and 'egress' flows.
+ - The collector engine reverses the information behind the scenes without any additional configuration.
+ - The ip route-cache flow command is the old way of configuring NetFlow. This is called the Flow fast-switching cache.
+ - The old command will also enable NetFlow on all sub-interfaces, the newer command does not.
+
+```
+int fa0/0
+ description Inside
+ ip flow ingress
+
+int fa0/0
+ description Outside
+ ip flow ingress
+
+show ip flow interface
+show ip cache flow
+```
+
+NetFlow v9
+ - NetFlow v9 introduces the 'egress' flows concept.
+ - With egress, it is possible to configure ingress and egress on the same interface and capture both traffic directions.
+ - Multicast traffic can't be effectively matched on ingress.
+ - Ingress calculates before compression, this is a problem if WAN links are using compression of packets.
+ - Egress calculates flows after compression.
+ - Configuring NetFlow v9 with the egress keyword uses a default template behind the scenes.
+ - Only when templates are specified Flexible NetFlow is being used.
+
+```
+int fa0/0
+ description Inside
+ ip flow ingress
+
+int fa0/0
+ description Outside
+ ip flow egress
+```
+
+Export flows to collector:
+
+```
+ip flow-export destination 1.1.1.1 9995
+ip flow-export version 9
+ip flow-export source loopback 0
+
+show ip flow export
+```
+
+**NetFlow Aggregation Cache (v8 and v9)**
+ - Enables specification of which type of flows will be exported to the collector.
+ - All flows are still captured on the device (using v5 or v9) but only when flows are exported they are filtered.
+
+Only export flow entries that have a /32 mask:
+
+```
+ip flow-aggregation cache destination-prefix
+ cache entries 1024
+ export version 9
+ export destination 2.2.2.2 9995
+ mask destination minimum 32
+ enabled
+
+show ip cache flow aggregation destination-prefix
+```
+
+**NetFlow Top Talkers**
+ - Useful if no collector server is present to analyze data flows.
+ - Shows top talkers based on bytes or packets.
+
+```
+ip flow-top-talkers
+ top 10
+ sort by packets
+
+show ip flow top-talkers
+```
+
+**NetFlow Sampler**
+ - Sampled mode lets you collect only for a subset of traffic.
+ - Can be linked directly to the interface, or be part of a `policy-map`.
+ - Can not be used alongside the `ingress` command. Either capture all flows or a subset of flows.
+
+```
+flow-sampler-map RANDOM
+ mode random one-out-of 10
+
+int fa0/0
+ flow-sampler RANDOM
+
+show flow-sampler
+```
+
+Add a sampler to a policy-map and match one out of 10 ICMP packets:
+
+```
+flow-sampler-map RANDOM
+ mode random one-out-of 10
+flow-sampler-map ONE_ONE
+ mode random one-out-of 1
+
+class-map match-all ICMP
+ match protocol icmp
+
+policy-map SAMPLER
+ class ICMP
+  netflow-sampler RANDOM
+ class class-default
+  netflow-sampler ONE_ONE
+
+int fa0/0
+ service-policy input SAMPLER
+```
+
+**Flexible NetFlow (FNF)**
+Consists of three parts:
+ - Flow Records, which set key and non-key fields.
+ - Flow Exporter, which details where and how to send the exports.
+ - Flow Monitors, which match the flow records and exporters, and are then applied to an interface.
+
+```
+flow exporter FNF_EXPORT
+ destination 1.1.1.1
+ transport udp 9995
+ export-protocol netflow-v9
+
+flow monitor FNF
+ record netflow ipv4 original-input
+ exporter FNF_EXPORT
+
+int fa0/0
+ ip flow monitor FNF input
+
+show flow exporter
+show flow monitor FNF cache format table
+```
+
+**FNF Sampler**
+
+```
+sampler FNF_SAMPLER
+ mode random 1 out-of 10
+
+int fa0/0
+ ip flow monitor FNF sampler FNF_SAMPLER input
+
+show sampler
+```
+
+## NTP
+**Network Time Protocol (NTP)**
+ - NTP Peers can both act as either a client or a server at the same time and offer bidirectional synchronization.
+ - When the connection to the NTP server fails, the peer will be regarded as the new server.
+ - Masters on older IOS versions (12.4) use the 127.127.7.1 local address to peer with itself.
+ - Newer IOS versions use the 127.127.1.1 local address.
+ - The source local address is always one stratum lower than the configured value. Default configured stratum is 8.
+ - Stratum is the tie-breaker. If two servers offer the same stratum, the prefer keyword can be added to prefer one over the other.
+
+```
+ntp master 8
+ntp server 192.168.0.1 prefer
+ntp peer 192.168.0.2
+
+show ntp status     
+show ntp association detail
+debug ntp packet
+debug ntp events
+```
+
+The `offset value` is the time difference in milliseconds between the local clock and the NTP server's reference clock.
+ - The offset must be < 1000 msec (1 second) off in order for the server to be considered sane.
+ - NTP does not shift the clock instantaneously, instead the router slowly drifts towards the time.
+ - If the offset value between the client and the server is large, this process can take a long time.
+ - After the offset value is < 1 second off, the router will adjust its stratum from 16 (infinite) to the appropriate stratum.
+
+Time Zones
+ - NTP updates are always sent in UTC/GMT.
+ - EU and US summer time dates are different. Default is US, configure with clock summer-time US recurring.
+ - US summer time begins second Sunday in March, ends first Sunday in November.
+ - EU summer time begins last Sunday in March, ends last Sunday in October.
+
+```
+clock timezone CaPc -8
+clock summer-time US recurring 2 Sun Mar 02:00 First Sun Nov 02:00
+clock summer-time EU recurring Last Sun Mar 02:00 Last Sun Oct 02:00 
+```
+
+**NTP Authentication**
+ - The client authenticates the server, it is more important to receive time from the correct source over giving time to devices.
+ - Other NTP clients will still be able to request time without authentication.
+
+```
+ntp trusted-keys 1
+ntp authenthication-key 1 md5 cisco
+```
+
+Client:
+
+```
+ntp authenthication-key 1 md5 cisco
+ntp trusted-keys 1
+ntp authenticate
+ntp server 192.168.0.1 key 1
+```
+
+**NTP Access Control**
+ - Control messages (queries) are for reading and writing internal NTP variables and status information. Not synchronization.
+ - NTP request/update messages are used for actual time synchronization.
+ - The `serve-only` keyword allows only time requests from NTP clients.
+ - The `peer` keyword allows time requests and NTP control queries from clients. But also allows bidirectional synchronization.
+ - Masters on older IOS versions (12.4) need to specifically allow peering with the own loopback address (127.127.7.1).
+ - Access-groups associated with access types are scanned in the order most permissive to most restrictive. Peer -> Serve-Only.
+  - This means that denying a client in `serve-only` but allowing with `peer`, the client will still be able to peer.
+
+```
+ntp master
+access-list 1 deny host 192.168.0.2
+access-list 2 permit host 192.168.0.2
+ntp access-group serve-only 1
+ntp access-group peer 2
+
+access-list 127 permit host 127.127.7.1
+ntp access-group peer 127
+```
+
+**NTP Broadcast and Multicast**
+ - Default multicast address is 224.0.1.1.
+
+```
+int fa0/0
+ ntp broadcast
+ ntp broadcast destination 10.0.12.2
+ ntp multicast 224.0.1.1
+```
+
+Client:
+
+```
+int fa0/0
+ ntp broadcast client
+ ntp multicast client
+```
+
+## PPP
+PPP Authentication
+ - The router that enables PPP authentication requests credentials from the remote router.
+ - The credentials supplied by the remote router has to match the local user database.
+ - Local authentication is based on usernames.
+ - EAP requires the addition of the `local` keyword to authenticate using the local database.
+ - PPP usernames can still be used for line management. Use the `username PPP-USER autocommand logout` to prevent this.
+
+R1 requests CHAP from R2:
+
+```
+username R2 password cisco
+username R3 password cisco
+int se1/0
+ encapsulation ppp
+ ppp authentication chap
+ ppp pap sent-username R1 password cisco
+```
+
+R2 requests PAP from R1:
+
+```
+username R1 password cisco
+int se1/0
+ encapsulation ppp
+ ppp chap hostname R2
+ ppp chap password cisco
+ ppp authentication pap
+
+show users
+who
+debug ppp authentication
+```
+
+**AAA Authentication for PPP**
+ - When using AAA the `autocommand` will only function if `aaa authorization` is also configured.
+ - Preferably use a private Radius or Tacacs+ server in combination with PPP authentication.
+
+R1 requests EAP from R2 and authenticates using Radius:
+
+```
+aaa new-model
+aaa group server radius MYRADIUS
+ server-private 1.1.1.1 timeout 5 retransmit 0 key cisco
+
+aaa authentication ppp PPP_R1_R2 group MYRADIUS local
+aaa authorization exec default group MYRADIUS local
+username R2 password cisco
+username R2 autocommand logout
+int se1/0
+ encapsulation ppp
+ ppp authentication eap PPP_R1_R2
+ ppp eap local
+ ppp chap hostname R1
+ ppp chap password cisco
+
+show aaa servers
+show radius server-group all
+debug radius
+```
+
+R2 requests MS-CHAP-V2 from R2 and authenticates using Tacacs+:
+
+```
+aaa new-model
+aaa group server tacacs+ MYTACACS
+ server-private 2.2.2.2 single-connection key cisco
+
+aaa authentication ppp PPP_R1_R2 group MYTACACS local-case
+aaa authorization exec default group MYTACACS local
+username R1 password cisco
+username R1 autocommand logout
+int se1/0
+ encapsulation ppp
+ ppp eap identity R2
+ ppp eap password cisco
+ ppp authentication ms-chap-v2 PPP_R1_R2
+
+show aaa servers
+show tacacs private
+debug tacacs
+debug tacacs events
+debug tacacs packets
+```
+
+**Multilink PPP (MLPPP)**
+ - Uses a fragmentation scheme where large packets are sliced in pieces and sequence numbers are added using headers.
+ - Fragments are sent over multiple links and reassembled at the opposite end.
+ - Small voice packets are interleaved with fragments of large packets using a special priority queue.
+
+The `interleave` keyword enables real-time packet interleaving.
+ - Allows large packets to be MLPPP encapsulated and fragmented into a small enough size to satisfy delay requirements.
+
+```
+int multilink 1
+ ppp multilink interleave
+ ppp multilink
+
+int se1/0
+ ppp multilink
+ ppp multilink group 1
+```
+
+## PPPoE
+**PPP over Ethernet (PPPoE)**
+ - PPPoE provides a standard method of employing the authentication methods of PPP over an Ethernet network.
+ - Allows authenticated assignment of IP addresses.
+ - The MTU size is automatically set to 1492 bytes.
+
+**PPPoE IPCP**
+ - IOS ignores mask requests and offers. This is a problem when running RIP.
+ - Use PPPoE with import IPCP into DHCP to acquire the correct mask.
+
+Server:
+
+```
+bba-group pppoe R2
+ virtual-template 12
+int fa0/0
+ pppoe enable group R2
+
+interface Virtual-Template 12
+ description R2
+ ip address 10.0.12.1
+ ip mtu 1492
+ encapsulation ppp
+ ppp authentication chap
+ peer default ip address pool IPCP
+ ppp ipcp mask 255.255.255.0
+
+username R2 password cisco
+ip local pool IPCP 10.0.12.2
+```
+
+Client:
+
+```
+int fa0/0
+  pppoe-client dial-pool-number 12
+
+interface Dialer 1
+ ip address negotiated
+ ip mtu 1492
+ encapsulation ppp
+ ppp chap username R2
+ ppp chap password cisco
+ dialer pool 12
+ ppp ipcp mask request
+ ppp ipcp route default
+```
+
+**PPPoE IPCP with local DHCP**
+ - Import IPCP subnet settings to local DHCP. Will allow the import of the correct subnet mask.
+ - The imported IPCP pool will always start at the default first address (.1) even if only a single address is specified in a pool.
+ - This will ignore additional IPCP settings, such as the default route installed through IPCP.
+ - Requires bouncing of the interfaces if overwriting an existing IPCP configuration.
+
+Client:
+
+```
+ip dhcp pool IMPORT_IPCP
+ import all
+ origin ipcp
+
+int dialer1
+ dialer pool 12
+ ip mtu 1492
+ encapsulation ppp
+ ppp chap username R2
+ ppp chap password cisco
+ ppp ipcp mask request
+ ip address pool IMPORT_IPCP
+
+int fa0/0
+ pppoe-client dial-pool-number 12
+```
+
+**PPPoE DHCP**
+
+Server:
+
+```
+bba-group pppoe R2
+ virtual-template 12
+int fa0/1
+ pppoe enable group R2
+
+interface Virtual-Template12
+ description R2
+ ip address 10.0.12.1 255.255.255.0
+ ip mtu 1492
+ peer default ip address dhcp-pool DHCP
+ ppp authentication pap
+
+username R2 password cisco
+ip dhcp excluded-address 10.0.12.1
+ip dhcp excluded-address 10.0.12.3 10.0.12.254
+ip dhcp pool DHCP
+ network 10.0.12.0 /24
+ default-router 10.0.12.1
+```
+
+Client:
+
+```
+int fa0/1
+  pppoe-client dial-pool-number 12
+
+interface Dialer 1
+ dialer pool 12
+ ip mtu 1492
+ encapsulation ppp
+ ppp pap sent-username R2 password cisco
+ ip address dhcp
+```
+
+## PBR
+**Policy-Based Routing (PBR)**
+ - The `set ip next-hop` and `set interface` are used unconditionally, meaning that the RIB is not used in case of failure.
+ - The `set ip default next-hop` and `set default interface` apply to the default route and are used before the regular default route.
+ - The idea is to specify an alternate default route for hosts matched in the access-list.
+
+There's an order of operations to PBR set statements. `ip next-hop` -> `interface` -> `ip default next-hop` -> `default interface`.
+ - If the first statement fails the next will be evaluated. Remember that addresses are preferred over interfaces.
+ - The `recursive` keyword can be used to specify a next-hop that is not directly connected.
+ - Only statement 10 is matched in route-maps. Meaning that if there is no match in 10, traffic is routed normally.
+ - For this reason PBR route-maps allow more than one `set` statement in route-map sequences.
+
+```
+ip access-list standard PBR_ACL
+ permit 172.16.0.0 0.0.0.255
+
+route-map PBR permit 10
+ match ip address PBR_ACL
+ set ip default next-hop 10.0.12.2
+ set default interface se1/0
+
+interface fa0/0
+ ip policy route-map PBR
+```
+
+**Local PBR**
+ - Applying the PBR on an interface does not affect traffic locally generated by the router (even when sourcing the interface)
+ - Create an `ip local policy` using loopbacks to policy-route local traffic.
+ - Use extended access-lists to have more granular control over which local traffic is policy routed.
+ - Using standard access-lists will policy route all local traffic.
+
+```
+ip access-list standard PBR_LOCAL_ACL
+ permit host 192.168.0.1
+
+route-map PBR_LOCAL permit 10
+ match ip address PBR_LOCAL_ACL
+ set ip next-hop 10.0.12.2
+ set interface se1/0
+ip local policy route-map PBR_LOCAL
+
+show ip local policy
+```
+
+## SLA
+**TCP Connect**
+ - Control messages communicates the port that will be used from the sender to the receiver (enabled by default).
+ - Disable control packets when using a well-known TCP port (telnet for example). This also does not need a responder.
+ - SLA messages to an unknown port requires a SLA responder at the destination.
+
+```
+ip sla 1
+ tcp-connect 192.168.0.2 23 control disable
+ threshold 500
+ timeout 1000
+ frequency 5
+ip sla schedule 1 life forever start-time now
+
+show ip sla statistics
+show ip sla configuration
+show tcp brief
+```
+
+**IP SLA Responder**
+ - Does not calculate processing time, allowing for more accurate measurements on the speed of the link.
+ - Enable globally with the `ip sla responder` command. General IP SLA responder uses port 1967 for control messages.
+ - Can also be configured to listen on a specific port for UDP or TCP. However this specific port must be configured on both sides. It is not possible to use control messages at sender and specific port at the receiver.
+
+**UPP Echo**
+ - UDP echo always requires a responder at the destination.
+ - If control messages are disabled, the responder must be configured to listen on the specific port (55555 in this case).
+
+Source:
+
+```
+ip sla 1
+ udp-echo 192.168.0.2 55555 control disable
+ threshold 500
+ timeout 1000
+ frequency 5
+ip sla schedule 1 life forever start-time now
+```
+
+Destination:
+
+```
+ip sla responder udp-echo ipaddress 192.168.0.2 port 55555
+
+show ip sla responder
+```
+
+**UDP Jitter**
+ - Per-direction jitter (source to destination and destination to source).
+ - Per-direction packet loss.
+ - Per-direction delay (one-way delay).
+ - Round-trip delay (average round-trip time).
+ - Same as UDP echo, also requires a responder configured at the destination.
+ - Success/failures will only be updated when all packets are analyzed (10 packets are sent by default).
+
+**IP SLA Authentication**
+ - The authentication hash is MD5.
+ - Enabled for all SLAs present on the device.
+ - Only applied on SLAs where both sides need to participate (using a responder).
+
+```cisco
+key chain SLA
+ key 1
+  key-string cisco
+
+ip sla key-chain SLA
+show ip sla authentication
 ```
