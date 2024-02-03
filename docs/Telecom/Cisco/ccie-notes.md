@@ -26,13 +26,14 @@ show ip icmp rate-limit
 
 Traceroute Responses
 
-|   | Описание  |
-|---|---|
-|`*` |The probe timed out|
-|A|Administratively prohibited (ACL)|
-|U|Port unreachable|
-|H|Host unreachable|
-|N|Network unreachable|
+| Ответ | Описание |
+| ---- | ---- |
+| `*` | The probe timed out |
+| A | Administratively prohibited (ACL) |
+| U | Port unreachable |
+| H | Host unreachable |
+| N | Network unreachable |
+
 **Ping**
 - Time exceeded on ping means TTL expired (ICMP Type-11). This is used in traceroute.
 - Specify how often ICMP unreachable messages are sent to neighbors with the `ip icmp rate-limit unreachable` command.
@@ -56,11 +57,12 @@ ICMP types
 
 ICMP Responses
 
-|   | Описание  |
+| Ответ  | Описание  |
 |---|---|
 |!|Reply|
 |.|Timed Out|
 |U|Destination Unreachable|
+
 # AAA
 **Authentication, Authorization and Accounting (AAA)**
 - Place local login before group authentication so that the specified usernames are authenticated first.
@@ -144,6 +146,7 @@ service linenumber
 show users
 show line
 ```
+
 ## Privilege
 **Privilege Access Control**
 - The all keyword specifies the configuration and all underlying sub-configurations.
