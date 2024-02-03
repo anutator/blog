@@ -4303,3 +4303,230 @@ key chain SLA
 ip sla key-chain SLA
 show ip sla authentication
 ```
+
+## SNMP
+**Simple Network Management Protocol (SNMP)**
+- SNMP GET. Allows a NMS to request information from device. (UDP 161)
+- SNMP SET. Allows a NMS to make changes to the device. (UDP 161)
+- SNMP TRAP / INFORM. Directly send urgent information to the NMS. (UDP 162)
+  - TRAP is unacknowledged packet.
+  - INFORM is acknowledged packet.
+- The downside of SNMP set is that the NMS can only poll on intervals, so events may be lost in between polls.
+- INFORMS makes sure that all messages arrive at the NMS (more memory intensive).  The NMS responds with a PDU.
+
+**SNMP Communities**
+- Both v1 and v2 groups are created when configuring a SNMP community.
+- Disable the v1 group with the `no snmp-server group public v1` command.
+- Also disable the Interim Local Management Interface (ILMI) SNMP groups. The ILMI community itself cannot be deleted.
+
+```
+snmp-server community public ro
+no snmp-server group public v1
+no snmp-server group ILMI v1
+no snmp-server group ILMI v2c
+
+show snmp community
+show snmp group
+```
+
+**SNMP Host**
+- Only SNMP Traps will be sent to the host, unless you specify the `inform` keyword.
+- SNMP v1 is the default when not specifying a version.
+
+```
+snmp-server enable traps
+snmp-server host 192.168.0.1 traps version 2c public udp-port 162
+snmp-server host 192.168.0.1 inform version 2c public udp-port 162
+```
+
+**SNMPv3**
+- The SNMP group security level is a minimum allowed security level.
+- The actual security level for the user is defined in the `snmp-server user` command. This is the minimum level for that user.
+- Other users may still connect using the minimum allowed group security level.
+
+| CLI command | Authentication Method | Encryption Support |
+| ---- | ---- | ---- |
+| `noAuthNoPriv` | Username | No encryption |
+| `authNoPriv` | MD5 or SHA | No encryption |
+| `authPriv` | MD5 or SHA | DES, 3DES or AES |
+
+```
+snmp-server group GROUP v3 priv
+snmp-server user USER GROUP remote 192.168.0.1 v3 auth sha cisco priv aes 256 cisco cisco
+snmp-server host 192.168.0.1 informs version 3 priv USER
+
+show snmp user
+show snmp group
+```
+
+**SNMP FIltering**
+
+```
+ip access-list standard SNMP
+ permit host 192.168.0.1
+ deny any log
+
+snmp-server community public ro SNMP
+```
+
+**SNMPv3 FIltering**
+
+```
+ip access-list standard SNMP_USER
+ permit host 192.168.0.1
+ip access-list standard SNMP_GROUP
+ permit 192.168.0.0 0.0.0.255
+
+snmp-server user USER GROUP v3 auth sha cisco priv aes 256 cisco access SNMP_USER
+snmp-server group GROUP v3 priv access SNMP_GORUP
+```
+
+SNMP Engine-ID
+- SNMPv3 user passwords are hashed based on the value of the local Engine-ID.
+- If the Engine-ID changes, the security digests of SNMPv3 users will be invalid, and the users will have to be reconfigured.
+- Trailing zeroes will be added automatically to create 24 characters when changing the Engine-ID.
+
+```
+snmp-server engine-id local 123412341234
+snmp-server engine-id remote 192.168.0.1 123412341234
+```
+
+## System
+**Memory Reservations**
+
+```
+memory free low-watermark processor  
+memory reserve critical
+memory reserve console
+
+show memory console reserved
+```
+
+**CPU Threshold**
+The `rising` and `falling` commands trigger a syslog message when CPU is above/below threshold.
+
+```
+snmp-server enable traps cpu threshold
+process cpu threshold type total rising 50 interval 5 falling 10 interval 5
+```
+
+## TCL
+**TCL Scripting**
+
+```
+tclsh
+foreach X {
+192.168.0.1
+192.168.0.2
+192.168.0.3
+192.168.0.4
+192.168.0.5           
+192.168.0.6
+192.168.0.7            
+192.168.0.8             
+192.168.0.9
+192.168.0.10
+2001:192:168::1
+2001:192:168::2
+2001:192:168::3
+2001:192:168::4
+2001:192:168::5
+2001:192:168::6
+2001:192:168::7
+2001:192:168::8
+2001:192:168::9
+2001:192:168::10
+} { ping $X repeat 100 time 1 source loopback 0}
+```
+
+## Tracking
+**Object Tracking**
+- Interface IP or line-protocol. Track either the line-protocol (up/down) or the presence of an IP address.
+- IP route. Track a route present in the routing table.
+- IP SLA. Track an IP SLA object.
+- List. Combine multiple track objects based on percentage/weight or boolean AND/OR.
+
+Tracking Options
+- State. Up or down (default setting).
+- Reachability. UP or down + within configured threshold (timeout settings).
+
+```
+track 1 int fa0/0 ip routing
+track 2 int fa0/1 line-protocol
+track 3 ip sla 1 state
+track 4 ip route 0.0.0.0/0 reachability
+```
+
+IP route metric threshold:
+- Whatever the metric is will be given a value from 1-255 based on the track resolution.
+- If route metric is under the up threshold, tracking is up.
+- Optionally change resolution of specific routing protocol.
+
+```
+track 5 ip route 0.0.0.0/0 metric threshold
+ metric threshold up 50
+
+track resolution ip route eigrp 2560
+show track resolution
+```
+
+**Combine Track Objects**
+
+Boolean tracking:
+- If both objects up, track 12 is up.
+- If either object is down, track 12 is down.
+
+```
+track 12 list boolean and
+ object 1
+ object 2
+```
+
+Percentage tracking:
+- If two out of three objects are up(66%), track 123 is up.
+- If one out of three objects is up (33%), track 123 is down.
+- Track 123 will stay down until two out of tree objects are back up (66%).
+
+```
+track 123 list threshold percentage
+ object 1
+ object 2
+ object 3
+ threshold percentage up 66 down 33
+```
+
+Weighted tracking:
+- If object 2 is down, track 234 is down.
+- If either object 3 or 4 is down, track 234 is up.
+
+```
+track 234 list threshold weight
+ object 2 weight 100
+ object 3 weight 50
+ object 4 weight 50
+ threshold weight up 150 down 100
+```
+
+**Track Timers**
+- Not every object type is tracked at the same rate.
+- Manually change track timers to allow for faster detection.
+
+```
+track timer ip route 5
+show track timers
+```
+
+## uRPF
+**Unicast Reverse Path Forwarding (uRPF)**
+- Verifies reachability of source address in packets being forwarded. Requires CEF.
+- Use optional ACL to log dropped packets by uRPF, or use it to allow specific subnets that fail the check.
+- With strict mode (`rx`) packets must be received on the interface that the router uses to forward the return packet.
+- With loose mode (`any`) it is only required that the source address appears in the routing table.
+- Use loose mode when asymmetric routing paths are present in the network.
+- The `allow-default` keyword also includes the default route in valid route list.
+- The `allow-self-ping` keyword allows a router to ping itself on that particular interface.
+
+```
+int fa0/0
+ ip verify unicast source reachable-via any allow-default allow-self-ping
+```
