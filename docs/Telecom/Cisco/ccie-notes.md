@@ -1034,7 +1034,7 @@ router bgp 1
  neighbor 10.0.12.2 remote-as 2
  neighbor 10.0.12.2 disable-connected-check
 ```
-  
+
 ## iBGP Peering
 **BGP Internal Routing**
 - Does not replace IGP. No direct connectivity required.
@@ -1881,7 +1881,7 @@ router eigrp DMVPN
  add ipv4 au 123
   network 10.0.123.0 0.0.0.255
 ```
-  
+
 ## Misc
 **DMVPN Encryption**
 - Mode tunnel adds 20 bytes overhead and is only used in a multi-tier DMVPN hub.
