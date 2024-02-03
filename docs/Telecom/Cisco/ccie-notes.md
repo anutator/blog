@@ -4,7 +4,6 @@ share: "true"
 tags:
   - cisco
 ---
-
 # Traceroute / Ping
 **Traceroute**
 - Traceroute has default TTL of 30.
@@ -6582,6 +6581,7 @@ Type 11: Grace LSA (All Routers)
 |Type 3|Request<br>(LSR) |Requests for individual neighbors LSA details. After DBD packets exchange process, the router may find it does not have an up-to-date database. The LSR packet is used to request pieces of neighbor database that is more up-to-date or missing.|
 |Type 4|Update<br>(LSU) |Response to LSR with LSA details. Implement the flooding of LSAs.<br>The local router advertises LSA with an LSU packet to its neighboring routers.<br>The local router also advertises the LSU packet with information in response to an LSR. |
 |Type 5|Acknowledgement<br>(LSAck) |Confirmation of the reception of an LSU in response to an LSR.|
+
 ## Misc
 **OSPF TTL Security**
 - Normally OSPF packets are sent with a TTL of 1 or 2 for directly connected neighbors.
