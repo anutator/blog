@@ -11,13 +11,13 @@ tags:
   - Sends 3 packets with `TTL=1` to first-hop router. FH router responds with time-exceeded (ICMP Type-11).
   - In response sends 3 packets with `TTL=2` to FH router, second-hop router responds with TTL message.
   - Continues until packets arrive at destination, last-hop router responds with unreachable (ICMP Type-3).
-  - The LH router sends back a unreachable message because the destination is an unreachable port.
+  - The LH router sends back a unreachable message because the destination is an unreachable port.
 
 **Traceroute Output**
 The `*` means that ICMP rate limit is enabled at the last-hop router. The default timeout is 500 msec.
 - The reason only the LH router shows this is because intermediate routers send a time exceeded TTL message.
-- The second traceroute packet usually times out because that one is within the 500 msec interval, the third packet is not.
-- The same applies to ping with U.U.U output, the 1st message is sent back as unreachable by the LH router. The 2nd times out because it is within the 500 msec interval, the 3rd is unreachable again and so on ...
+- The second traceroute packet usually times out because that one is within the 500 msec interval, the third packet is not.
+- The same applies to ping with U.U.U output, the 1st message is sent back as unreachable by the LH router. The 2nd times out because it is within the 500 msec interval, the 3rd is unreachable again and so on ...
 
 ```cisco
 ip icmp rate-limit unreachable 500
@@ -84,7 +84,7 @@ aaa authorization exec default if-authenticated
 
 aaa authorization console
 line con 0
- authorization exec default
+ authorization exec default
 ```
 
 ## Lines / SSH
@@ -103,12 +103,12 @@ login block-for 10 attempts 2 within 15
 login quiet-mode access-class QUIET
 
 ip access-list standard QUIET
- permit host 192.168.0.1
+ permit host 192.168.0.1
 ```
 
-Secure Shell (SSH) 
+Secure Shell (SSH) 
 - Enable SSH without ip domain-name by using the label keyword.
-- Normally the first generated RSA key is linked to SSH. Override this with the keypair-name command.
+- Normally the first generated RSA key is linked to SSH. Override this with the keypair-name command.
 
 ```
 crypto key generate rsa modulus 768 label R1.lab.local
@@ -169,7 +169,7 @@ privilege interface level 10 [commands]
 **Radius**
 - By default all defined radius servers will be used if you configure aaa...default group radius.
 - Servers are consulted in the order in which they were configured.
-- Either set default key, timeout and retransmit settings, or per host.
+- Either set default key, timeout and retransmit settings, or per host.
 - Host specific setting will override the default. Default timeout is 5 sec, default retransmit amount is 3 times.
 - Default radius ports are 1645 for authentication and 1646 for accounting (newer ports are 1812 and 1813).
 
@@ -198,7 +198,7 @@ debug radius
 - Group servers to use for a single purpose. For example a group used only for PPP authentication.
 - Grouped private servers do not have to exist in the global config. And are used for a single purpose by a single AAA server group.
 - Grouped public servers have to exist in the global config.
-  - Public servers configured with the tacacs server command, have to be linked with the server name command.
+  - Public servers configured with the tacacs server command, have to be linked with the server name command.
   - Public servers configured with the tacacs-server host command, have to be linked with the server command.
 
 ```
@@ -275,7 +275,7 @@ parser view SUPERVIEW superview
 
 ## Tacacs+
 **Tacacs+**
-- The tacacs-server host command will be replaced by tacacs server. The old-style command has no option for IPv6.
+- The tacacs-server host command will be replaced by tacacs server. The old-style command has no option for IPv6.
 - This new form will only show up after aaa new-model has been configured.
 - The single-connection option will reuse the TCP session. This is more efficient because the tcp session doesn't have to be rebuild.
 - Either set default key and timeout settings, or per host. Host specific setting will override the default. Default timeout is 5 sec.
@@ -310,7 +310,7 @@ debug tacacs packets
 - Group servers to use for a single purpose. For example a group used only for PPP authentication.
 - Grouped private servers do not have to exist in the global config. And are used for a single purpose by a single AAA server group.
 - Grouped public servers have to exist in the global config.
-  - Public servers configured with the tacacs server command, have to be linked with the server name command.
+  - Public servers configured with the tacacs server command, have to be linked with the server name command.
   - Public servers configured with the tacacs-server host command, have to be linked with the server command.
 
 ```
@@ -328,7 +328,7 @@ aaa group server tacacs+ MYTACACS
 
 aaa authentication login default group MYTACACS local
 aaa authorization exec default group MYTACACS local
-aaa accounting commands 15 default start-stop group MYTACACS   
+aaa accounting commands 15 default start-stop group MYTACACS   
 
 show aaa servers
 ```
@@ -358,7 +358,7 @@ ip access-list standard VTY_OUT
  99 deny any log
 
 ip access-list logging interval 1
-ip access-list log-update threshold 1  
+ip access-list log-update threshold 1  
 
 line vty 0 4
  access-class VTY_OUT out
@@ -368,23 +368,23 @@ line vty 0 4
 ## Dynamic
 **Dynamic Access-Lists (Lock-and-Key)**
 - Blocks traffic until users telnet into the router and are authenticated.
-- A single time-based dynamic entry is added to the existing ACL.  
+- A single time-based dynamic entry is added to the existing ACL.  
 - Idle timeouts are configured with the `autocommand`. Absolute timeouts are configured in the ACL.
 - The absolute timeout value must be greater than the idle timeout value, if using both.
 - If using none, the access-list entry will remain indefinitely.
 - It is also possible to set the `autocommand` access-enable host timeout directly on the VTY line.
-- Absolute timers can be extended by 6 minutes using the `access-list dynamic-extended` command. Requires re-authentication.
+- Absolute timers can be extended by 6 minutes using the `access-list dynamic-extended` command. Requires re-authentication.
 
 ```
 username bpin password cisco
 username bpin autocommand access-enable host timeout 4
 
 ip access-list extended DYNAMIC
- 10 permit ospf any any
- 20 permit tcp host 10.0.12.1 host 10.0.12.2 eq telnet
- 30 dynamic ICMP timeout 8 permit icmp host 10.0.12.1 any
- 99 deny ip any any log-input
- access-list dynamic-extended
+ 10 permit ospf any any
+ 20 permit tcp host 10.0.12.1 host 10.0.12.2 eq telnet
+ 30 dynamic ICMP timeout 8 permit icmp host 10.0.12.1 any
+ 99 deny ip any any log-input
+ access-list dynamic-extended
 
 int fa0/0
  ip access-group DYNAMIC in
@@ -398,41 +398,41 @@ int fa0/0
 
 ```
 ipv6 access-list ALLOW_TELNET_OSPF
- sequence 10 permit 89 host FE80::2 any
- sequence 20 permit tcp host 12::2 any eq telnet
- sequence 30 permit icmp any any nd-na
- sequence 40 permit icmp any any nd-ns
- sequence 50 permit icmp any any router-advertisement
- sequence 60 permit icmp any any router-solicitation
- sequence 99 deny ipv6 any any log-input
+ sequence 10 permit 89 host FE80::2 any
+ sequence 20 permit tcp host 12::2 any eq telnet
+ sequence 30 permit icmp any any nd-na
+ sequence 40 permit icmp any any nd-ns
+ sequence 50 permit icmp any any router-advertisement
+ sequence 60 permit icmp any any router-solicitation
+ sequence 99 deny ipv6 any any log-input
 
 int fa0/0
- ipv6 traffic-filter ALLOW_TELNET_OSPF in
+ ipv6 traffic-filter ALLOW_TELNET_OSPF in
 ```
 
 ## Reflexive
 **Reflexive Access-Lists**
 - Only allow return traffic if inside source initiated the traffic.
-- The `reflect` keyword links ACLs together, the `evaluate` entry is dynamically created based on this reflect entry.
+- The `reflect` keyword links ACLs together, the `evaluate` entry is dynamically created based on this reflect entry.
 - By default the dynamic entry will timeout after 60 seconds.
 
 ```
 ip access-list extended TRAFFIC_FROM_R3
- 10 permit ospf any any
- 20 permit icmp host 192.168.0.3 any reflect ICMP
+ 10 permit ospf any any
+ 20 permit icmp host 192.168.0.3 any reflect ICMP
 
 ip access-list extended TRAFFIC_TO_R3
- 10 evaluate ICMP
- 99 deny ip any any log-input
+ 10 evaluate ICMP
+ 99 deny ip any any log-input
 
 ip access-list logging interval 1
 ip access-list log-update threshold 1
 ip reflexive-list timeout 60
 
 int fa0/0
- description LINK_TO_R3
- ip access-group TRAFFIC_FROM_R3 in
- ip access-group TRAFFIC_TO_R3 out
+ description LINK_TO_R3
+ ip access-group TRAFFIC_FROM_R3 in
+ ip access-group TRAFFIC_TO_R3 out
 ```
 
 ## Time-Based
@@ -442,16 +442,16 @@ int fa0/0
 
 ```
 time-range DAILY
- periodic daily 09:00 to 17:00
+ periodic daily 09:00 to 17:00
 
 ip access-list extended ALLOW_ICMP_TIME
- 10 permit ospf any any
- 20 permit icmp host 192.168.0.3 any time-range DAILY
- 30 deny ip any any log-input
+ 10 permit ospf any any
+ 20 permit icmp host 192.168.0.3 any time-range DAILY
+ 30 deny ip any any log-input
 
 int fa0/0
- description LINK_TO_R3
- ip access-group ALLOW_ICMP_TIME in
+ description LINK_TO_R3
+ ip access-group ALLOW_ICMP_TIME in
 ```
 
 # BGP
@@ -529,7 +529,7 @@ This is a well-know, mandatory, transitive attribute that must be present in all
 - Can have an unordered component AS_SET.
 - Used for loop prevention only.
 - Shorter count is better (hop count).
- - Local ASN is added when advertised to an external peer.
+ - Local ASN is added when advertised to an external peer.
 - Can be modified using route-maps.
 - AS Path Prepending.
 - In special cases can be shortened using neighbor "neighbor-ip-address" remove-private-as. This will remove the private AS that is connected to a non-private as from appearing in the AS_PATH. Neighboring AS will assume that the route originated from the non-private AS.
@@ -577,7 +577,7 @@ Can be modified using route-maps.
 - This is an optional, transitive attribute that is comparable to route-tags.
 - Not used for best-path selection.
 - Large number (32 bits) that are conventionally displayed as ASN:ID (for example 64512:100).
-- This notation however must be enabled using the ip bgp-community new-format command.
+- This notation however must be enabled using the ip bgp-community new-format command.
 - This community "tag" is stripped by neighbors by default (even within the same AS). Use neighbor statement with route-maps.
 - Routes can be in multiple communities.
 
@@ -585,7 +585,7 @@ Can be modified using route-maps.
 This is an optional, non-transitive attribute meaning that its not required to pass on when received from another AS.
 
 MED can actually be transitive but only to one neighbor AS, not more.
-- Lower value preferred, but the default value is missing in IOS (treated as 0 which is equal and thus best). This can be modified so that 0 is treated as worst. Use the bgp bestpath med missing-as-worst command.
+- Lower value preferred, but the default value is missing in IOS (treated as 0 which is equal and thus best). This can be modified so that 0 is treated as worst. Use the bgp bestpath med missing-as-worst command.
 - Influences preferred "exit point" when peering with the same AS at multiple locations.
 - Requirements are that WEIGHT, LOCAL_PREF, AS_PATH length and peer AS must be the same. These requirements can also be modified, using the bgp always-compare-med command.
 
@@ -608,21 +608,21 @@ Set by RR by default to the value of the RID. The CLUSTER_ID identifies a group,
 Advertise prefixes based on the existence of other prefixes in the BGP table.
 - Network in the non-exist map has to be present in the BGP table.
 - Possible to advertise default route if another route is present.
-- This does not work with the `default-information originate` command.
+- This does not work with the `default-information originate` command.
 
 ```
 route-map NON_EXIST permit 10
- match ip address prefix-list Lo2
+ match ip address prefix-list Lo2
 route-map ADV_MAP permit 10
- match ip address prefix-list ADV_PREFIX
+ match ip address prefix-list ADV_PREFIX
 
 ip prefix-list ADV_PREFIX permit 192.168.0.1/32
 ip prefix-list Lo2 permit 192.168.0.2/32
 
 router bgp 1
- address-family ipv4
-  network 192.168.0.1 mask 255.255.255.255
-  neighbor 10.0.13.3 advertise-map ADV_MAP non-exist-map NON_EXIST
+ address-family ipv4
+  network 192.168.0.1 mask 255.255.255.255
+  neighbor 10.0.13.3 advertise-map ADV_MAP non-exist-map NON_EXIST
 
 show ip bgp neighbors 10.0.13.3 | i Condition
 ```
@@ -631,9 +631,9 @@ Advertise default:
 
 ```
 route-map EXIST permit 10
- match ip address prefix-list Lo2
+ match ip address prefix-list Lo2
 route-map ADV_MAP permit 10
- match ip address prefix-list ADV_DEFAULT
+ match ip address prefix-list ADV_DEFAULT
 
 ip prefix-list ADV_DEFAULT permit 0.0.0.0/0
 ip prefix-list Lo2 permit 192.168.0.2/32
@@ -641,9 +641,9 @@ ip prefix-list Lo2 permit 192.168.0.2/32
 ip route 0.0.0.0 0.0.0.0 null0
 
 router bgp 1
- address-family ipv4
-  network 0.0.0.0 mask 0.0.0.0
-  neighbor 10.0.13.3 advertise-map ADV_MAP exist-map EXIST
+ address-family ipv4
+  network 0.0.0.0 mask 0.0.0.0
+  neighbor 10.0.13.3 advertise-map ADV_MAP exist-map EXIST
 ```
 
 ## Aggregation
@@ -659,10 +659,10 @@ router bgp 1
 
 The `as_set `keyword preserves the AS_PATH information, meaning that the AS information is not overwritten by the aggregator.
 - In this case the AT_AGGREGATE is not set and the original AS (or multiple AS) is still present in the aggregated route.
-- The `as-confed-set` keyword is the same as as-set, but applies to confederations.
+- The `as-confed-set` keyword is the same as as-set, but applies to confederations.
 
 By default the more specific routes are still advertised to peers in addition to the summary.
-- This behavior can be altered with the summary-only command to not advertise the more specific routes.
+- This behavior can be altered with the summary-only command to not advertise the more specific routes.
 
 **BGP Aggregation Suppress-Map**
 - Accomplishes the same as summary-only, except only subnets matched in the suppress-map will not be advertised.
@@ -672,12 +672,12 @@ ip prefix-list 1 permit 3.0.0.1/32
 ip prefix-list 3 permit 3.0.0.3/32
 
 route-map SUPPRESS permit 10
- match ip address prefix-list 1
- match ip address prefix-list 3
+ match ip address prefix-list 1
+ match ip address prefix-list 3
 
 router bgp 1
- address-family ipv4
-  aggregate-address 3.0.0.0 255.255.255.252 as-set suppress-map SUPPRESS
+ address-family ipv4
+  aggregate-address 3.0.0.0 255.255.255.252 as-set suppress-map SUPPRESS
 ```
 
 **BGP Aggregation Unsuppress-Map**
@@ -691,14 +691,14 @@ ip prefix-list 1 permit 3.0.0.1/32
 ip prefix-list 3 permit 3.0.0.3/32
 
 route-map UNSUPPRESS permit 10
- match ip address prefix-list 1
- match ip address prefix-list 3
- set community 1:1 additive
+ match ip address prefix-list 1
+ match ip address prefix-list 3
+ set community 1:1 additive
 
 router bgp 1
- address-family ipv4
-  aggregate-address 3.0.0.0 255.255.255.252 as-set summary-only
-  neighbor 10.0.12.2 unsuppress-map UNSUPPRESS
+ address-family ipv4
+  aggregate-address 3.0.0.0 255.255.255.252 as-set summary-only
+  neighbor 10.0.12.2 unsuppress-map UNSUPPRESS
 ```
 
 **BGP Inject-Map**
@@ -710,19 +710,19 @@ router bgp 1
 ```
 ip prefix-list R3 permit 10.0.13.3/32
 ip prefix-list AGG permit 3.0.0.0/29
-ip prefix-list INJECT permit 3.0.0.5/32  
-ip prefix-list INJECT permit 3.0.0.6/32  
+ip prefix-list INJECT permit 3.0.0.5/32  
+ip prefix-list INJECT permit 3.0.0.6/32  
 ip prefix-list INJECT permit 3.0.0.7/32
 
 route-map R3_AGG
- match ip address prefix-list AGG
- match ip route-source prefix-list R3
+ match ip address prefix-list AGG
+ match ip route-source prefix-list R3
 route-map INJECT
- set ip address prefix-list INJECT   
+ set ip address prefix-list INJECT   
 
 router bgp 1
- address-family ipv4
-  bgp inject-map INJECT exist-map R3_AGG copy-attributes
+ address-family ipv4
+  bgp inject-map INJECT exist-map R3_AGG copy-attributes
 
 show ip bgp injected-paths
 ```
@@ -737,30 +737,30 @@ show ip bgp regexp _4$
 ip as-path access-list 4 permit _4$
 
 route-map AGG_HIDE_AS4 deny 10
- match as-path 4
+ match as-path 4
 route-map AGG_HIDE_AS4 permit 99
 
 router bgp 1
- add ipv4
- aggregate-address 34.0.0.0 255.255.255.248 summary-only as-set advertise-map AGG_HIDE_AS4
+ add ipv4
+ aggregate-address 34.0.0.0 255.255.255.248 summary-only as-set advertise-map AGG_HIDE_AS4
 ```
 
 BGP Aggregation Attribute-Map
-- Optionally add additional attributes to the aggregate with the attribute-map keyword.
+- Optionally add additional attributes to the aggregate with the attribute-map keyword.
 - Using a route-map instead will provide the same results, and will be converted to attribute-map in the config.
 
 ```
 route-map AGG_ATTRIBUTE permit 10
- set metric 500
- set local-preference 200
- set origin igp
- set community 3:1
- etc..
+ set metric 500
+ set local-preference 200
+ set origin igp
+ set community 3:1
+ etc..
 
 router bgp 1
- address-family ipv4
-  aggregate-address 3.0.0.0 255.255.255.252 attribute-map AGG_ATTRIBUTE
-  aggregate-address 3.0.0.0 255.255.255.252 route-map AGG_ATTRIBUTE
+ address-family ipv4
+  aggregate-address 3.0.0.0 255.255.255.252 attribute-map AGG_ATTRIBUTE
+  aggregate-address 3.0.0.0 255.255.255.252 route-map AGG_ATTRIBUTE
 ```
 
 ## AS_PATH
@@ -769,20 +769,20 @@ Prepend AS 3 five times to the AS_PATH:
 
 ```
 route-map PREPEND_AS permit 10
- set as-path prepend 3 3 3 3 3
+ set as-path prepend 3 3 3 3 3
 
 router bgp 1
- neighbor 10.0.12.2 route-map PREPEND_AS out
+ neighbor 10.0.12.2 route-map PREPEND_AS out
 ```
 
 Prepend the last AS in the path 4 times. This will lead to 5 entries on neighbors (1 original + 4 prepend)
 
 ```
 route-map PREPEND_LAST_AS permit 10
- set as-path prepend last-as 4
+ set as-path prepend last-as 4
 
 router bgp 1
- neighbor 10.0.12.2 route-map PREPEND_LAST_AS out
+ neighbor 10.0.12.2 route-map PREPEND_LAST_AS out
 ```
 
 **BGP AS_PATH Tagging**
@@ -796,11 +796,11 @@ AS_PATH tag:
 
 ```
 route-map AS_PATH_TAG permit 10
- set as-path tag
+ set as-path tag
 
 router bgp 1
- add ipv4
-  redistribute ospf 1 route-map AS_PATH_TAG
+ add ipv4
+  redistribute ospf 1 route-map AS_PATH_TAG
 ```
 
 Automatic Tag:
@@ -808,12 +808,12 @@ Automatic Tag:
 ```
 ip as-path access-list 1 permit .*
 route-map AS_ORIGIN_TABLE_MAP permit 10
- match as-path 1
- set automatic-tag
+ match as-path 1
+ set automatic-tag
 
 router bgp 2
- add ipv4
-  table-map AS_ORIGIN_TABLE_MAP
+ add ipv4
+  table-map AS_ORIGIN_TABLE_MAP
 
 clear ip bgp ipv4 unicast table-map
 ```
@@ -826,18 +826,18 @@ By default R2 will see AS 2 prepended before the AS 1 on routes received from R1
 - To override this behavior, configure `no-prepend` on R2.
 
 By default R1 will see AS 2 prepended before the actual AS of 64512.
-- To override this behavior, configure `replace-as` on R2.
+- To override this behavior, configure `replace-as` on R2.
 - R1 will see prefixes from R2 with AS2, other peers will see AS 64512.
 
 The dual-as keyword will allow R1 to peer with either the correct AS 64512 or the local-as 2.
 
 ```
 router bgp 1
- neighbor 10.0.12.2 remote-as 2
+ neighbor 10.0.12.2 remote-as 2
 
 router bgp 64512
- neighbor 10.0.12.1 remote-as 1
- neighbor 10.0.12.1 local-as 2 no-prepend replace-as dual-as
+ neighbor 10.0.12.1 remote-as 1
+ neighbor 10.0.12.1 local-as 2 no-prepend replace-as dual-as
 ```
 
 ## Communities
@@ -845,7 +845,7 @@ router bgp 64512
 - This is an optional, transitive attribute that is comparable to route-tags.
 - Not used for best-path selection.
 - Large number (32 bits) that are conventionally displayed as ASN:ID (for example 64512:100).
-- This notation however must be enabled using the ip bgp-community new-format command.
+- This notation however must be enabled using the ip bgp-community new-format command.
 - This community "tag" is stripped by neighbors by default (even within the same AS). Use neighbor statement with route-maps.
 - Routes can be in multiple communities.
 
@@ -864,14 +864,14 @@ Advertise routes with incomplete origin (alternative to redistribution):
 
 ```
 route-map BGP_ORIGIN permit 10
- set origin incomplete
+ set origin incomplete
 
 router bgp 1
- address-family ipv4
-  network 1.0.1.0 mask 255.255.255.0 route-map BGP_ORIGIN
-  network 1.0.2.0 mask 255.255.255.0 route-map BGP_ORIGIN
-  network 1.0.3.0 mask 255.255.255.0 route-map BGP_ORIGIN
-  network 1.0.4.0 mask 255.255.255.0 route-map BGP_ORIGIN
+ address-family ipv4
+  network 1.0.1.0 mask 255.255.255.0 route-map BGP_ORIGIN
+  network 1.0.2.0 mask 255.255.255.0 route-map BGP_ORIGIN
+  network 1.0.3.0 mask 255.255.255.0 route-map BGP_ORIGIN
+  network 1.0.4.0 mask 255.255.255.0 route-map BGP_ORIGIN
 
 ip prefix-list Lo1 permit 1.0.1.0/24
 ip prefix-list Lo2 permit 1.0.2.0/24
@@ -879,28 +879,28 @@ ip prefix-list Lo3 permit 1.0.3.0/24
 ip prefix-list Lo4 permit 1.0.4.0/24
 
 route-map BGP_COMMUNITY permit 10
- match ip address prefix-list Lo1
- set community no-advertise 1:1
+ match ip address prefix-list Lo1
+ set community no-advertise 1:1
 
 route-map BGP_COMMUNITY permit 20
- match ip address prefix-list Lo2
- set community local-as 1:1
+ match ip address prefix-list Lo2
+ set community local-as 1:1
 
 route-map BGP_COMMUNITY permit 30
- match ip address prefix-list Lo3
- set community no-export 1:1
+ match ip address prefix-list Lo3
+ set community no-export 1:1
 
 route-map BGP_COMMUNITY permit 99
 
 router bgp 1
- address-family ipv4
-  neighbor 10.0.12.2 route-map BGP_COMMUNITY out
+ address-family ipv4
+  neighbor 10.0.12.2 route-map BGP_COMMUNITY out
 
 show ip bgp community 1:1
 ```
 
 Match community values and modify on other routers:
-- The set comm-list 1 delete keyword will only delete the community matched in the list.
+- The set comm-list 1 delete keyword will only delete the community matched in the list.
 - The additive keyword will add the 'internet' community to the existing communities, and not overwrite them.
 
 ```
@@ -908,15 +908,15 @@ ip community-list 1 permit no-export
 ip prefix-list Lo4 permit 1.0.4.0/24
 
 route-map MODIFY_COMMUNITY permit 10
- match ip address prefix-list Lo4
- match community 1
- set comm-list 1 delete
- set community internet additive
+ match ip address prefix-list Lo4
+ match community 1
+ set comm-list 1 delete
+ set community internet additive
 route-map RM1 permit 100
 
 router bgp 2
- address-family ipv4
-  neighbor 10.0.12.1 route-map MODIFY_COMMUNITY in
+ address-family ipv4
+  neighbor 10.0.12.1 route-map MODIFY_COMMUNITY in
 ```
 
 ## Confederations
@@ -934,26 +934,26 @@ Configuration Considerations
 
 ```
 router bgp 1
- bgp confederation identifier 123
- bgp confederation peers 2
- bgp confederation peers 3
+ bgp confederation identifier 123
+ bgp confederation peers 2
+ bgp confederation peers 3
 neighbor 192.168.0.2 remote-as 2
 neighbor 192.168.0.3 remote-as 3
 neighbor 192.168.0.2 update-source Lo0
 neighbor 192.168.0.3 update-source Lo0
 neighbor 192.168.0.2 ebgp-multihop
 neighbor 192.168.0.3 ebgp-multihop
- address-family ipv4
-  neighbor 192.168.0.2 next-hop-self
-  neighbor 192.168.0.3 next-hop-self
+ address-family ipv4
+  neighbor 192.168.0.2 next-hop-self
+  neighbor 192.168.0.3 next-hop-self
 ```
 
 The peering between AS1 and AS2, AS3 is an internal peering using different AS.
 - Meaning that routers R3 and R2 are unaware of the routes injected by R1, unless a full-mesh is configured.
-- Another option is to use `next-hop-self` for all peers.
+- Another option is to use `next-hop-self` for all peers.
 
 When peering with loopbacks between confederation peers the peering is basically the same as eBGP.
-- Meaning that `ebgp-multihop` has to be configured.
+- Meaning that `ebgp-multihop` has to be configured.
 ## eBGP Peering
 **eBGP Peering Rules**
 - Neighbor must be in a different AS.
@@ -973,27 +973,27 @@ The backdoor route will set the iBGP administrative distance (200) for the route
 
 ```
 int se1/0
- description EBGP_LINK_TO_R2
- ip add 10.0.12.1 255.255.255.0
+ description EBGP_LINK_TO_R2
+ ip add 10.0.12.1 255.255.255.0
 interface lo0
- description EBGP_PEERING_LOOPBACK
- ip address 192.168.0.1 255.255.255.255
+ description EBGP_PEERING_LOOPBACK
+ ip address 192.168.0.1 255.255.255.255
 
 router eigrp 1
- network 10.0.12.0 0.0.0.255
- network 192.168.0.1 0.0.0.0
+ network 10.0.12.0 0.0.0.255
+ network 192.168.0.1 0.0.0.0
 
 ip bgp-community new-format
 router bgp 1
- bgp router-id 192.168.0.1
- neighbor 192.168.0.2 remote-as 2
- neighbor 192.168.0.2 ebgp-multihop 2
- neighbor 192.168.0.2 update-source Loopback0
- address-family ipv4
-  network 192.168.0.1 mask 255.255.255.255
-  network 192.168.0.2 mask 255.255.255.255 backdoor
-  neighbor 192.168.0.2 activate
-  neighbor 192.168.0.2 send-community
+ bgp router-id 192.168.0.1
+ neighbor 192.168.0.2 remote-as 2
+ neighbor 192.168.0.2 ebgp-multihop 2
+ neighbor 192.168.0.2 update-source Loopback0
+ address-family ipv4
+  network 192.168.0.1 mask 255.255.255.255
+  network 192.168.0.2 mask 255.255.255.255 backdoor
+  neighbor 192.168.0.2 activate
+  neighbor 192.168.0.2 send-community
 ```
 
 **eBGP Peering using Default Route**
@@ -1006,10 +1006,10 @@ Force active/passive peerings between peers:
 
 ```
 router bgp 1
- neighbor 192.168.0.2 transport connection-mode active
+ neighbor 192.168.0.2 transport connection-mode active
 
 router bgp 2
- neighbor 192.168.0.1 transport connection-mode passive
+ neighbor 192.168.0.1 transport connection-mode passive
 ```
 
 If Peer 1 (being the active peer by force) only has a default route to Peer 2, the session will not form.
@@ -1019,14 +1019,14 @@ ip route 0.0.0.0 0.0.0.0 10.0.12.2
 
 ip bgp-community new-format
 router bgp 1
- bgp router-id 192.168.0.1
- neighbor 192.168.0.2 remote-as 2
- neighbor 192.168.0.2 ebgp-multihop
- neighbor 192.168.0.2 update-source Loopback0
- neighbor 192.168.0.2 transport connection-mode passive
- address-family ipv4
-  neighbor 192.168.0.2 activate
-  neighbor 192.168.0.2 send-community
+ bgp router-id 192.168.0.1
+ neighbor 192.168.0.2 remote-as 2
+ neighbor 192.168.0.2 ebgp-multihop
+ neighbor 192.168.0.2 update-source Loopback0
+ neighbor 192.168.0.2 transport connection-mode passive
+ address-family ipv4
+  neighbor 192.168.0.2 activate
+  neighbor 192.168.0.2 send-community
 ```
 
 **BGP Connected-Check**
@@ -1034,8 +1034,8 @@ router bgp 1
 
 ```
 router bgp 1
- neighbor 10.0.12.2 remote-as 2
- neighbor 10.0.12.2 disable-connected-check
+ neighbor 10.0.12.2 remote-as 2
+ neighbor 10.0.12.2 disable-connected-check
 ```
 
 ## iBGP Peering
@@ -1060,16 +1060,16 @@ Default Policy Behavior
 - Because NEXT_HOP is not changed, IGPs are needed to reach neighbors.
 - Another solution is to change the NEXT_HOP to the local router address.
 - The address that will be chosen for this is the loopback address (in case of next-hop-self) or the internal address used to peer with the neighbors.
-- Make sure the networks next_hop_self is set to are advertised into iBGP. Another solution is to redistribute the IGP.
+- Make sure the networks next_hop_self is set to are advertised into iBGP. Another solution is to redistribute the IGP.
 
 ```
 router bgp 1
- neighbor 10.0.12.2 remote-as 2
- address-family ipv4
-   neighbor 10.0.12.2 next-hop-self all
-   network 10.0.12.0 mask 255.255.255.0
-   network 10.0.13.0 mask 255.255.255.0
-   redistribute ospf 1 metric 2 match internal
+ neighbor 10.0.12.2 remote-as 2
+ address-family ipv4
+   neighbor 10.0.12.2 next-hop-self all
+   network 10.0.12.0 mask 255.255.255.0
+   network 10.0.13.0 mask 255.255.255.0
+   redistribute ospf 1 metric 2 match internal
 ```
 
 The `all` keyword enables next-hop-self for both eBGP and iBGP received paths. Default is only for iBGP received paths.
@@ -1083,14 +1083,14 @@ The `all` keyword enables next-hop-self for both eBGP and iBGP received paths. D
 
 ```
 router bgp 123
- bgp listen range 10.0.123.0/24 peer-group PEERS
- bgp listen limit 2
- neighbor PEERS peer-group
- neighbor PEERS remote-as 123
- address-family ipv4
-  neighbor PEERS activate
-  neighbor PEERS send-community
-  neighbor PEERS etc..
+ bgp listen range 10.0.123.0/24 peer-group PEERS
+ bgp listen limit 2
+ neighbor PEERS peer-group
+ neighbor PEERS remote-as 123
+ address-family ipv4
+  neighbor PEERS activate
+  neighbor PEERS send-community
+  neighbor PEERS etc..
 ```
 
 ## IPv6
@@ -1098,42 +1098,42 @@ router bgp 123
 
 ```
 router bgp 1
- neighbor 10.0.12.2 remote-as 2
- address-family ipv4
-  neighbor 10.0.12.2 activate
- address-family ipv6
-  neighbor 10.0.12.2 activate
-  neighbor 10.0.12.2 route-map IPV6_NEXT_HOP out
-  network 1::1/128
+ neighbor 10.0.12.2 remote-as 2
+ address-family ipv4
+  neighbor 10.0.12.2 activate
+ address-family ipv6
+  neighbor 10.0.12.2 activate
+  neighbor 10.0.12.2 route-map IPV6_NEXT_HOP out
+  network 1::1/128
 
 route-map IPV6_NEXT_HOP permit 10
- set ipv6 next-hop 2001:10:0:12::1
+ set ipv6 next-hop 2001:10:0:12::1
 ```
 
 IPv6 Peer Link-Local
 
 ```
 router bgp 1
-  neighbor FE80::2%Serial1/0 remote-as 2
- address-family ipv6
-  neighbor FE80::2%Serial1/0 activate
-  network 1::1/128
+  neighbor FE80::2%Serial1/0 remote-as 2
+ address-family ipv6
+  neighbor FE80::2%Serial1/0 activate
+  network 1::1/128
 ```
 
 **IPv6 Peer Loopback**
 - Same as IPv4, IPv6 neighbors are not automatically activated.
-- Specify router-id if no IPv4 addresses are used on the router.
+- Specify router-id if no IPv4 addresses are used on the router.
 
 ```
 ipv6 route 2::2/128 2001:10:0:12::2
 
 router bgp 1
- bgp router-id 192.168.0.1
- neighbor 2::2 remote-as 2
- neighbor 2::2 update-source Loopback 0
- neighbor 2::2 disable-connected-check
- address-family ipv6
-  neighbor 2::2 activate
+ bgp router-id 192.168.0.1
+ neighbor 2::2 remote-as 2
+ neighbor 2::2 update-source Loopback 0
+ neighbor 2::2 disable-connected-check
+ address-family ipv6
+  neighbor 2::2 activate
 ```
 
 **IPv4 Networks over IPv6**
@@ -1141,16 +1141,16 @@ router bgp 1
 
 ```
 router bgp 1
- neighbor 2001:10:0:12::2 remote-as 2
- address-family ipv4
-  neighbor 2001:10:0:12::2 activate
-  neighbor 2001:10:0:12::2 route-map IPV4_NEXT_HOP in
-  network 192.168.0.1 mask 255.255.255.255
- address-family ipv6
-  neighbor 2001:10:0:12::2 activate
+ neighbor 2001:10:0:12::2 remote-as 2
+ address-family ipv4
+  neighbor 2001:10:0:12::2 activate
+  neighbor 2001:10:0:12::2 route-map IPV4_NEXT_HOP in
+  network 192.168.0.1 mask 255.255.255.255
+ address-family ipv6
+  neighbor 2001:10:0:12::2 activate
 
 route—map IPV4_NEXT_HOP permit 10
- set ip next—hop 10.0.12.2
+ set ip next—hop 10.0.12.2
 ```
 
 ## Filtering AS
@@ -1184,7 +1184,7 @@ AS-Path AS-Sequence
 - In IOS the AS-Sequence is the AS_PATH that a route travels through.
 - The AS that the router receives the route from is called the PEER AS.
 - The router that originated the route is called the ORIGIN AS, others are called TRANSIT AS.
-o Example. ^500_400_300_200_100$. 500 is the PEER AS, 100 is the ORIGIN AS, others are TRANSIT AS.
+o Example. ^500_400_300_200_100$. 500 is the PEER AS, 100 is the ORIGIN AS, others are TRANSIT AS.
 
 AS-Path Filtering
 Match prefixes that originated in the connected AS:
@@ -1192,15 +1192,15 @@ Match prefixes that originated in the connected AS:
 ```
 ip as-path access-list 1 permit ^[0-9]+$
 route-map BGP_CONNECTED_AS permit 10
- match as-path 1
+ match as-path 1
 
 router bgp 1
- address-family ipv4
-  neighbor 10.0.12.2 route-map BGP_CONNECTED_AS in
-  neighbor 10.0.12.2 filter-list 1 in
+ address-family ipv4
+  neighbor 10.0.12.2 route-map BGP_CONNECTED_AS in
+  neighbor 10.0.12.2 filter-list 1 in
 ```
 
-This matches all numbers but does not allow blank spaces. Meaning that there can only be one AS in the path, which is the neighbors AS. The `+` means that the pattern must appear, so blank AS (our own) will not match.
+This matches all numbers but does not allow blank spaces. Meaning that there can only be one AS in the path, which is the neighbors AS. The `+` means that the pattern must appear, so blank AS (our own) will not match.
 
 | Фильтр  | Описание  |
 |---|---|
@@ -1219,7 +1219,7 @@ This matches all numbers but does not allow blank spaces. Meaning that there can
 |`_2_(4\|5)$` |Originated in AS 4 or AS 5 that passed through AS 2|
 |`^[0-9]+([0-9]+)?$` |Originated in directly connected AS or directly connected to our directly connected AS|
 
-`?` Basically means true or false, the secondary AS that are being matched can appear or not.
+`?` Basically means true or false, the secondary AS that are being matched can appear or not.
 
 ## Filtering PL / ACL
 
@@ -1227,13 +1227,13 @@ This matches all numbers but does not allow blank spaces. Meaning that there can
 
 ```
 ip access-list extended PREFIXES
- deny ip 2.0.0.0 0.0.0.255 host 255.255.255.252
- deny ip 2.0.0.0 0.0.0.255 host 255.255.255.254
- permit ip any any
+ deny ip 2.0.0.0 0.0.0.255 host 255.255.255.252
+ deny ip 2.0.0.0 0.0.0.255 host 255.255.255.254
+ permit ip any any
 
 router bgp 1
- address-family ipv4
-  neighbor 10.0.12.2 distribute-list PREFIXES in
+ address-family ipv4
+  neighbor 10.0.12.2 distribute-list PREFIXES in
 ```
 
 **BGP Prefix-List Filtering**
@@ -1244,8 +1244,8 @@ ip prefix-list PREFIXES deny 1.0.0.4/30
 ip prefix-list PREFIXES permit 0.0.0.0/0 le 32
 
 router bgp 2
- address-family ipv4
-  neighbor 10.0.12.1 prefix-list PREFIXES in
+ address-family ipv4
+  neighbor 10.0.12.1 prefix-list PREFIXES in
 ```
 
 **BGP Outbound Route Filtering (ORF)**
@@ -1260,23 +1260,23 @@ ip prefix-list PREFIXES deny 1.0.0.4/32
 ip prefix-list PREFIXES permit 0.0.0.0/0 le 32
 
 router bgp 2
- neighbor 10.0.12.1 remote-as 1
- address-family ipv4
-  network 192.168.0.2 m 255.255.255.255
-  neighbor 10.0.12.1 activate
-  neighbor 10.0.12.1 capability orf prefix-list send
-  neighbor 10.0.12.1 prefix-list PREFIXES in
+ neighbor 10.0.12.1 remote-as 1
+ address-family ipv4
+  network 192.168.0.2 m 255.255.255.255
+  neighbor 10.0.12.1 activate
+  neighbor 10.0.12.1 capability orf prefix-list send
+  neighbor 10.0.12.1 prefix-list PREFIXES in
 
 router bgp 1
- neighbor 10.0.12.2 remote-as 2
- address-family ipv4
-  neighbor 10.0.12.2 activate
-  neighbor 10.0.12.2 capability orf prefix-list receive
-  network 192.168.0.1 m 255.255.255.255
-  network 1.0.0.1 m 255.255.255.255
-  network 1.0.0.2 m 255.255.255.255
-  network 1.0.0.3 m 255.255.255.255
-  network 1.0.0.4 m 255.255.255.255
+ neighbor 10.0.12.2 remote-as 2
+ address-family ipv4
+  neighbor 10.0.12.2 activate
+  neighbor 10.0.12.2 capability orf prefix-list receive
+  network 192.168.0.1 m 255.255.255.255
+  network 1.0.0.1 m 255.255.255.255
+  network 1.0.0.2 m 255.255.255.255
+  network 1.0.0.3 m 255.255.255.255
+  network 1.0.0.4 m 255.255.255.255
 
 show ip bgp neighbors 10.0.12.1 | s capabilities
 show ip bgp neighbors 10.0.12.2 advertised-routes
@@ -1285,18 +1285,18 @@ show ip bgp neighbors 10.0.12.2 advertised-routes
 ## Misc
 **BGP Fall-over**
 - Holdtime does not have to expire in order to tear down the session.
-- The fall-over will still allow bgp to form neighborships using a default or summary route.
-- Configure a route-map to make sure that the specific route has to be present in the routing table.
+- The fall-over will still allow bgp to form neighborships using a default or summary route.
+- Configure a route-map to make sure that the specific route has to be present in the routing table.
 
 ```
 ip route 192.168.0.2 255.255.255.255 10.0.12.2
 
 ip prefix-list R2_LOOPBACK permit 192.168.0.2/32
 route-map R2_FALLOVER permit 10
- match ip address prefix-list R2_LOOPBACK
+ match ip address prefix-list R2_LOOPBACK
 
 router bgp 1
- neighbor 192.168.0.2 fall-over route-map R2_FALLOVER
+ neighbor 192.168.0.2 fall-over route-map R2_FALLOVER
 ```
 
 **BGP Next Hop Tracking (NHT)**
@@ -1306,25 +1306,25 @@ router bgp 1
 
 ```
 router bgp 1
- bgp nexthop trigger enable
- bgp nexthop trigger delay 5
+ bgp nexthop trigger enable
+ bgp nexthop trigger delay 5
 ```
 
 **BGP Selective Address Tracking (SAT)**
-- The route-map determines what prefixes can be seen as valid prefixes for next-hops.
+- The route-map determines what prefixes can be seen as valid prefixes for next-hops.
 - Allows for specific addresses as viable next-hops, and will pull prefixes from the bgp table if the next-hop does not match.
 - Re-use the same route-map in fall-over to also tear down the session.
 
 ```
 ip prefix-list LOOPBACKS permit 0.0.0.0/0 ge 29
 route-map SAT permit 10
- match ip address prefix-list LOOPBACKS
+ match ip address prefix-list LOOPBACKS
 
 router bgp 1
- address-family ipv4
-  bgp nexthop route-map SAT
-  neighbor 10.0.13.3 fall-over route-map SAT
-  neighbor 10.0.12.2 fall-over route-map SAT
+ address-family ipv4
+  bgp nexthop route-map SAT
+  neighbor 10.0.13.3 fall-over route-map SAT
+  neighbor 10.0.12.2 fall-over route-map SAT
 ```
 
 **BGP Multi-Session**
@@ -1332,7 +1332,7 @@ Use a different TCP session for each address-family:
 
 ```
 router bgp 1
- neighbor 192.168.0.2 transport multi-session (must agree on both sides)
+ neighbor 192.168.0.2 transport multi-session (must agree on both sides)
 ```
 
 BGP TTL-Security
@@ -1342,12 +1342,12 @@ BGP TTL-Security
 
 ```
 router bgp 1
- bgp router-id 192.168.0.1
- neighbor 192.168.0.2 remote-as 2
- neighbor 192.168.0.2 update-source Loopback0
- neighbor 192.168.0.2 ttl-security hops 2
- address-family ipv4
-  neighbor 192.168.0.2 activate
+ bgp router-id 192.168.0.1
+ neighbor 192.168.0.2 remote-as 2
+ neighbor 192.168.0.2 update-source Loopback0
+ neighbor 192.168.0.2 ttl-security hops 2
+ address-family ipv4
+  neighbor 192.168.0.2 activate
 ```
 
 ## Route-Reflector
@@ -1367,7 +1367,7 @@ A Route Reflector reflects routes considered as best routes only.
 
 **Route Target Constraint**
 With Route Target Constraint (RTC) the Route Reflector sends only wanted VPN4/6 prefixes to the PE.
--  'Wanted' means that the PE has a VRF importing the specific prefixes.
+-  'Wanted' means that the PE has a VRF importing the specific prefixes.
 
 **ORIGINATOR_ID**
 Route reflectors use the ORIGINATOR_ID and CLUSTER_LIST attributes for loop prevention.
@@ -1383,7 +1383,7 @@ Set the CLUSTER_ID to be equal on all reflectors:
 
 ```
 router bgp 1
- bgp cluster-id 13.13.13.13
+ bgp cluster-id 13.13.13.13
 ```
 
 **Advertisement Rules**
@@ -1394,7 +1394,7 @@ Non-client -> iBGP = Forwarded to eBGP and RR-Clients.
 - When a NC receives a route from an eBGP peer it will be forwarded to the RR, which forwards it to all eBGP peers and iBGP RR-Clients.
 
 External route from RR-Client -> iBGP = Forwarded to eBGP, RR-Clients and non-clients
-- When a RR-Client receives a route from an eBGP peer  it will be forwarded to the RR, which forwards it to all eBGP peers and iBGP peers.
+- When a RR-Client receives a route from an eBGP peer  it will be forwarded to the RR, which forwards it to all eBGP peers and iBGP peers.
 
 External route from RR -> iBGP = Forwarded to eBGP, RR-Clients and non-clients
 - When a RR receives a route from an eBGP peer it will be forwarded to all eBGP and iBGP peers.
@@ -1402,11 +1402,11 @@ External route from RR -> iBGP = Forwarded to eBGP, RR-Clients and non-clients
 ## Session
 BGP Session
 - BGP uses TCP port 179 for destination and a random source port.
-- Commands that affect the BGP session are: shutdown, password, update-source and modification of timers.
+- Commands that affect the BGP session are: shutdown, password, update-source and modification of timers.
 - When using the network statement, BGP looks in the routing table and verifies that the route exists.
 - The subnet used in the network statement must match exactly in order to inserted into BGP.
 
-If two BGP peers initiate a session, the router that initiated the session will use a random TCP port to set up  the TCP connection, the router that received the session request will use TCP port 179.
+If two BGP peers initiate a session, the router that initiated the session will use a random TCP port to set up  the TCP connection, the router that received the session request will use TCP port 179.
 - The initiating router message will be OPEN_ACTIVE.
 - The receiving router message will be OPEN_PASSIVE.
 - The receiving router will also send the OPEN_ACTIVE message, but this will fail because it is no longer needed.
@@ -1446,11 +1446,11 @@ Filter specific prefixes from the RIB:
 ```
 ip prefix-list DENY_192 permit 192.168.0.2/32
 route-map TABLE_MAP_DENY deny 10
- match ip add prefix DENY_192
+ match ip add prefix DENY_192
 
 router bgp 1
- add ipv4
-  table-map TABLE_MAP_DENY filter
+ add ipv4
+  table-map TABLE_MAP_DENY filter
 
 clear ip bgp ipv4 unicast table-map
 ```
@@ -1462,16 +1462,16 @@ ip community-list standard 2:2 permit 2:2
 ip community-list standard 3:3 permit 3:3
 
 route-map TABLE_MAP_QOS permit 10
- match community 2:2
- set ip precedence 2
+ match community 2:2
+ set ip precedence 2
 route-map TABLE_MAP_QOS permit 20
- match community 3:3
- set ip precedence 3
+ match community 3:3
+ set ip precedence 3
 route-map TABLE_MAP_QOS permit 99
 
 router bgp 1
- add ipv4
-  table-map TABLE_MAP_QOS
+ add ipv4
+  table-map TABLE_MAP_QOS
 ```
 
 
@@ -1485,8 +1485,8 @@ Configure the ingress interface to perform classification based on IPP:
 
 ```
 int fa0/0
- bgp-policy source ip-prec-map
- bgp-policy destination ip-prec-map
+ bgp-policy source ip-prec-map
+ bgp-policy destination ip-prec-map
 ```
 
 **BGP Table-Map Automatic-Tag**
@@ -1494,12 +1494,12 @@ int fa0/0
 ```cisco
 ip as-path access-list 1 permit .*
 route-map AS_ORIGIN_TABLE_MAP permit 10
- match as-path 1
- set automatic-tag
+ match as-path 1
+ set automatic-tag
 
 router bgp 2
- add ipv4
-  table-map AS_ORIGIN_TABLE_MAP
+ add ipv4
+  table-map AS_ORIGIN_TABLE_MAP
 
 clear ip bgp ipv4 unicast table-map
 ```
@@ -1555,181 +1555,181 @@ debug crypto ipsec
 
 ```
 crypto isakmp policy 10
- encr aes 256
- hash sha256
- authentication pre-share
- group 14
- life time 3600
+ encr aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+ life time 3600
 
 crypto ipsec transform-set TS esp-aes 256 esp-sha256-hmac
- mode tunnel
+ mode tunnel
 
 crypto isakmp key cisco address 10.0.12.2
 
 crypto map CMAP 10 ipsec-isakmp
- set peer 10.0.12.2
- set transform-set TS
- match address VPN
- qos pre-classify
+ set peer 10.0.12.2
+ set transform-set TS
+ match address VPN
+ qos pre-classify
 
 ip access-list extended VPN
- permit ip host 192.168.0.1 host 192.168.0.2
+ permit ip host 192.168.0.1 host 192.168.0.2
 
 ip route 192.168.0.2 255.255.255.255 10.0.12.2
 
 int fa0/0
- crypto map CMAP
+ crypto map CMAP
 ```
 
 **Aggressive Mode**
 
 ```
 crypto isakmp policy 10
- encr aes 256
- hash sha256
- authentication pre-share
- group 14
- life time 3600
+ encr aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+ life time 3600
 
 crypto ipsec transform-set TS esp-aes 256 esp-sha256-hmac
- mode tunnel
+ mode tunnel
 
 crypto keyring KEYRING
- pre-shared-key address 10.0.12.2 key cisco
+ pre-shared-key address 10.0.12.2 key cisco
 
 crypto isakmp profile ISAKMP
- keyring KEYRING
- initiate mode aggressive
- match identity address 10.0.12.2
+ keyring KEYRING
+ initiate mode aggressive
+ match identity address 10.0.12.2
 
 crypto map CMAP 10 ipsec-isakmp
- set peer 10.0.12.2
- set transform-set TS
- match address VPN
- qos pre-classify
- set isakmp ISAKMP
+ set peer 10.0.12.2
+ set transform-set TS
+ match address VPN
+ qos pre-classify
+ set isakmp ISAKMP
 
 ip access-list extended VPN
- permit ip host 192.168.0.1 host 192.168.0.2
+ permit ip host 192.168.0.1 host 192.168.0.2
 
 ip route 192.168.0.2 255.255.255.255 10.0.12.2
 
 int fa0/0
- crypto map CMAP
+ crypto map CMAP
 ```
 
 ## Dynamic VTI
 **Dynamic Virtual Tunnel Interfaces (VTI)**
 - Provides a separate virtual interface for each VPN session cloned from virtual template.
-- When using EIGRP the split-horizon and next-hop-self configuration needs to be placed on the virtual-template.
+- When using EIGRP the split-horizon and next-hop-self configuration needs to be placed on the virtual-template.
 - The VPN will be initiated even if no traffic is generated.
 
 Hub configuration:
 
 ```
 crypto isakmp policy 10
- encryption aes 256
- hash sha256
- authentication pre-share
- group 14
- lifetime 3600
+ encryption aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+ lifetime 3600
 
 crypto keyring KEYRING
- pre-shared-key address 123.0.0.2 key cisco
- pre-shared-key address 123.0.0.3 key cisco
+ pre-shared-key address 123.0.0.2 key cisco
+ pre-shared-key address 123.0.0.3 key cisco
 
 crypto isakmp profile ISAKMP
-   keyring KEYRING
-   match identity address 123.0.0.2  
-   match identity address 123.0.0.3  
-   virtual-template 123
+   keyring KEYRING
+   match identity address 123.0.0.2  
+   match identity address 123.0.0.3  
+   virtual-template 123
 
 crypto ipsec transform-set TS esp-aes 256 esp-sha256-hmac
- mode tunnel
+ mode tunnel
 
 crypto ipsec profile IPSEC
- set transform-set TS
- set isakmp-profile ISAKMP
+ set transform-set TS
+ set isakmp-profile ISAKMP
 
 int lo1
- ip add 10.0.123.1 255.255.255.0
+ ip add 10.0.123.1 255.255.255.0
 
 int virtual-template 123 type tunnel
- ip unnumbered loopback 1
- tunnel mode ipsec ipv4
- tunnel protection ipsec profile IPSEC
- no ip next-hop-self eigrp 123
- no ip split-horizon eigrp 123
+ ip unnumbered loopback 1
+ tunnel mode ipsec ipv4
+ tunnel protection ipsec profile IPSEC
+ no ip next-hop-self eigrp 123
+ no ip split-horizon eigrp 123
 
 router eigrp 123
- network 10.0.123.0 0.0.0.255
- network 192.168.0.1 0.0.0.0
+ network 10.0.123.0 0.0.0.255
+ network 192.168.0.1 0.0.0.0
 ```
 
 Spoke configuration:
 
 ```
 crypto isakmp policy 10
- encr aes 256
- hash sha256
- authentication pre-share
- group 14
- lifetime 3600
+ encr aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+ lifetime 3600
 
 crypto isakmp key cisco address 123.0.0.1
 crypto isakmp key cisco address 123.0.0.3
 
 crypto ipsec transform-set TS esp-aes 256 esp-sha256-hmac
- mode tunnel
+ mode tunnel
 
 crypto ipsec profile IPSEC
- set transform-set TS  
+ set transform-set TS  
 
 interface tun0
- ip add 10.0.123.2 255.255.255.0
- tunnel source fa0/0
- tunnel destination 123.0.0.1
- tunnel mode ipsec ipv4
- ip mtu 1400
- tunnel protection ipsec profile IPSEC
+ ip add 10.0.123.2 255.255.255.0
+ tunnel source fa0/0
+ tunnel destination 123.0.0.1
+ tunnel mode ipsec ipv4
+ ip mtu 1400
+ tunnel protection ipsec profile IPSEC
 
 router eigrp 123
- network 10.0.123.0 0.0.0.255
- network 192.168.0.2 0.0.0.0
+ network 10.0.123.0 0.0.0.255
+ network 192.168.0.2 0.0.0.0
 ```
 
 ## Static VTI
-**Static Virtual Tunnel Interfaces  (VTI)**
+**Static Virtual Tunnel Interfaces  (VTI)**
 - Default tunnel mode is GRE, optionally change to IPsec IPv4 / IPv6.
 - The VPN will be initiated even if no traffic is generated.
 
 ```
 crypto isakmp policy 10
- encr aes 256
- hash sha256
- authentication pre-share
- group 14
- lifetime 3600
+ encr aes 256
+ hash sha256
+ authentication pre-share
+ group 14
+ lifetime 3600
 
 crypto isakmp key cisco address 12.0.0.2
 
 crypto ipsec transform-set TS esp-aes 256 esp-sha256-hmac
- mode tunnel
+ mode tunnel
 
 crypto ipsec profile IPSEC
- set transform-set TS  
+ set transform-set TS  
 
 int tun0
- ip add 10.0.12.1 255.255.255.0
- tunnel source 12.0.0.1
- tunnel destination 12.0.0.2
- ip mtu 1400
- tunnel protection ipsec profile IPSEC
- qos pre-classify
+ ip add 10.0.12.1 255.255.255.0
+ tunnel source 12.0.0.1
+ tunnel destination 12.0.0.2
+ ip mtu 1400
+ tunnel protection ipsec profile IPSEC
+ qos pre-classify
 
 router eigrp 12
-  network 10.0.12.0 0.0.0.255
-  network 192.168.0.1 0.0.0.0
+  network 10.0.12.0 0.0.0.255
+  network 192.168.0.1 0.0.0.0
 ```
 
 # DMVPN
@@ -1743,10 +1743,10 @@ Dynamic Multipoint VPN (DMVPN) Phases
 
 DMVPN Phase 1
 - Basically traditional Hub-and-Spoke topology without dynamic tunnels.
-- Configure spokes with `tunnel destination <hub nbma address>` and `tunnel mode gre` on the tunnel interface.
+- Configure spokes with `tunnel destination <hub nbma address>` and `tunnel mode gre` on the tunnel interface.
 
 DMVPN Phase 3 Additions
-- The `ip nhrp redirect` is configured on the hub and works similar to IP redirect. Informs spokes of the location of others.
+- The `ip nhrp redirect` is configured on the hub and works similar to IP redirect. Informs spokes of the location of others.
 - When a hub receives and forwards packet out of same interface it will sent a NHRP redirect message back to the source.
 - The original packet from the source is not dropped but forwarded down to other spoke via RIB.
 - The `ip nhrp shortcut` is configured on spokes and rewrites the CEF entry after getting the redirect message.
@@ -1781,47 +1781,47 @@ P3 hub configuration:
 
 ```
 int fa0/0
- ip add 123.0.0.1 255.255.255.0
+ ip add 123.0.0.1 255.255.255.0
 
 int tun0
- tunnel source fa0/0
- tunnel mode gre multipoint
- ip nhrp network-id 123
- ip mtu 1400
- ip nhrp map multicast dynamic
- ip address 10.0.123.1 255.255.255.0
- ip nhrp redirect
+ tunnel source fa0/0
+ tunnel mode gre multipoint
+ ip nhrp network-id 123
+ ip mtu 1400
+ ip nhrp map multicast dynamic
+ ip address 10.0.123.1 255.255.255.0
+ ip nhrp redirect
 
 router bgp 123
- bgp listen range 10.0.123.0/24 peer-group DMVPN
- bgp listen limit 2
- neighbor DMVPN peer-group
- neighbor DMVPN remote-as 123
- address-family ipv4
-  neighbor DMVPN route-reflector-client
-  neighbor DMVPN activate
+ bgp listen range 10.0.123.0/24 peer-group DMVPN
+ bgp listen limit 2
+ neighbor DMVPN peer-group
+ neighbor DMVPN remote-as 123
+ address-family ipv4
+  neighbor DMVPN route-reflector-client
+  neighbor DMVPN activate
 ```
 
 P3 spoke configuration:
 
 ```
 int fa0/0
- ip add 123.0.0.2 255.255.255.0
+ ip add 123.0.0.2 255.255.255.0
 
 int tun0
- tunnel source fa0/0
- tunnel mode gre multipoin
- ip nhrp network-id 123
- ip mtu 1400
- ip nhrp map multicast 123.0.0.1
- ip nhrp nhs 10.0.123.1 nbma 123.0.0.1
- ip address 10.0.123.2 255.255.255.0
- ip nhrp shortcut
+ tunnel source fa0/0
+ tunnel mode gre multipoin
+ ip nhrp network-id 123
+ ip mtu 1400
+ ip nhrp map multicast 123.0.0.1
+ ip nhrp nhs 10.0.123.1 nbma 123.0.0.1
+ ip address 10.0.123.2 255.255.255.0
+ ip nhrp shortcut
 
 router bgp 123
- neighbor 10.0.123.1 remote-as 123
- address-family ipv4
-  neighbor 10.0.123.1 activate
+ neighbor 10.0.123.1 remote-as 123
+ address-family ipv4
+  neighbor 10.0.123.1 activate
 ```
 
 ## EIGRP
@@ -1835,7 +1835,7 @@ EIGRP DMVPN Recommendations
 
 **EIGRP add-path support for DMVPN**
 - Enables hubs to advertise up to four best paths to connected spokes.
-- Disable next-hop-self for add-paths to operate.
+- Disable next-hop-self for add-paths to operate.
 - Can only be enabled named configuration.
 - Should not be configured alongside variance.
 
@@ -1843,46 +1843,46 @@ P3 hub configuration:
 
 ```
 int fa0/0
- ip add 123.0.0.1 255.255.255.0
+ ip add 123.0.0.1 255.255.255.0
 
 int tun0
- tunnel source fa0/0
- tunnel mode gre multipoint
- ip nhrp network-id 123
- ip mtu 1400
- ip nhrp map multicast dynamic
- ip address 10.0.123.1 255.255.255.0
- ip nhrp redirect
+ tunnel source fa0/0
+ tunnel mode gre multipoint
+ ip nhrp network-id 123
+ ip mtu 1400
+ ip nhrp map multicast dynamic
+ ip address 10.0.123.1 255.255.255.0
+ ip nhrp redirect
 
 router eigrp DMVPN
- add ipv4 au 123
-  network 10.0.123.0 0.0.0.255
- af-interface tun0
-  summary-address 0.0.0.0/0
-  no next-hop-self no-ecmp-mode
-  no split-horizon
-  add-paths 4
+ add ipv4 au 123
+  network 10.0.123.0 0.0.0.255
+ af-interface tun0
+  summary-address 0.0.0.0/0
+  no next-hop-self no-ecmp-mode
+  no split-horizon
+  add-paths 4
 ```
 
 P3 spoke configuration:
 
 ```
 int fa0/0
- ip add 123.0.0.2 255.255.255.0
+ ip add 123.0.0.2 255.255.255.0
 
 int tun0
- tunnel source fa0/0
- tunnel mode gre multipoint
- ip nhrp network-id 123
- ip mtu 1400
- ip nhrp map multicast 123.0.0.1
- ip nhrp nhs 10.0.123.1 nbma 123.0.0.1
- ip address 10.0.123.2 255.255.255.0
- ip nhrp shortcut
+ tunnel source fa0/0
+ tunnel mode gre multipoint
+ ip nhrp network-id 123
+ ip mtu 1400
+ ip nhrp map multicast 123.0.0.1
+ ip nhrp nhs 10.0.123.1 nbma 123.0.0.1
+ ip address 10.0.123.2 255.255.255.0
+ ip nhrp shortcut
 
 router eigrp DMVPN
- add ipv4 au 123
-  network 10.0.123.0 0.0.0.255
+ add ipv4 au 123
+  network 10.0.123.0 0.0.0.255
 ```
 
 ## Misc
@@ -1893,7 +1893,7 @@ router eigrp DMVPN
 
 ```
 crypto ipsec transform-set TS esp-aes 256 esp-sha256-hmac
- mode transport
+ mode transport
 ```
 
 **DMVPN QoS**
@@ -1904,15 +1904,15 @@ crypto ipsec transform-set TS esp-aes 256 esp-sha256-hmac
 
 ```
 policy-map R2_PM
- class class-default
-  shape average 50 m
+ class class-default
+  shape average 50 m
 policy-map R3_POLICY
- class class-default
-  shape average 25 m
+ class class-default
+  shape average 25 m
 
 int tun0
- ip nhrp map group R2 service-policy output R2_PM
- ip nhrp map group R3 service-policy output R3_PM
+ ip nhrp map group R2 service-policy output R2_PM
+ ip nhrp map group R3 service-policy output R3_PM
 
 show policy-map multipoint
 ```
@@ -1921,7 +1921,7 @@ Spoke configuration:
 
 ```
 int tun0
- ip nhrp group R2
+ ip nhrp group R2
 ```
 
 **DMVPN PIMv2**
@@ -1939,44 +1939,44 @@ P3 hub configuration:
 
 ```
 int fa0/0
- ip add 123.0.0.1 255.255.255.0
+ ip add 123.0.0.1 255.255.255.0
 
 cdp timer 20
 cdp holdtime 60
 
 int tun0
- tunnel source fa0/0
- tunnel mode gre multipoint
- ip nhrp network-id 123
- ip mtu 1400
- ip nhrp map multicast dynamic
- ip address 10.0.123.1 255.255.255.0
- ip nhrp redirect
- cdp enable
+ tunnel source fa0/0
+ tunnel mode gre multipoint
+ ip nhrp network-id 123
+ ip mtu 1400
+ ip nhrp map multicast dynamic
+ ip address 10.0.123.1 255.255.255.0
+ ip nhrp redirect
+ cdp enable
 
 router odr
- timers 20 60 60 90
+ timers 20 60 60 90
 ```
 
 P3 spoke configuration:
 
 ```
 int fa0/0
- ip add 123.0.0.2 255.255.255.0
+ ip add 123.0.0.2 255.255.255.0
 
 cdp timer 20
 cdp holdtime 60
 
 int tun0
- tunnel source fa0/0
- tunnel mode gre multipoint
- ip nhrp network-id 123
- ip mtu 1400
- ip nhrp map multicast 123.0.0.1
- ip nhrp nhs 10.0.123.1 nbma 123.0.0.1
- ip address 10.0.123.2 255.255.255.0
- ip nhrp shortcut
- cdp enable
+ tunnel source fa0/0
+ tunnel mode gre multipoint
+ ip nhrp network-id 123
+ ip mtu 1400
+ ip nhrp map multicast 123.0.0.1
+ ip nhrp nhs 10.0.123.1 nbma 123.0.0.1
+ ip address 10.0.123.2 255.255.255.0
+ ip nhrp shortcut
+ cdp enable
 ```
 
 ## OSPF
@@ -1991,37 +1991,37 @@ P3 hub configuration:
 
 ```
 int fa0/0
- ip add 123.0.0.1 255.255.255.0
+ ip add 123.0.0.1 255.255.255.0
 
 int tun0
- tunnel source fa0/0
- tunnel mode gre multipoint
- ip nhrp network-id 123
- ip mtu 1400
- ip nhrp map multicast dynamic
- ip address 10.0.123.1 255.255.255.0
- ip ospf network point-to-multipoint
- ip ospf 123 area 0
- ip nhrp redirect
+ tunnel source fa0/0
+ tunnel mode gre multipoint
+ ip nhrp network-id 123
+ ip mtu 1400
+ ip nhrp map multicast dynamic
+ ip address 10.0.123.1 255.255.255.0
+ ip ospf network point-to-multipoint
+ ip ospf 123 area 0
+ ip nhrp redirect
 ```
 
 P3 spoke configuration:
 
 ```
 int fa0/0
- ip add 123.0.0.2 255.255.255.0
+ ip add 123.0.0.2 255.255.255.0
 
 int tun0
- tunnel source fa0/0
- tunnel mode gre multipoint
- ip nhrp network-id 123
- ip mtu 1400
- ip nhrp map multicast 123.0.0.1
- ip address 10.0.123.2 255.255.255.0
- ip nhrp nhs 10.0.123.1 nbma 123.0.0.1
- ip ospf network point-to-multipoint
- ip ospf 123 area 0
- ip nhrp shortcut
+ tunnel source fa0/0
+ tunnel mode gre multipoint
+ ip nhrp network-id 123
+ ip mtu 1400
+ ip nhrp map multicast 123.0.0.1
+ ip address 10.0.123.2 255.255.255.0
+ ip nhrp nhs 10.0.123.1 nbma 123.0.0.1
+ ip ospf network point-to-multipoint
+ ip ospf 123 area 0
+ ip nhrp shortcut
 ```
 
 **OSPF DMVPN Filter**
@@ -2032,7 +2032,7 @@ Hub configuration:
 
 ```
 router ospf 123
- default-information originate always
+ default-information originate always
 ```
 
 Spoke configuration:
@@ -2040,7 +2040,7 @@ Spoke configuration:
 ```
 access-list 1 permit host 0.0.0.0
 router ospf 123
- distribute-list 1 in
+ distribute-list 1 in
 ```
 
 ## RIP
@@ -2056,43 +2056,43 @@ P3 hub configuration:
 
 ```
 int fa0/0
- ip add 123.0.0.1 255.255.255.0
+ ip add 123.0.0.1 255.255.255.0
 
 int tun0
- tunnel source fa0/0
- tunnel mode gre multipoint
- ip nhrp network-id 123
- ip mtu 1400
- ip nhrp map multicast dynamic
- ip address 10.0.123.1 255.255.255.0
- ip nhrp redirect
+ tunnel source fa0/0
+ tunnel mode gre multipoint
+ ip nhrp network-id 123
+ ip mtu 1400
+ ip nhrp map multicast dynamic
+ ip address 10.0.123.1 255.255.255.0
+ ip nhrp redirect
 
 router rip
- version 2
- network 10.0.0.0
- no auto-summary
+ version 2
+ network 10.0.0.0
+ no auto-summary
 ```
 
 P3 spoke configuration:
 
 ```
 int fa0/0
- ip add 123.0.0.2 255.255.255.0
+ ip add 123.0.0.2 255.255.255.0
 
 int tun0
- tunnel source fa0/0
- tunnel mode gre multipoint
- ip nhrp network-id 123
- ip mtu 1400
- ip nhrp map multicast 123.0.0.1
- ip nhrp nhs 10.0.123.1 nbma 123.0.0.1
- ip address 10.0.123.2 255.255.255.0
- ip nhrp shortcut
+ tunnel source fa0/0
+ tunnel mode gre multipoint
+ ip nhrp network-id 123
+ ip mtu 1400
+ ip nhrp map multicast 123.0.0.1
+ ip nhrp nhs 10.0.123.1 nbma 123.0.0.1
+ ip address 10.0.123.2 255.255.255.0
+ ip nhrp shortcut
 
 router rip
- version 2
- network 10.0.0.0
- no auto-summary
+ version 2
+ network 10.0.0.0
+ no auto-summary
 ```
 
 ## IPv6
@@ -2106,35 +2106,35 @@ P3 hub configuration:
 
 ```
 int fa0/0
- ip add 10.0.123.1 255.255.255.0
+ ip add 10.0.123.1 255.255.255.0
 
 interface tun0
- tunnel source 10.0.123.1
- tunnel mode gre multipoint ipv6
- ipv6 nhrp map multicast dynamic
- ipv6 nhrp network-id 123
- ipv6 mtu 1400
- ipv6 address FE80::1 link-local
- ipv6 address 2001:10:0:123::1/64
- ipv6 nhrp redirect
+ tunnel source 10.0.123.1
+ tunnel mode gre multipoint ipv6
+ ipv6 nhrp map multicast dynamic
+ ipv6 nhrp network-id 123
+ ipv6 mtu 1400
+ ipv6 address FE80::1 link-local
+ ipv6 address 2001:10:0:123::1/64
+ ipv6 nhrp redirect
 ```
 
 P3 spoke configuration:
 
 ```
 int fa0/0
- ip add 10.0.123.2 255.255.255.0
+ ip add 10.0.123.2 255.255.255.0
 
 interface tun0
- tunnel source 10.0.123.2
- tunnel mode gre multipoint
- ipv6 nhrp map multicast 123.0.0.1
- ipv6 nhrp network-id 123
- ipv6 nhrp nhs 2001:10:0:123::1 nbma 123.0.0.1
- ipv6 mtu 1400
- ipv6 address FE80::2 link-local
- ipv6 address 2001:10:0:123::2/64
- ipv6 nhrp shortcut
+ tunnel source 10.0.123.2
+ tunnel mode gre multipoint
+ ipv6 nhrp map multicast 123.0.0.1
+ ipv6 nhrp network-id 123
+ ipv6 nhrp nhs 2001:10:0:123::1 nbma 123.0.0.1
+ ipv6 mtu 1400
+ ipv6 address FE80::2 link-local
+ ipv6 address 2001:10:0:123::2/64
+ ipv6 nhrp shortcut
 ```
 
 **IPv6 DMVPN over IPv6 NBMA**
@@ -2147,39 +2147,39 @@ P3 hub configuration:
 
 ```
 int fa0/0
- ipv6 add 2001:123::1/64
- ipv6 address FE80::1 link-local
+ ipv6 add 2001:123::1/64
+ ipv6 address FE80::1 link-local
 
 int tun0
- ipv6 mtu 1400
- tunnel source 2001:123::1/64
- tunnel mode gre multipoint ipv6
- ipv6 address FE80::1 link-local
- ipv6 address 2001:10:0:123::1/64
- ipv6 mtu 1400
- ipv6 nhrp map multicast dynamic
- ipv6 nhrp network-id 123
- ipv6 nhrp redirect
+ ipv6 mtu 1400
+ tunnel source 2001:123::1/64
+ tunnel mode gre multipoint ipv6
+ ipv6 address FE80::1 link-local
+ ipv6 address 2001:10:0:123::1/64
+ ipv6 mtu 1400
+ ipv6 nhrp map multicast dynamic
+ ipv6 nhrp network-id 123
+ ipv6 nhrp redirect
 ```
 
 P3 spoke configuration:
 
 ```
 int fa0/0
- ipv6 add 2001:123::2/64
- ipv6 address FE80::2 link-local
+ ipv6 add 2001:123::2/64
+ ipv6 address FE80::2 link-local
 
 int tun0
- ipv6 mtu 1400
- tunnel source 2001:123::2/64
- tunnel mode gre multipoint ipv6
- ipv6 address FE80::2 link-local
- ipv6 address 2001:10:0:123::2/64
- ipv6 nhrp map multicast 2001:123:0:0::1
- ipv6 nhrp network-id 123
- ipv6 nhrp nhs 2001:10:0:123::1 nbma 2001:123::1
- ipv6 mtu 1400
- ipv6 nhrp shortcut
+ ipv6 mtu 1400
+ tunnel source 2001:123::2/64
+ tunnel mode gre multipoint ipv6
+ ipv6 address FE80::2 link-local
+ ipv6 address 2001:10:0:123::2/64
+ ipv6 nhrp map multicast 2001:123:0:0::1
+ ipv6 nhrp network-id 123
+ ipv6 nhrp nhs 2001:10:0:123::1 nbma 2001:123::1
+ ipv6 mtu 1400
+ ipv6 nhrp shortcut
 ```
 
 **IPv4 DMVPN over IPv6 NBMA**
@@ -2192,35 +2192,35 @@ P3 hub configuration:
 
 ```
 int fa0/0
- ipv6 add 2001:123::1/64
- ipv6 address FE80::1 link-local
+ ipv6 add 2001:123::1/64
+ ipv6 address FE80::1 link-local
 
 interface tun0
- ip mtu 1400
- tunnel source 2001:123::1
- tunnel mode gre multipoint ipv6
- ip nhrp map multicast dynamic
- ip nhrp network-id 123
- ip address 10.0.123.1 255.255.255.0
- ip nhrp redirect
+ ip mtu 1400
+ tunnel source 2001:123::1
+ tunnel mode gre multipoint ipv6
+ ip nhrp map multicast dynamic
+ ip nhrp network-id 123
+ ip address 10.0.123.1 255.255.255.0
+ ip nhrp redirect
 ```
 
 P3 spoke configuration:
 
 ```
 int fa0/0
- ipv6 add 2001:123::2/64
- ipv6 address FE80::2 link-local
+ ipv6 add 2001:123::2/64
+ ipv6 address FE80::2 link-local
 
 interface tun0
- ip mtu 1400
- tunnel source 2001:123::2
- tunnel mode gre multipoint ipv6
- ip nhrp map multicast dynamic
- ip nhrp network-id 123
- ip address 10.0.123.2 255.255.255.0
- ip nhrp nhs 10.0.123.1 nbma 2001:123::1
- ip nhrp shortcut
+ ip mtu 1400
+ tunnel source 2001:123::2
+ tunnel mode gre multipoint ipv6
+ ip nhrp map multicast dynamic
+ ip nhrp network-id 123
+ ip address 10.0.123.2 255.255.255.0
+ ip nhrp nhs 10.0.123.1 nbma 2001:123::1
+ ip nhrp shortcut
 ```
 
 # EIGRP
@@ -2235,7 +2235,7 @@ interface tun0
 - EIGRP updates are sent to the multicast address and acknowledgements are replied via unicast.
 
 **EIGRP Timers**
-- The configured `hold-time` is communicated to the neighbor on the segment. This hold-time is included in the hello message.
+- The configured `hold-time` is communicated to the neighbor on the segment. This hold-time is included in the hello message.
 - The neighbor receives this and will expect a new hello from the router within this time. These timers do not have to match.
 
 ## Filtering
@@ -2245,12 +2245,12 @@ Deny even from R2 and odd from R3:
 
 ```
 ip access-list extended 100
- deny ip host 10.0.12.2 4.0.0.0 0.0.0.254
- deny ip host 10.0.13.3 4.0.0.1 0.0.0.254
- permit ip any any
+ deny ip host 10.0.12.2 4.0.0.0 0.0.0.254
+ deny ip host 10.0.13.3 4.0.0.1 0.0.0.254
+ permit ip any any
 
 router eigrp 1
- distribute-list 100 in
+ distribute-list 100 in
 ```
 
 **Prefix-List**
@@ -2263,7 +2263,7 @@ ip prefix-list DENY_R2 permit 0.0.0.0/0 le 32
 ip prefix-list PREFIXES permit 0.0.0.0/0 le 32
 
 router eigrp 1
-  distribute-list prefix PREFIXES gateway DENY_R2 in
+  distribute-list prefix PREFIXES gateway DENY_R2 in
 ```
 
 Only accept prefixes from R3:
@@ -2272,7 +2272,7 @@ Only accept prefixes from R3:
 ip prefix-list R3 permit 10.0.13.3/32
 
 router eigrp 1
- distribute-list gateway R3 in
+ distribute-list gateway R3 in
 ```
 
 Deny specific prefixes from R2:
@@ -2284,20 +2284,20 @@ ip prefix-list NETWORKS deny 4.0.0.2/32
 ip prefix-list NETWORKS permit 0.0.0.0/0 le 32
 
 router eigrp 1
-  distribute-list prefix NETWORKS gateway R2 in fa0/0
+  distribute-list prefix NETWORKS gateway R2 in fa0/0
 ```
 
 ## Metric
 EIGRP Composite Metric (Weight Calculation)
 - EIGRP uses metric weights along with a set of vector metrics to compute the composite metric for local RIB and route selections.
-- Type of service (first K value) must always be zero.  
+- Type of service (first K value) must always be zero.  
 - The formula is `[K1*bandwidth + (K2*bandwidth)/(256 - load) + K3*delay] * [K5/(reliability + K4)]`.
 
 `256*[(10^7/slowest bandwidth in kbps) + all link delays in tens microseconds]`
 
 ```
 router eigrp
- metric weights 0 1 0 1 0 0
+ metric weights 0 1 0 1 0 0
 ```
 
 **EIGRP Wide Metrics**
@@ -2311,8 +2311,8 @@ router eigrp
 
 ```
 router eigrp EIGRP
- address-family ipv4 unicast autonomous-system 1
-  metric rib-scale 128
+ address-family ipv4 unicast autonomous-system 1
+  metric rib-scale 128
 ```
 
 The 64-bit metric calculations work only in EIGRP named mode configurations. EIGRP classic mode uses 32-bit metric calculations.
@@ -2321,26 +2321,26 @@ The 64-bit metric calculations work only in EIGRP named mode configurations. EIG
 **EIGRP Offset Lists**
 - The offset list increases the existing metric by a specified amount. It is not possible to decrease a metric.
 - The offset list modifies the `delay` value, not the `bandwidth` value. Meaning that it is included in the cumulative delay.
-- Using `offset-list 0` will apply the offset to all networks. Using an empty access list has the same effect.
+- Using `offset-list 0` will apply the offset to all networks. Using an empty access list has the same effect.
 
 An offset list will only influence the calculated metric, and thus the composite metric. The composite metric is only used for local calculation and is not communicated to neighbors. However, routing paths through the router between neighbors will still add the offset value to the metric. This is because the offset list changes the delay value which is cumulative in the total metric for the route.
 
 EIGRP Unequal Cost Multi-Path Load-Sharing
 - Only feasible successors are candidate for load balancing.
-- The `traffic-share min accross-interfaces` only uses the primary path in case of a UCMP configuration using variance.
+- The `traffic-share min accross-interfaces` only uses the primary path in case of a UCMP configuration using variance.
 - This will stop the route from using UCMP. The point of this configuration is to speed up convergence.
 - When calculating the eigrp traffic share count, divide numbers to figure out metric.
 - A preffered traffic share count of two routes, one 10 the other `3 -> 10/3 = 3.33 * metric value`.
 
 ```
 router eigrp 1
- variance 5
- traffic-share min accross-interfaces
+ variance 5
+ traffic-share min accross-interfaces
 ```
 
 **Default Metric & Redistribution**
 - Only connected and static routes can be redistributed without a default metric. This metric is set to 0.
-- IPv6 networks add the `include-connected` keyword to include connected networks as well.
+- IPv6 networks add the `include-connected` keyword to include connected networks as well.
 - In IPv4 connected networks are included in the redistribution by default.
 
 **Metric Maximum-Hops**
@@ -2349,7 +2349,7 @@ router eigrp 1
 
 ```
 router eigrp 1
- metric maximum-hops 10
+ metric maximum-hops 10
 ```
 
 ## Misc
@@ -2359,24 +2359,24 @@ router eigrp 1
 
 ```
 ipv6 router eigrp 1
- neighbor FE80::2 fa0/0
- neighbor FE80::3 fa0/0
+ neighbor FE80::2 fa0/0
+ neighbor FE80::3 fa0/0
 ```
 
 Or:
 
 ```
 ipv6 access-list EIGRP_BLOCK
- deny 88 fe80::2/128  any
- deny 88 fe80::3/128  any
- permit ipv6 any any
+ deny 88 fe80::2/128  any
+ deny 88 fe80::3/128  any
+ permit ipv6 any any
 
 int fa0/0
- ipv6 traffic-filter EIGRP_BLOCK in
+ ipv6 traffic-filter EIGRP_BLOCK in
 ```
 
 **EIGRP Router-ID**
-- Duplicate router-IDs (RID) do not show up in the logging or debug.  Use the `show ip eigrp events | i Ignored` command.
+- Duplicate router-IDs (RID) do not show up in the logging or debug.  Use the `show ip eigrp events | i Ignored` command.
 - EIGRP uses the concept of the RID as a loop-prevention mechanism to filter out a routers own routes.
 - In the event of a duplicate RID the neighbors routes will not be installed.
 
@@ -2388,56 +2388,56 @@ int fa0/0
 
 ```
 key chain EIGRP_KEY
- key 1
-  key-string cisco
+ key 1
+  key-string cisco
 
 int fa0/0
- ip authentication key-chain eigrp 1 EIGRP_KEY
- ip authentication mode eigrp 1 md5
+ ip authentication key-chain eigrp 1 EIGRP_KEY
+ ip authentication mode eigrp 1 md5
 ```
 
 HMAC-SHA-256 using named configuration:
 
 ```
 router eigrp EIGRP
- address-family ipv4 autonomous-system 1
-  af-interface fa0/0
-   authentication mode hmac-sha-256 cisco
+ address-family ipv4 autonomous-system 1
+  af-interface fa0/0
+   authentication mode hmac-sha-256 cisco
 ```
 
 **Dampening Change & Interval**
 - Dampening controls the update of metric changes of routes advertised by neighbors.
 - Dampening compares the old metric for the route with the new metric.
 - Using `dampening-change`, if this new metric is within the percentage threshold, the update will be ignored.
-- Using `dampening-interval`, if this new metric is within the configured time interval, the update will be ignored.
+- Using `dampening-interval`, if this new metric is within the configured time interval, the update will be ignored.
 - Dampening is disabled by default.
 
 ```
 int fa0/0
- ip dampening-change eigrp 1 percent 75
- ip dampening-interval eigrp 1 seconds 60
+ ip dampening-change eigrp 1 percent 75
+ ip dampening-interval eigrp 1 seconds 60
 ```
 
 **Next-Hop-Self**
 - Disable next-hop-self on the redistributing router when using 3rd party next hop.
 - This is used when OSPF and EIGRP coexist on the same segment, and one router is used for redistributing both protocols.
 - Normally all traffic would go through the redistributing router, with 3rd party next hop the neighbors can communicate directly.
-- Requirement is to disable `next-hop-self` on the interface of the redistributing router towards the shared segment.
+- Requirement is to disable `next-hop-self` on the interface of the redistributing router towards the shared segment.
 - Other situations where `next-hop-self` might be disabled is in DMVPN solutions.
 
 ```
 int fa0/0
- description SHARED_OSPF_EIGRP_SEGMENT
- ip add 10.0.123.1 255.255.255.0
- no ip next-hop-self eigrp 1
+ description SHARED_OSPF_EIGRP_SEGMENT
+ ip add 10.0.123.1 255.255.255.0
+ no ip next-hop-self eigrp 1
 
 router eigrp 1
- network 10.0.123.0 0.0.0.255
- redistribute ospf 1
+ network 10.0.123.0 0.0.0.255
+ redistribute ospf 1
 
 router ospf 1
- network 10.0.123.0 0.0.0.255 area 0
- redistribute eigrp 1 subnets
+ network 10.0.123.0 0.0.0.255 area 0
+ redistribute eigrp 1 subnets
 ```
 
 **Bandwidth Percentage**
@@ -2448,7 +2448,7 @@ router ospf 1
 
 ```
 int fa0/0
- ip bandwidth-percent eigrp 75
+ ip bandwidth-percent eigrp 75
 ```
 
 **Administrative Distance**
@@ -2457,12 +2457,12 @@ int fa0/0
 
 ```
 ip access-list standard NETWORK
- permit host 172.16.0.0
+ permit host 172.16.0.0
 
 router eigrp 1
- distance eigrp 90 170
- distance 85 10.0.12.2 0.0.0.0
- distance 75 10.0.13.3 0.0.0.0 NETWORK
+ distance eigrp 90 170
+ distance 85 10.0.12.2 0.0.0.0
+ distance 75 10.0.13.3 0.0.0.0 NETWORK
 ```
 
 **EIGRP Loop-Free Alternate Fast Reroute (FRR)**
@@ -2471,9 +2471,9 @@ router eigrp 1
 
 ```
 router eigrp EIGRP
- address-family ipv4 autonomous-system 1
-  topology base
-   fast-reroute per-prefix all
+ address-family ipv4 autonomous-system 1
+  topology base
+   fast-reroute per-prefix all
 ```
 
 ## Route-Tags
@@ -2485,27 +2485,27 @@ router eigrp EIGRP
 ```
 route-tag notation dotted-decimal
 ip access-list standard Lo1
- permit host 4.0.0.1
+ permit host 4.0.0.1
 ip access-list standard Lo2
- permit host 4.0.0.2
+ permit host 4.0.0.2
 
 ip prefix-list Lo3 permit 4.0.0.3/32
 
 route-map LOOPBACKS permit 10
- match ip address Lo1
- set tag 44.44.1.1
+ match ip address Lo1
+ set tag 44.44.1.1
 route-map LOOPBACKS permit 20
- match ip address Lo2
- set tag 44.44.2.1
+ match ip address Lo2
+ set tag 44.44.2.1
 route-map LOOPBACKS permit 30
- match ip address prefix-list Lo3
- set tag 44.44.3.1
+ match ip address prefix-list Lo3
+ set tag 44.44.3.1
 route-map LOOPBACKS permit 40
- match interface loopback 4
- set tag 44.44.4.1
+ match interface loopback 4
+ set tag 44.44.4.1
 
 router eigrp 1
- redistribute connected route-map LOOPBACKS
+ redistribute connected route-map LOOPBACKS
 ```
 
 Route-tag Even Filtering:
@@ -2515,20 +2515,20 @@ route-tag notation dotted-decimal
 route-tag list LOOPBACKS permit 44.44.0.0 0.0.254.255
 
 route-map LOOPBACKS permit 10
- match tag list LOOPBACKS
- set metric 50000 581 255 1 1500
+ match tag list LOOPBACKS
+ set metric 50000 581 255 1 1500
 route-map LOOPBACKS permit 20
 
 router eigrp 1
- distribute-list route-map LOOPBACKS in fa0/0
+ distribute-list route-map LOOPBACKS in fa0/0
 ```
 
 Default Route-Tags:
 
 ```
 router eigrp EIGRP
- address-family ipv4 unicast autonomous-system 1
-  eigrp default-route-tag 192.168.0.1
+ address-family ipv4 unicast autonomous-system 1
+  eigrp default-route-tag 192.168.0.1
 ```
 
 ## Summarization
@@ -2536,16 +2536,16 @@ router eigrp EIGRP
 - Summary routes are always internal, even if external routes are summarized.
 - The summary route has an AD of 5 and is called the discard route which points to Null0 on the summarizing router.
 - The neighbor will receive an internal route with an AD of 90.
-- Disable the discard route by specifying a `summary-metric` distance of 255.
+- Disable the discard route by specifying a `summary-metric` distance of 255.
 - Configure a `leak-map` to allow components of the summary to advertised alongside the summary.
 - Stop IP ICMP unreachables based on discard route with no `ip unreachable`s configured on null0 interface.
 
 ```
 int fa0/0
- ip summary-address eigrp 1 0.0.0.0/0
+ ip summary-address eigrp 1 0.0.0.0/0
 
 router eigrp 1
- summary-metric 0.0.0.0/0 distance 255
+ summary-metric 0.0.0.0/0 distance 255
 ```
 
 Leak-Map
@@ -2554,15 +2554,15 @@ Allow the 10.0.12.0/24 network to be advertised alongside the summary:
 ```
 ip prefix-list NETWORK permit 10.0.12.0/24
 route-map LEAK_MAP permit 10
- match ip address prefix-list NETWORK
+ match ip address prefix-list NETWORK
 
 int fa0/0
- ip summary-address eigrp 1 10.0.0.0/16 leak-map LEAK_MAP
+ ip summary-address eigrp 1 10.0.0.0/16 leak-map LEAK_MAP
 ```
 
 ## Stub
 EIGRP Stub
-- EIGRP query messages live for 3 minutes by default.  Can be modified with the `timers active-time` command.
+- EIGRP query messages live for 3 minutes by default.  Can be modified with the `timers active-time` command.
 - Queries are not sent if a feasible successor is present in the topology for the route.
 - A router will wait for a reply for all neighbors before failing over to a different path. This is called Stuck in Active (SIA).
 - Fix SIA with summary routes or stub routers.
@@ -2572,15 +2572,15 @@ Allow prefixes from 172.16.1.0/24 alongside the connected and summary routes:
 
 ```
 int fa0/0
- ip summary-address eigrp 1 172.16.0.0/16
+ ip summary-address eigrp 1 172.16.0.0/16
 
 ip prefix-list STUB_PREFIX permit 172.16.1.0/24
 
 route-map STUB_LEAK_MAP permit 10
- match ip address prefix STUB_PREFIX
+ match ip address prefix STUB_PREFIX
 
 router eigrp 1
- eigrp stub connected summary leak-map STUB_LEAK_MAP
+ eigrp stub connected summary leak-map STUB_LEAK_MAP
 ```
 
 # Frame-Relay (v4)
@@ -2601,27 +2601,27 @@ Inverse ARP
 
 ```
 int s1/0
- encapsulation frame-relay
- no frame-relay inverse-arp
+ encapsulation frame-relay
+ no frame-relay inverse-arp
 
 clear frame inarp
 ```
 
 **Frame-Relay Mappings**
 - If dynamic mappings have been disabled, static ones need to be created on the clients (R1,R3).
-- The `broadcast` keyword allows broadcast packets over NBMA.
-- Only configure `broadcast` on one statement, preferably the statement that configures the router to ping itself.
+- The `broadcast` keyword allows broadcast packets over NBMA.
+- Only configure `broadcast` on one statement, preferably the statement that configures the router to ping itself.
 
 ```
 int se1/0
- ip address 10.0.13.1 255.255.255.0
- frame-relay map ip 10.0.13.1 103 broadcast
- frame-relay map ip 10.0.13.3 103
+ ip address 10.0.13.1 255.255.255.0
+ frame-relay map ip 10.0.13.1 103 broadcast
+ frame-relay map ip 10.0.13.3 103
 
 int se1/0
- ip address 10.0.13.3 255.255.255.0
- frame-relay map ip 10.0.13.1 301
- frame-relay map ip 10.0.13.3 301 broadcast
+ ip address 10.0.13.3 255.255.255.0
+ frame-relay map ip 10.0.13.1 301
+ frame-relay map ip 10.0.13.3 301 broadcast
 
 show frame pvc
 show frame map
@@ -2632,18 +2632,18 @@ show frame map
 - Configure DCE on interfaces
 - Create FR PVCs using either frame routes (FR switching framework) or connections (L2VPN framework).
 
-Create FR PVCs using  frame routes on FR Switch:
+Create FR PVCs using  frame routes on FR Switch:
 
 ```
 int se1/0
- encapsulation frame-relay
- frame-relay intf-type dce
- frame route 103 interface se1/1 301
+ encapsulation frame-relay
+ frame-relay intf-type dce
+ frame route 103 interface se1/1 301
 
 int se1/1
- encapsulation frame-relay
- frame-relay intf-type dce
- frame route 301 interface se1/0 103
+ encapsulation frame-relay
+ frame-relay intf-type dce
+ frame route 301 interface se1/0 103
 
 show frame route
 show frame pvc
@@ -2660,36 +2660,36 @@ show connection all
 - If sub-interfaces are being used, the DLCI needs to be linked to the sub-interface.
 - Inverse ARP configuration is not inherited by sub-interfaces.
 - With PTP mode sub-interfaces are configured on the hub, each to single location.
-- With PTMP mode a single interface is configured  on the hub to multiple locations. Disable `split-horizon` if using EIGRP.
-- The `no inverse-arp` configuration on the physical interface is not inherit by the sub-interface.
+- With PTMP mode a single interface is configured  on the hub to multiple locations. Disable `split-horizon` if using EIGRP.
+- The `no inverse-arp` configuration on the physical interface is not inherit by the sub-interface.
 
 ```
 int se1/0.123 point-to-multipoint
- frame-relay interface-dlci 123
+ frame-relay interface-dlci 123
 
 int se1/0.102 point-to-point
- frame-relay interface-dlci 102
+ frame-relay interface-dlci 102
 
 int se1/0.103 point-to-point
- frame-relay interface-dlci 103
+ frame-relay interface-dlci 103
 ```
 
 **Frame-Relay Authentication**
 - Use point-to-point sub-interfaces configured with PPP encapsulation.
-- Use `ip unnumbered` in order to enable self-ping.
+- Use `ip unnumbered` in order to enable self-ping.
 
 R1 configuration:
 
 ```
 username R3 password cisco
 int se1/0.103 point-to-point
- frame-relay interface-dlci 103 ppp virtual-template 1
+ frame-relay interface-dlci 103 ppp virtual-template 1
 
 interface virtual-template 1
- ip address 10.0.13.1 255.255.255.0
- encapsulation ppp
- ppp authentication chap
- ppp pap sent-username R1 password cisco
+ ip address 10.0.13.1 255.255.255.0
+ encapsulation ppp
+ ppp authentication chap
+ ppp pap sent-username R1 password cisco
 ```
 
 R3 configuration:
@@ -2697,28 +2697,28 @@ R3 configuration:
 ```cisco
 username R1 password cisco
 int s1/1.301 point-to-point
- frame-relay interface-dlci 301 ppp virtual-template 1
+ frame-relay interface-dlci 301 ppp virtual-template 1
 
 interface virtual-template 1
- ip address 10.0.13.3 255.255.255.0
- encapsulation ppp
- ppp chap hostname R2
- ppp chap password cisco
- ppp authentication pap
+ ip address 10.0.13.3 255.255.255.0
+ encapsulation ppp
+ ppp chap hostname R2
+ ppp chap password cisco
+ ppp authentication pap
 ```
 
 # IP Routing
 **Administrative Distance and Route Selection**
 - Hardcoded original administrative distance will win if different routing protocols are configured to use the same AD.
 - The metrics between different routing protocols or different routing processes are not compared in the route selection.
-- When receiving the same route from different OSPF  processes with the same AD, the route learned first wins.
+- When receiving the same route from different OSPF  processes with the same AD, the route learned first wins.
 - OSPF does not differentiate between internal and external routes to the same destination. Only the AD matters.
 - When receiving the same route from different EIGRP ASs with the same AD, the route from the lower AS wins.
 
 **IP Source-Routing**
 - Allows the originator of a packet to decide which routers the packet will flow through.
 - Basically a custom path of all hops specified at the source and set in the actual IP header by the source.
-- Enabled by default but is a security risk. Disable with no ip source-route command.
+- Enabled by default but is a security risk. Disable with no ip source-route command.
 
 **IP Accounting**
 - Counts the number of IP packets and logs source/destination.
@@ -2726,7 +2726,7 @@ interface virtual-template 1
 
 ```
 int fa0/0
- ip accounting output-packets
+ ip accounting output-packets
 
 show ip accounting
 ```
@@ -2737,8 +2737,8 @@ show ip accounting
 
 ```
 int fa0/0
- no ip redirects
- no ipv6 redirects
+ no ip redirects
+ no ipv6 redirects
 ```
 
 **IP Unreachables**
@@ -2749,12 +2749,12 @@ int fa0/0
 
 ```
 int fa0/0
- no ip unreachables  
- no ipv6 unreachables
+ no ip unreachables  
+ no ipv6 unreachables
 
 int null0
- no ip unreachables  
- no ipv6 unreachables
+ no ip unreachables  
+ no ipv6 unreachables
 ```
 
 **IP Local Proxy-ARP**
@@ -2770,12 +2770,12 @@ arp 10.0.123.3 1234.abcd.1234 arpa
 
 **IP Directed-Broadcast (SMURF)**
 - Disabled by default. Exploited in SMURF attacks.
-- Enable with `ip directed-broadcasts` command on interfaces.
+- Enable with `ip directed-broadcasts` command on interfaces.
 
 **Gratuitous ARP**
-- Update ARP tables after a MAC address for an IP changes, or a MAC address is now on a different port.
+- Update ARP tables after a MAC address for an IP changes, or a MAC address is now on a different port.
 - Sends special ARP packet when interface goes up to notify other hosts in advance so that ARP requests are not needed.
-- Does not expect a reply. When a reply is received there is an IP address conflict in the network.
+- Does not expect a reply. When a reply is received there is an IP address conflict in the network.
 - Used by FHRP to update MAC tables on L2 devices with the virtual MAC address.
 
 **IP Event Dampening**
@@ -2784,7 +2784,7 @@ arp 10.0.123.3 1234.abcd.1234 arpa
 
 ```
 int fa0/0
- dampening 5 1000 2000 20
+ dampening 5 1000 2000 20
 
 show interfaces dampening
 ```
@@ -2796,8 +2796,8 @@ Redistribution
 - Routing protocol redistribution also redistributes the connected networks that the protocol is enabled for.
 - Include IGP interfaces when filtering redistributed connected routes (loopbacks).
 - Another way to include the connected interfaces is to advertise them into the protocols and optionally configure as passive.
-- OSPF default static route cannot be redistributed with the `redistribute static` command, even if a route-map is specified.
-- Always redistribute the default route into OSPF using the `default-information originate` command.
+- OSPF default static route cannot be redistributed with the `redistribute static` command, even if a route-map is specified.
+- Always redistribute the default route into OSPF using the `default-information originate` command.
 
 BGP Redistribution
 - Only internal OSPF routes will be redistributed into BGP by default.
@@ -2814,12 +2814,12 @@ Redistribution using Direct Tags
 
 ```
 route-map EIGRP_ROUTES deny 10
- match tag 90
+ match tag 90
 route-map EIGRP_ROUTES permit 99
 
 router ospf 1
- redistribute eigrp 1 subnets tag 90
-  distribute-list route-map EIGRP_ROUTES in
+ redistribute eigrp 1 subnets tag 90
+  distribute-list route-map EIGRP_ROUTES in
 ```
 
 Mutual MultiPoint Redistribution using Prefix-Lists
@@ -2834,84 +2834,84 @@ ip prefix-list EIGRP_ROUTES permit 4.0.0.2/32
 ip prefix-list EIGRP_ROUTES permit 4.0.0.3/32
 
 route-map EIGRP_TO_OSPF deny 10
- match ip address prefix-list OSPF_ROUTES
+ match ip address prefix-list OSPF_ROUTES
 route-map EIGRP_TO_OSPF permit 20
- match ip address prefix-list EIGRP_ROUTES
+ match ip address prefix-list EIGRP_ROUTES
 
 route-map OSPF_TO_EIGRP deny 10
-  match ip address prefix-list EIGRP_ROUTES
+  match ip address prefix-list EIGRP_ROUTES
 route-map OSPF_TO_EIGRP permit 20
- match ip address prefix-list OSPF_ROUTES
+ match ip address prefix-list OSPF_ROUTES
 
 router eigrp 1
- redistribute ospf 1 metric 1000000 10 255 1 1500 route-map OSPF_TO_EIGRP
+ redistribute ospf 1 metric 1000000 10 255 1 1500 route-map OSPF_TO_EIGRP
 
 router ospf 1
- redistribute eigrp 1 metric-type 1 subnets route-map EIGRP_TO_OSPF
+ redistribute eigrp 1 metric-type 1 subnets route-map EIGRP_TO_OSPF
 ```
 
 **Three-Way Redistribution using Tags**
 
 ```
 route-map EIGRP_TO_RIP deny 10
- match tag 120
+ match tag 120
 route-map EIGRP_TO_RIP permit 20
- match tag 110
- set tag 110
+ match tag 110
+ set tag 110
 route-map EIGRP_TO_RIP permit 30
- set tag 90
+ set tag 90
 
 route-map RIP_TO_EIGRP deny 10
- match tag 90
+ match tag 90
 route-map RIP_TO_EIGRP permit 20
- match tag 110
- set tag 110
+ match tag 110
+ set tag 110
 route-map RIP_TO_EIGRP permit 30
- set tag 120
+ set tag 120
 
 route-map OSPF_TO_RIP deny 10
- match tag 120
+ match tag 120
 route-map OSPF_TO_RIP permit 20
- match tag 90
- set tag 90
+ match tag 90
+ set tag 90
 route-map OSPF_TO_RIP permit 30
- set tag 110
+ set tag 110
 
 route-map RIP_TO_OSPF deny 10
- match tag 110
+ match tag 110
 route-map RIP_TO_OSPF permit 20
- match tag 90
- set tag 90
+ match tag 90
+ set tag 90
 route-map RIP_TO_OSPF permit 30
- set tag 120
+ set tag 120
 
 route-map OSPF_TO_EIGRP deny 10
- match tag 90
+ match tag 90
 route-map OSPF_TO_EIGRP permit 20
- match tag 120
- set tag 120
+ match tag 120
+ set tag 120
 route-map OSPF_TO_EIGRP permit 30
- set tag 110
+ set tag 110
 
 route-map EIGRP_TO_OSPF deny 10
- match tag 110
+ match tag 110
 route-map EIGRP_TO_OSPF permit 20
- match tag 120
- set tag 120
+ match tag 120
+ set tag 120
 route-map EIGRP_TO_OSPF permit 30
- set tag 90
+ set tag 90
 
 router eigrp 1
- redistribute ospf 1 metric 1000000 10 255 1 1500 route-map OSPF_TO_EIGRP
- redistribute rip metric 1000000 10 255 1 1500 route-map RIP_TO_EIGRP
+ redistribute ospf 1 metric 1000000 10 255 1 1500 route-map OSPF_TO_EIGRP
+ redistribute rip metric 1000000 10 255 1 1500 route-map RIP_TO_EIGRP
 
 router ospf 1
- redistribute eigrp 1 metric-type 1 subnets route-map EIGRP_TO_OSPF
- redistribute rip metric 1 subnets route-map RIP_TO_OSPF
+ redistribute eigrp 1 metric-type 1 subnets route-map EIGRP_TO_OSPF
+ redistribute rip metric 1 subnets route-map RIP_TO_OSPF
 
 router rip
- redistribute eigrp 1 metric 3 route-map EIGRP_TO_RIP
- redistribute ospf 1 metric 3 route-map OSPF_TO_RIP
+ redistribute eigrp 1 metric 3 route-map EIGRP_TO_RIP
+ redistribute ospf 1 metric 3 route-map OSPF_TO_RIP
 ```
 
 ## VRF-Lite
@@ -2921,42 +2921,42 @@ router rip
 
 ```
 vrf definition 10
- add ipv4
+ add ipv4
 vrf definition 172
- add ipv4
+ add ipv4
 int fa0/0
- vrf forwarding 10
- ip add 10.0.12.1 255.255.255.0
+ vrf forwarding 10
+ ip add 10.0.12.1 255.255.255.0
 int fa0/1
- vrf forwarding 10
- ip add 10.0.13.1 255.255.255.0
+ vrf forwarding 10
+ ip add 10.0.13.1 255.255.255.0
 int se1/0
- vrf forwarding 172
- ip add 172.0.12.1 255.255.255.0
+ vrf forwarding 172
+ ip add 172.0.12.1 255.255.255.0
 int se1/1
- vrf forwarding 172
- ip add 172.0.13.1 255.255.255.0
+ vrf forwarding 172
+ ip add 172.0.13.1 255.255.255.0
 
 router eigrp EIGRP
- address-family ipv4 unicast vrf 10 autonomous-system 10
-  no auto-summary
-  network 10.0.12.0 0.0.0.255
-  network 10.0.13.0 0.0.0.255
+ address-family ipv4 unicast vrf 10 autonomous-system 10
+  no auto-summary
+  network 10.0.12.0 0.0.0.255
+  network 10.0.13.0 0.0.0.255
 address-family ipv4 unicast vrf 172 autonomous-system 172
-  no auto-summary
-  network 172.0.12.0 0.0.0.255
-  network 172.0.13.0 0.0.0.255
+  no auto-summary
+  network 172.0.12.0 0.0.0.255
+  network 172.0.13.0 0.0.0.255
 ```
 
 Non-VRF neighbors:
 
 ```
 router eigrp 10
-  no auto-summary
-  network 10.0.12.0 0.0.0.255
+  no auto-summary
+  network 10.0.12.0 0.0.0.255
 router eigrp 172
-  no auto-summary
-  network 172.0.12.0 0.0.0.255
+  no auto-summary
+  network 172.0.12.0 0.0.0.255
 ```
 
 # IP services
@@ -2979,14 +2979,14 @@ copy scp://bpin@10.0.12.1/nvram:startup-config null:
 - Allow remote users to execute commands with RSH.
 - Server side has two names in the rcmd command.
   - First one must match /user on client.
-  - Second one must match client hostname or client remote-username command.
+  - Second one must match client hostname or client remote-username command.
   - The enable keyword allows execution of exec commands.
 
 Configure the server:
 
 ```
 ip rcmd rcp-enable
-ip rcmd rsh-enable  
+ip rcmd rsh-enable  
 ip rcmd remote-host remoteadmin 10.0.12.2 R2 enable
 ```
 
@@ -3108,7 +3108,7 @@ BFD Echo Mode
 - Control plane packets are still sent but they are transmitted at the slow timers speed (1000 ms by default).
 
 BFD Timers
-- The time at which 'hello' messages are sent is configured with the `interval` timer.
+- The time at which 'hello' messages are sent is configured with the `interval` timer.
 - The `min_rx` timer is the receive timer, if no message is received within this time the neighbor is considered timed-out
 - The `multiplier` specifies how many BFD messages can be missed before neighbor interface is considered down.
 - BFD timers work like EIGRP. The send and receive timer do not have to match on both sides
@@ -3117,24 +3117,24 @@ BFD Timers
 ```
 bfd slow-timers 1000
 int gi0/0
- bfd echo
- bfd interval 500 min_rx 500 multiplier 3
+ bfd echo
+ bfd interval 500 min_rx 500 multiplier 3
 ```
 
 **BFD Authentication**
 
 ```
 key chain BFD_KEY
- key 1
-  key-string cisco
+ key 1
+  key-string cisco
 
 bfd-template single-hop BFD
- echo
- interval both 500 multiplier 3
- authentication md5 keychain BFD_KEY
+ echo
+ interval both 500 multiplier 3
+ authentication md5 keychain BFD_KEY
 
 int gi0/0
- bfd template BFD
+ bfd template BFD
 ```
 
 **BFD Static**
@@ -3179,59 +3179,59 @@ ip route static bfd gi0/1 10.0.13.3 group BFD passive
 - Host. Handles traffic destined for the router or one of its own interfaces (MGMT, EIGRP, iBGP)
 - Transit. Handles software switched IP traffic.
 - CEF-Exception. Handles non-IP related packets such as OSPF, eBGP, ARP, LDP and CDP (or packets with TTL <=1) .
-- Aggregate interface `<cr>`.  Configuration applied here applies to all the sub-interfaces.
+- Aggregate interface `<cr>`.  Configuration applied here applies to all the sub-interfaces.
 - It is not possible to apply a L3 policy-map to the `aggregate` and any of the other interfaces at the same time.
 - A L3 policy-map applied to the control plane can only use `police` or `drop`, not shape...etc.
-- The `port-filter` keyword polices packets going to closed/non-listening TCP/UDP ports.
-- The `queue-threshold` keyword limits the number of protocol packets that are allowed in the input queue.
+- The `port-filter` keyword polices packets going to closed/non-listening TCP/UDP ports.
+- The `queue-threshold` keyword limits the number of protocol packets that are allowed in the input queue.
   - Rate limit OSPF and eBGP on the `cef-exception` sub-interface, iBGP on the `host` and EIGRP on the `aggregate`.
 
 Police all ICMP traffic:
 
 ```
 ip access-list extended ICMP_ACL
- permit icmp any any
+ permit icmp any any
 
 class-map match-all ICMP_CM
- match access-group name ICMP_ACL
+ match access-group name ICMP_ACL
 policy-map ICMP_PM
- class ICMP_CM
-  police 10000 conform-action transmit exceed-action drop
+ class ICMP_CM
+  police 10000 conform-action transmit exceed-action drop
 
 control-plane host
- service-policy input ICMP_PM
+ service-policy input ICMP_PM
 ```
 
 Drop connections to closed ports:
 
 ```
 class-map type port-filter match-all CLOSED_PORTS_CM
- match closed-ports
+ match closed-ports
 
 policy-map type port-filter CLOSED_PORTS_PM
- class CLOSED_PORTS_CM
-  drop
+ class CLOSED_PORTS_CM
+  drop
 
 control-plane host
- service-policy type port-filter input CLOSED_PORTS_PM
+ service-policy type port-filter input CLOSED_PORTS_PM
 ```
 
 Queue SNMP traffic to 75 and any other open UDP/TCP ports to 100:
 
 ```
 class-map type queue-threshold SNMP_CM
- match protocol snmp
+ match protocol snmp
 class-map type queue-threshold HOST_CM
- match host-protocols
+ match host-protocols
 
 policy-map type queue-threshold QUEUE_PM
- class SNMP_CM
-  queue-limit 75
- class HOST_CM
-  queue-limit 100
+ class SNMP_CM
+  queue-limit 75
+ class HOST_CM
+  queue-limit 100
 
 control-plane host
- service-policy type queue-threshold input QUEUE_PM
+ service-policy type queue-threshold input QUEUE_PM
 ```
 
 Rate limit EIGRP traffic (requires egress direction):
@@ -3241,14 +3241,14 @@ ip access-list extended EIGRP
 permit eigrp any any
 
 class-map match-all EIGRP_CM
- match access-group name EIGRP
+ match access-group name EIGRP
 
 policy-map EIGRP_PM
- class EIGRP_CM
-  police 10000 conform-action transmit exceed-action drop
+ class EIGRP_CM
+  police 10000 conform-action transmit exceed-action drop
 
 control-plane
- service-policy output EIGRP_PM
+ service-policy output EIGRP_PM
 ```
 
 **Management Plane Protection (MPP)**
@@ -3270,7 +3270,7 @@ DHCP Messages
 |DHCPRequest|Sent by client in response to DHCPOffer, client accepts IP address assignment (broadcast).|
 |DHCPAcknowledge|Acknowledgement by the DHCP server (unicast or broadcast).|
 
-The DHCPOFFER and DHCPACK are sent broadcast by default. Disable with the `no ip dhcp-client broadcast-flag` command.
+The DHCPOFFER and DHCPACK are sent broadcast by default. Disable with the `no ip dhcp-client broadcast-flag` command.
 
 Disable DHCP and do not reply to Bootstrap Protocol request packets received:
 
@@ -3282,7 +3282,7 @@ ip dhcp bootp ignore
 **DHCP Conflict Logging**
 Similar function to excluded-addresses. Logs conflicts with a syslog message and stores the address on an exclusion list.
  - Conflicted addresses are stored and need clearing or restart to become usable again.
- - Enabled by default. Disable with the `no ip dhcp conflict logging` command.
+ - Enabled by default. Disable with the `no ip dhcp conflict logging` command.
 
 ```
 service dhcp
@@ -3308,11 +3308,11 @@ Cisco routers use the Client-Identifier to identify themselves.
 
 ```
 ip dhcp pool R2
- host 10.0.123.2 /24  
- client-identifier 0063.6973.636f.2d63.6130.332e.3065.3434.2e30.3030.382d.4661.302f.30
+ host 10.0.123.2 /24  
+ client-identifier 0063.6973.636f.2d63.6130.332e.3065.3434.2e30.3030.382d.4661.302f.30
 ip dhcp pool R3
- host 10.0.123.3 /24  
- client-identifier 0063.6973.636f.2d63.6130.342e.3138.6638.2e30.3030.382d.4661.302f.30
+ host 10.0.123.3 /24  
+ client-identifier 0063.6973.636f.2d63.6130.342e.3138.6638.2e30.3030.382d.4661.302f.30
 ```
 
 **DHCP Relay Agent and Information Option 82**
@@ -3324,8 +3324,8 @@ ip dhcp pool R3
 ```
 service dhcp
 int fa0/0
- description CLIENTS
- ip helper address 10.0.12.1
+ description CLIENTS
+ ip helper address 10.0.12.1
 ```
 
 A DHCP relay agent may receive a message from another DHCP relay agent that already contains relay information (Relayed twice).
@@ -3335,11 +3335,11 @@ A DHCP relay agent may receive a message from another DHCP relay agent that alre
 ## EEM
 Embedded Event Manager (EEM)
  - The `skip` keyword prevents the command from being executed. Default is `skip no`.
- - The `sync` keyword runs the script before the command. Default is `sync yes`.
- - `_exit_status 1` means that the command is run.
+ - The `sync` keyword runs the script before the command. Default is `sync yes`.
+ - `_exit_status 1` means that the command is run.
  - `_exit_status 0` means that the command is skipped.
- - `$_cli_result` is the outcome of a cli command that was executed, can be pasted into the console with the `puts` keyword.
- - `$_cli_msg` is the pattern matched with the event keyword. Can be pasted into the console with the `syslog msg` keyword.
+ - `$_cli_result` is the outcome of a cli command that was executed, can be pasted into the console with the `puts` keyword.
+ - `$_cli_msg` is the pattern matched with the event keyword. Can be pasted into the console with the `syslog msg` keyword.
  - The cli command is not executed until the EEM policy exits.
 
 ```
@@ -3354,100 +3354,100 @@ Disable show running-config command:
 
 ```
 event manager applet DIS_SH_RUN
- event cli pattern "show run" skip yes sync no
- action 1.0 cli command "enable"
- action 1.1 syslog msg "$_cli_msg not executed, function disabled"
- action 1.2 mail server ....
+ event cli pattern "show run" skip yes sync no
+ action 1.0 cli command "enable"
+ action 1.1 syslog msg "$_cli_msg not executed, function disabled"
+ action 1.2 mail server ....
 ```
 
 Hide interfaces from the running configuration:
 
 ```
 event manager applet SH_RUN_NO_INT
- event cli pattern "show run" sync yes
- action 1.0 syslog msg "$_cli_msg executed"
- action 1.1 cli command "enable"
- action 1.2 cli command "show run | section exclude interface"
- action 1.3 puts "$_cli_result"
+ event cli pattern "show run" sync yes
+ action 1.0 syslog msg "$_cli_msg executed"
+ action 1.1 cli command "enable"
+ action 1.2 cli command "show run | section exclude interface"
+ action 1.3 puts "$_cli_result"
 ```
 
 Re-enable manually shut down interfaces:
 
 ```
 event manager applet NO_SHUT_INT
- event syslog pattern "Interface FastEthernet0/0, changed state to administratively down"
- action 1.0 cli command "enable"
- action 1.1 cli command "configure terminal"
- action 1.2 cli command "interface Fa0/0"
- action 1.3 cli command "no shut"
+ event syslog pattern "Interface FastEthernet0/0, changed state to administratively down"
+ action 1.0 cli command "enable"
+ action 1.1 cli command "configure terminal"
+ action 1.2 cli command "interface Fa0/0"
+ action 1.3 cli command "no shut"
 ```
 
 Print confirmation to the terminal:
 
 ```
 event manager applet WRITE_MEMORY
- event cli pattern "write memory" sync yes
- action 1.0 syslog msg "$_cli_msg Command Executed"
- set 2.0 _exit_status 1
+ event cli pattern "write memory" sync yes
+ action 1.0 syslog msg "$_cli_msg Command Executed"
+ set 2.0 _exit_status 1
 ```
 
 Disable OSPF and EIGRP:
 
 ```
 event manager applet DIS_OSPF_EIGRP
- event cli pattern "router [eEoO].*" sync no skip yes
- action 1.0 syslog msg "Routing protocols OSPF and EIGRP have been disabled"
+ event cli pattern "router [eEoO].*" sync no skip yes
+ action 1.0 syslog msg "Routing protocols OSPF and EIGRP have been disabled"
 ```
 
 Send ICMP requests based on tracking object:
 
 ```
 event manager applet TRACK_1_DOWN
- event syslog pattern "1 ip sla 1 state Up->Down"
- action 1.0 syslog msg "IP SLA 1 Transferred to Down State, Testing ICMP"
- action 1.1 cli command "enable"
- action 1.2 cli command "ping 10.0.12.2 repeat 5 time 1"
- action 1.3 syslog msg "ping 10.0.12.2 repeat 5 time 1"
- action 1.4 puts "$_cli_result"
+ event syslog pattern "1 ip sla 1 state Up->Down"
+ action 1.0 syslog msg "IP SLA 1 Transferred to Down State, Testing ICMP"
+ action 1.1 cli command "enable"
+ action 1.2 cli command "ping 10.0.12.2 repeat 5 time 1"
+ action 1.3 syslog msg "ping 10.0.12.2 repeat 5 time 1"
+ action 1.4 puts "$_cli_result"
 
 event manager applet TRACK_1_UP
- event syslog pattern "1 ip sla 1 state Down->Up"
- action 1.0 syslog msg "IP SLA 1 Returned to UP State, Testing ICMP"
- action 1.1 cli command "enable"
- action 1.2 cli command "ping 10.0.12.2 repeat 5 time 1"
- action 1.3 syslog msg "ping 10.0.12.2 repeat 5 time 1"
- action 1.4 puts "$_cli_result"
+ event syslog pattern "1 ip sla 1 state Down->Up"
+ action 1.0 syslog msg "IP SLA 1 Returned to UP State, Testing ICMP"
+ action 1.1 cli command "enable"
+ action 1.2 cli command "ping 10.0.12.2 repeat 5 time 1"
+ action 1.3 syslog msg "ping 10.0.12.2 repeat 5 time 1"
+ action 1.4 puts "$_cli_result"
 ```
 
 Or:
 
 ```
 event manager applet TRACK_1_DOWN
- event track 1 state down
- ...
+ event track 1 state down
+ ...
 ```
 
 Periodically send output to the console:
 
 ```
 ip sla 1
- udp-jitter 192.168.0.2 16384 codec g729a
-  frequency 5
+ udp-jitter 192.168.0.2 16384 codec g729a
+  frequency 5
 
 event manager applet IP_SLA_1
- event timer watchdog time 3600
- action 1.0 cli command "show ip sla statistics 1"
- action 1.2 puts "$_cli_result"
- action 1.3 mail ...
+ event timer watchdog time 3600
+ action 1.0 cli command "show ip sla statistics 1"
+ action 1.2 puts "$_cli_result"
+ action 1.3 mail ...
 ```
 
 Create a log message based on added routes (does not disable function):
 
 ```
 event manager applet STATIC_ROUTES
- event routing type add protocol static network 0.0.0.0/0  le 32
- action 1.0 syslog msg "Static routes are not allowed, notifying admin"
- action 1.1 mail server ....
+ event routing type add protocol static network 0.0.0.0/0  le 32
+ action 1.0 syslog msg "Static routes are not allowed, notifying admin"
+ action 1.1 mail server ....
 ```
 
 ## EPC
@@ -3491,26 +3491,26 @@ monitor capture PCAP export
 ```
 ip local pool IPCP 10.0.12.2
 int se1/0
- ip add 10.0.12.1 255.255.255.0
- encapsulation ppp
- peer default ip address pool IPCP
- peer default ip address 10.0.12.2
- ppp ipcp mask 255.255.255.0
- peer neighbor-route
+ ip add 10.0.12.1 255.255.255.0
+ encapsulation ppp
+ peer default ip address pool IPCP
+ peer default ip address 10.0.12.2
+ ppp ipcp mask 255.255.255.0
+ peer neighbor-route
 
 int se1/0
- encapsulation ppp
- ip address negotiated
- ppp ipcp mask request
- peer neighbor-route
- no shut
+ encapsulation ppp
+ ip address negotiated
+ ppp ipcp mask request
+ peer neighbor-route
+ no shut
 
 router rip
- no auto
- version 2
- network 10.0.12.0
- network 192.168.0.0
- no validate-update source
+ no auto
+ version 2
+ network 10.0.12.0
+ network 192.168.0.0
+ no validate-update source
 ```
 
 **Import IPCP subnet settings to local DHCP**
@@ -3520,15 +3520,15 @@ router rip
 
 ```
 ip dhcp pool LOCAL
- import all
- origin ipcp
+ import all
+ origin ipcp
 
 int se1/0
- encapsulation ppp
- ppp ipcp mask request
- no ppp ipcp route default
- no ip add negotiated
- ip add pool LOCAL
+ encapsulation ppp
+ ppp ipcp mask request
+ no ppp ipcp route default
+ no ip add negotiated
+ ip add pool LOCAL
 ```
 
 ## IRDP
@@ -3538,11 +3538,11 @@ ICMP Router Discovery Protocol (IRDP)
 
 ```
 int fa0/0
- ip irdp
- ip irdp maxadvertinterval 30
- ip irdp minadvertinterval 10
- ip irdp holdtime 90
- ip irdp preference 200
+ ip irdp
+ ip irdp maxadvertinterval 30
+ ip irdp minadvertinterval 10
+ ip irdp holdtime 90
+ ip irdp preference 200
 
 show ip irdp fa0/0
 ```
@@ -3584,9 +3584,9 @@ XX = Group number in HEX
 ```
 fhrp version vrrp v3
 int fa0/0
- vrrp 1 address-family ipv6
-  address 2001:10:0:12::254/64
-  address fe80::254 primary
+ vrrp 1 address-family ipv6
+  address 2001:10:0:12::254/64
+  address fe80::254 primary
 ```
 
 **Gateway Load Balancing Protocol (GLBP)**
@@ -3616,11 +3616,11 @@ Device will lose AVF status if only 1 tracking object is up. Will regain status 
 
 ```
 int fa0/0
- glbp 1 load-balancing weighted
- glbp 1 weighting 100 51 74
- glbp 1 weighting track 1 decrement 25
- glbp 1 weighting track 2 decrement 25
- glbp 1 weighting track 3 decrement 25
+ glbp 1 load-balancing weighted
+ glbp 1 weighting 100 51 74
+ glbp 1 weighting track 1 decrement 25
+ glbp 1 weighting track 2 decrement 25
+ glbp 1 weighting track 3 decrement 25
 ```
 
 **GLBP Redirection**
@@ -3635,17 +3635,17 @@ In case of an unreachable AVF the AVG redirects traffic:
 ## KRON
 **Command Scheduler (KRON)**
  - Only works for exec mode commands, not global or interface configuration commands.
- - Choose either the `oneshot` or recurr`ing keyword to schedule KRON occurrence once or repeatedly.
- - The `system-startup` keyword will set the occurrence to be at system startup.
+ - Choose either the `oneshot` or recurr`ing keyword to schedule KRON occurrence once or repeatedly.
+ - The `system-startup` keyword will set the occurrence to be at system startup.
 
 Show routes every 5 minutes:
 
 ```
 kron policy-list KRON_POLICY
- cli show ip route
+ cli show ip route
 
-kron occurrence KRON_OCC in 5 recurring
- policy-list KRON_POLICY
+kron occurrence KRON_OCC in 5 recurring
+ policy-list KRON_POLICY
 
 sh kron schedule
 debug kron all
@@ -3658,10 +3658,10 @@ Configure archiving and optionally log commands to syslog:
 
 ```
 archive
- log config
-  logging enable
-  notify syslog
-  exit
+ log config
+  logging enable
+  notify syslog
+  exit
 alias exec sal show archive log config all provisioning
 ```
 
@@ -3670,7 +3670,7 @@ Configure archiving of configs to TFTP server:
 
 ```
 archive
- path tftp://192.168.10.1/archive
+ path tftp://192.168.10.1/archive
 
 archive config
 
@@ -3687,7 +3687,7 @@ show archive config differences
 Enable logging:
 
 ```
-logging console guaranteed 
+logging console guaranteed 
 logging buffered 8192 debugging
 logging console debugging
 logging monitor debugging
@@ -3738,17 +3738,17 @@ NetFlow Versions
 NetFlow v5
  - NetFlow v5 does not have a concept of 'ingress' and 'egress' flows.
  - The collector engine reverses the information behind the scenes without any additional configuration.
- - The ip route-cache flow command is the old way of configuring NetFlow. This is called the Flow fast-switching cache.
+ - The ip route-cache flow command is the old way of configuring NetFlow. This is called the Flow fast-switching cache.
  - The old command will also enable NetFlow on all sub-interfaces, the newer command does not.
 
 ```
 int fa0/0
- description Inside
- ip flow ingress
+ description Inside
+ ip flow ingress
 
 int fa0/0
- description Outside
- ip flow ingress
+ description Outside
+ ip flow ingress
 
 show ip flow interface
 show ip cache flow
@@ -3765,12 +3765,12 @@ NetFlow v9
 
 ```
 int fa0/0
- description Inside
- ip flow ingress
+ description Inside
+ ip flow ingress
 
 int fa0/0
- description Outside
- ip flow egress
+ description Outside
+ ip flow egress
 ```
 
 Export flows to collector:
@@ -3791,11 +3791,11 @@ Only export flow entries that have a /32 mask:
 
 ```
 ip flow-aggregation cache destination-prefix
- cache entries 1024
- export version 9
- export destination 2.2.2.2 9995
- mask destination minimum 32
- enabled
+ cache entries 1024
+ export version 9
+ export destination 2.2.2.2 9995
+ mask destination minimum 32
+ enabled
 
 show ip cache flow aggregation destination-prefix
 ```
@@ -3806,8 +3806,8 @@ show ip cache flow aggregation destination-prefix
 
 ```
 ip flow-top-talkers
- top 10
- sort by packets
+ top 10
+ sort by packets
 
 show ip flow top-talkers
 ```
@@ -3819,10 +3819,10 @@ show ip flow top-talkers
 
 ```
 flow-sampler-map RANDOM
- mode random one-out-of 10
+ mode random one-out-of 10
 
 int fa0/0
- flow-sampler RANDOM
+ flow-sampler RANDOM
 
 show flow-sampler
 ```
@@ -3831,21 +3831,21 @@ Add a sampler to a policy-map and match one out of 10 ICMP packets:
 
 ```
 flow-sampler-map RANDOM
- mode random one-out-of 10
+ mode random one-out-of 10
 flow-sampler-map ONE_ONE
- mode random one-out-of 1
+ mode random one-out-of 1
 
 class-map match-all ICMP
- match protocol icmp
+ match protocol icmp
 
 policy-map SAMPLER
- class ICMP
-  netflow-sampler RANDOM
- class class-default
-  netflow-sampler ONE_ONE
+ class ICMP
+  netflow-sampler RANDOM
+ class class-default
+  netflow-sampler ONE_ONE
 
 int fa0/0
- service-policy input SAMPLER
+ service-policy input SAMPLER
 ```
 
 **Flexible NetFlow (FNF)**
@@ -3856,16 +3856,16 @@ Consists of three parts:
 
 ```
 flow exporter FNF_EXPORT
- destination 1.1.1.1
- transport udp 9995
- export-protocol netflow-v9
+ destination 1.1.1.1
+ transport udp 9995
+ export-protocol netflow-v9
 
 flow monitor FNF
- record netflow ipv4 original-input
- exporter FNF_EXPORT
+ record netflow ipv4 original-input
+ exporter FNF_EXPORT
 
 int fa0/0
- ip flow monitor FNF input
+ ip flow monitor FNF input
 
 show flow exporter
 show flow monitor FNF cache format table
@@ -3875,10 +3875,10 @@ show flow monitor FNF cache format table
 
 ```
 sampler FNF_SAMPLER
- mode random 1 out-of 10
+ mode random 1 out-of 10
 
 int fa0/0
- ip flow monitor FNF sampler FNF_SAMPLER input
+ ip flow monitor FNF sampler FNF_SAMPLER input
 
 show sampler
 ```
@@ -3890,20 +3890,20 @@ show sampler
  - Masters on older IOS versions (12.4) use the 127.127.7.1 local address to peer with itself.
  - Newer IOS versions use the 127.127.1.1 local address.
  - The source local address is always one stratum lower than the configured value. Default configured stratum is 8.
- - Stratum is the tie-breaker. If two servers offer the same stratum, the prefer keyword can be added to prefer one over the other.
+ - Stratum is the tie-breaker. If two servers offer the same stratum, the prefer keyword can be added to prefer one over the other.
 
 ```
 ntp master 8
 ntp server 192.168.0.1 prefer
 ntp peer 192.168.0.2
 
-show ntp status     
+show ntp status     
 show ntp association detail
 debug ntp packet
 debug ntp events
 ```
 
-The `offset value` is the time difference in milliseconds between the local clock and the NTP server's reference clock.
+The `offset value` is the time difference in milliseconds between the local clock and the NTP server's reference clock.
  - The offset must be < 1000 msec (1 second) off in order for the server to be considered sane.
  - NTP does not shift the clock instantaneously, instead the router slowly drifts towards the time.
  - If the offset value between the client and the server is large, this process can take a long time.
@@ -3942,11 +3942,11 @@ ntp server 192.168.0.1 key 1
 **NTP Access Control**
  - Control messages (queries) are for reading and writing internal NTP variables and status information. Not synchronization.
  - NTP request/update messages are used for actual time synchronization.
- - The `serve-only` keyword allows only time requests from NTP clients.
+ - The `serve-only` keyword allows only time requests from NTP clients.
  - The `peer` keyword allows time requests and NTP control queries from clients. But also allows bidirectional synchronization.
  - Masters on older IOS versions (12.4) need to specifically allow peering with the own loopback address (127.127.7.1).
  - Access-groups associated with access types are scanned in the order most permissive to most restrictive. Peer -> Serve-Only.
-  - This means that denying a client in `serve-only` but allowing with `peer`, the client will still be able to peer.
+  - This means that denying a client in `serve-only` but allowing with `peer`, the client will still be able to peer.
 
 ```
 ntp master
@@ -3964,17 +3964,17 @@ ntp access-group peer 127
 
 ```
 int fa0/0
- ntp broadcast
- ntp broadcast destination 10.0.12.2
- ntp multicast 224.0.1.1
+ ntp broadcast
+ ntp broadcast destination 10.0.12.2
+ ntp multicast 224.0.1.1
 ```
 
 Client:
 
 ```
 int fa0/0
- ntp broadcast client
- ntp multicast client
+ ntp broadcast client
+ ntp multicast client
 ```
 
 ## PPP
@@ -3991,9 +3991,9 @@ R1 requests CHAP from R2:
 username R2 password cisco
 username R3 password cisco
 int se1/0
- encapsulation ppp
- ppp authentication chap
- ppp pap sent-username R1 password cisco
+ encapsulation ppp
+ ppp authentication chap
+ ppp pap sent-username R1 password cisco
 ```
 
 R2 requests PAP from R1:
@@ -4001,10 +4001,10 @@ R2 requests PAP from R1:
 ```
 username R1 password cisco
 int se1/0
- encapsulation ppp
- ppp chap hostname R2
- ppp chap password cisco
- ppp authentication pap
+ encapsulation ppp
+ ppp chap hostname R2
+ ppp chap password cisco
+ ppp authentication pap
 
 show users
 who
@@ -4012,7 +4012,7 @@ debug ppp authentication
 ```
 
 **AAA Authentication for PPP**
- - When using AAA the `autocommand` will only function if `aaa authorization` is also configured.
+ - When using AAA the `autocommand` will only function if `aaa authorization` is also configured.
  - Preferably use a private Radius or Tacacs+ server in combination with PPP authentication.
 
 R1 requests EAP from R2 and authenticates using Radius:
@@ -4020,18 +4020,18 @@ R1 requests EAP from R2 and authenticates using Radius:
 ```
 aaa new-model
 aaa group server radius MYRADIUS
- server-private 1.1.1.1 timeout 5 retransmit 0 key cisco
+ server-private 1.1.1.1 timeout 5 retransmit 0 key cisco
 
 aaa authentication ppp PPP_R1_R2 group MYRADIUS local
 aaa authorization exec default group MYRADIUS local
 username R2 password cisco
 username R2 autocommand logout
 int se1/0
- encapsulation ppp
- ppp authentication eap PPP_R1_R2
- ppp eap local
- ppp chap hostname R1
- ppp chap password cisco
+ encapsulation ppp
+ ppp authentication eap PPP_R1_R2
+ ppp eap local
+ ppp chap hostname R1
+ ppp chap password cisco
 
 show aaa servers
 show radius server-group all
@@ -4043,17 +4043,17 @@ R2 requests MS-CHAP-V2 from R2 and authenticates using Tacacs+:
 ```
 aaa new-model
 aaa group server tacacs+ MYTACACS
- server-private 2.2.2.2 single-connection key cisco
+ server-private 2.2.2.2 single-connection key cisco
 
 aaa authentication ppp PPP_R1_R2 group MYTACACS local-case
 aaa authorization exec default group MYTACACS local
 username R1 password cisco
 username R1 autocommand logout
 int se1/0
- encapsulation ppp
- ppp eap identity R2
- ppp eap password cisco
- ppp authentication ms-chap-v2 PPP_R1_R2
+ encapsulation ppp
+ ppp eap identity R2
+ ppp eap password cisco
+ ppp authentication ms-chap-v2 PPP_R1_R2
 
 show aaa servers
 show tacacs private
@@ -4072,12 +4072,12 @@ The `interleave` keyword enables real-time packet interleaving.
 
 ```
 int multilink 1
- ppp multilink interleave
- ppp multilink
+ ppp multilink interleave
+ ppp multilink
 
 int se1/0
- ppp multilink
- ppp multilink group 1
+ ppp multilink
+ ppp multilink group 1
 ```
 
 ## PPPoE
@@ -4094,18 +4094,18 @@ Server:
 
 ```
 bba-group pppoe R2
- virtual-template 12
+ virtual-template 12
 int fa0/0
- pppoe enable group R2
+ pppoe enable group R2
 
 interface Virtual-Template 12
- description R2
- ip address 10.0.12.1
- ip mtu 1492
- encapsulation ppp
- ppp authentication chap
- peer default ip address pool IPCP
- ppp ipcp mask 255.255.255.0
+ description R2
+ ip address 10.0.12.1
+ ip mtu 1492
+ encapsulation ppp
+ ppp authentication chap
+ peer default ip address pool IPCP
+ ppp ipcp mask 255.255.255.0
 
 username R2 password cisco
 ip local pool IPCP 10.0.12.2
@@ -4115,17 +4115,17 @@ Client:
 
 ```
 int fa0/0
-  pppoe-client dial-pool-number 12
+  pppoe-client dial-pool-number 12
 
 interface Dialer 1
- ip address negotiated
- ip mtu 1492
- encapsulation ppp
- ppp chap username R2
- ppp chap password cisco
- dialer pool 12
- ppp ipcp mask request
- ppp ipcp route default
+ ip address negotiated
+ ip mtu 1492
+ encapsulation ppp
+ ppp chap username R2
+ ppp chap password cisco
+ dialer pool 12
+ ppp ipcp mask request
+ ppp ipcp route default
 ```
 
 **PPPoE IPCP with local DHCP**
@@ -4138,20 +4138,20 @@ Client:
 
 ```
 ip dhcp pool IMPORT_IPCP
- import all
- origin ipcp
+ import all
+ origin ipcp
 
 int dialer1
- dialer pool 12
- ip mtu 1492
- encapsulation ppp
- ppp chap username R2
- ppp chap password cisco
- ppp ipcp mask request
- ip address pool IMPORT_IPCP
+ dialer pool 12
+ ip mtu 1492
+ encapsulation ppp
+ ppp chap username R2
+ ppp chap password cisco
+ ppp ipcp mask request
+ ip address pool IMPORT_IPCP
 
 int fa0/0
- pppoe-client dial-pool-number 12
+ pppoe-client dial-pool-number 12
 ```
 
 **PPPoE DHCP**
@@ -4160,46 +4160,46 @@ Server:
 
 ```
 bba-group pppoe R2
- virtual-template 12
+ virtual-template 12
 int fa0/1
- pppoe enable group R2
+ pppoe enable group R2
 
 interface Virtual-Template12
- description R2
- ip address 10.0.12.1 255.255.255.0
- ip mtu 1492
- peer default ip address dhcp-pool DHCP
- ppp authentication pap
+ description R2
+ ip address 10.0.12.1 255.255.255.0
+ ip mtu 1492
+ peer default ip address dhcp-pool DHCP
+ ppp authentication pap
 
 username R2 password cisco
 ip dhcp excluded-address 10.0.12.1
 ip dhcp excluded-address 10.0.12.3 10.0.12.254
 ip dhcp pool DHCP
- network 10.0.12.0 /24
- default-router 10.0.12.1
+ network 10.0.12.0 /24
+ default-router 10.0.12.1
 ```
 
 Client:
 
 ```
 int fa0/1
-  pppoe-client dial-pool-number 12
+  pppoe-client dial-pool-number 12
 
 interface Dialer 1
- dialer pool 12
- ip mtu 1492
- encapsulation ppp
- ppp pap sent-username R2 password cisco
- ip address dhcp
+ dialer pool 12
+ ip mtu 1492
+ encapsulation ppp
+ ppp pap sent-username R2 password cisco
+ ip address dhcp
 ```
 
 ## PBR
 **Policy-Based Routing (PBR)**
- - The `set ip next-hop` and `set interface` are used unconditionally, meaning that the RIB is not used in case of failure.
- - The `set ip default next-hop` and `set default interface` apply to the default route and are used before the regular default route.
+ - The `set ip next-hop` and `set interface` are used unconditionally, meaning that the RIB is not used in case of failure.
+ - The `set ip default next-hop` and `set default interface` apply to the default route and are used before the regular default route.
  - The idea is to specify an alternate default route for hosts matched in the access-list.
 
-There's an order of operations to PBR set statements. `ip next-hop` -> `interface` -> `ip default next-hop` -> `default interface`.
+There's an order of operations to PBR set statements. `ip next-hop` -> `interface` -> `ip default next-hop` -> `default interface`.
  - If the first statement fails the next will be evaluated. Remember that addresses are preferred over interfaces.
  - The `recursive` keyword can be used to specify a next-hop that is not directly connected.
  - Only statement 10 is matched in route-maps. Meaning that if there is no match in 10, traffic is routed normally.
@@ -4207,15 +4207,15 @@ There's an order of operations to PBR set statements. `ip next-hop` -> `interfa
 
 ```
 ip access-list standard PBR_ACL
- permit 172.16.0.0 0.0.0.255
+ permit 172.16.0.0 0.0.0.255
 
 route-map PBR permit 10
- match ip address PBR_ACL
- set ip default next-hop 10.0.12.2
- set default interface se1/0
+ match ip address PBR_ACL
+ set ip default next-hop 10.0.12.2
+ set default interface se1/0
 
 interface fa0/0
- ip policy route-map PBR
+ ip policy route-map PBR
 ```
 
 **Local PBR**
@@ -4226,12 +4226,12 @@ interface fa0/0
 
 ```
 ip access-list standard PBR_LOCAL_ACL
- permit host 192.168.0.1
+ permit host 192.168.0.1
 
 route-map PBR_LOCAL permit 10
- match ip address PBR_LOCAL_ACL
- set ip next-hop 10.0.12.2
- set interface se1/0
+ match ip address PBR_LOCAL_ACL
+ set ip next-hop 10.0.12.2
+ set interface se1/0
 ip local policy route-map PBR_LOCAL
 
 show ip local policy
@@ -4245,10 +4245,10 @@ show ip local policy
 
 ```
 ip sla 1
- tcp-connect 192.168.0.2 23 control disable
- threshold 500
- timeout 1000
- frequency 5
+ tcp-connect 192.168.0.2 23 control disable
+ threshold 500
+ timeout 1000
+ frequency 5
 ip sla schedule 1 life forever start-time now
 
 show ip sla statistics
@@ -4258,7 +4258,7 @@ show tcp brief
 
 **IP SLA Responder**
  - Does not calculate processing time, allowing for more accurate measurements on the speed of the link.
- - Enable globally with the `ip sla responder` command. General IP SLA responder uses port 1967 for control messages.
+ - Enable globally with the `ip sla responder` command. General IP SLA responder uses port 1967 for control messages.
  - Can also be configured to listen on a specific port for UDP or TCP. However this specific port must be configured on both sides. It is not possible to use control messages at sender and specific port at the receiver.
 
 **UPP Echo**
@@ -4269,10 +4269,10 @@ Source:
 
 ```
 ip sla 1
- udp-echo 192.168.0.2 55555 control disable
- threshold 500
- timeout 1000
- frequency 5
+ udp-echo 192.168.0.2 55555 control disable
+ threshold 500
+ timeout 1000
+ frequency 5
 ip sla schedule 1 life forever start-time now
 ```
 
@@ -4299,8 +4299,8 @@ show ip sla responder
 
 ```cisco
 key chain SLA
- key 1
-  key-string cisco
+ key 1
+  key-string cisco
 
 ip sla key-chain SLA
 show ip sla authentication
@@ -4314,11 +4314,11 @@ show ip sla authentication
   - TRAP is unacknowledged packet.
   - INFORM is acknowledged packet.
 - The downside of SNMP set is that the NMS can only poll on intervals, so events may be lost in between polls.
-- INFORMS makes sure that all messages arrive at the NMS (more memory intensive).  The NMS responds with a PDU.
+- INFORMS makes sure that all messages arrive at the NMS (more memory intensive).  The NMS responds with a PDU.
 
 **SNMP Communities**
 - Both v1 and v2 groups are created when configuring a SNMP community.
-- Disable the v1 group with the `no snmp-server group public v1` command.
+- Disable the v1 group with the `no snmp-server group public v1` command.
 - Also disable the Interim Local Management Interface (ILMI) SNMP groups. The ILMI community itself cannot be deleted.
 
 ```
@@ -4343,7 +4343,7 @@ snmp-server host 192.168.0.1 inform version 2c public udp-port 162
 
 **SNMPv3**
 - The SNMP group security level is a minimum allowed security level.
-- The actual security level for the user is defined in the `snmp-server user` command. This is the minimum level for that user.
+- The actual security level for the user is defined in the `snmp-server user` command. This is the minimum level for that user.
 - Other users may still connect using the minimum allowed group security level.
 
 | CLI command | Authentication Method | Encryption Support |
@@ -4365,8 +4365,8 @@ show snmp group
 
 ```
 ip access-list standard SNMP
- permit host 192.168.0.1
- deny any log
+ permit host 192.168.0.1
+ deny any log
 
 snmp-server community public ro SNMP
 ```
@@ -4375,9 +4375,9 @@ snmp-server community public ro SNMP
 
 ```
 ip access-list standard SNMP_USER
- permit host 192.168.0.1
+ permit host 192.168.0.1
 ip access-list standard SNMP_GROUP
- permit 192.168.0.0 0.0.0.255
+ permit 192.168.0.0 0.0.0.255
 
 snmp-server user USER GROUP v3 auth sha cisco priv aes 256 cisco access SNMP_USER
 snmp-server group GROUP v3 priv access SNMP_GORUP
@@ -4397,7 +4397,7 @@ snmp-server engine-id remote 192.168.0.1 123412341234
 **Memory Reservations**
 
 ```
-memory free low-watermark processor  
+memory free low-watermark processor  
 memory reserve critical
 memory reserve console
 
@@ -4405,7 +4405,7 @@ show memory console reserved
 ```
 
 **CPU Threshold**
-The `rising` and `falling` commands trigger a syslog message when CPU is above/below threshold.
+The `rising` and `falling` commands trigger a syslog message when CPU is above/below threshold.
 
 ```
 snmp-server enable traps cpu threshold
@@ -4422,10 +4422,10 @@ foreach X {
 192.168.0.2
 192.168.0.3
 192.168.0.4
-192.168.0.5           
+192.168.0.5           
 192.168.0.6
-192.168.0.7            
-192.168.0.8             
+192.168.0.7            
+192.168.0.8             
 192.168.0.9
 192.168.0.10
 2001:192:168::1
@@ -4466,7 +4466,7 @@ IP route metric threshold:
 
 ```
 track 5 ip route 0.0.0.0/0 metric threshold
- metric threshold up 50
+ metric threshold up 50
 
 track resolution ip route eigrp 2560
 show track resolution
@@ -4480,8 +4480,8 @@ Boolean tracking:
 
 ```
 track 12 list boolean and
- object 1
- object 2
+ object 1
+ object 2
 ```
 
 Percentage tracking:
@@ -4491,10 +4491,10 @@ Percentage tracking:
 
 ```
 track 123 list threshold percentage
- object 1
- object 2
- object 3
- threshold percentage up 66 down 33
+ object 1
+ object 2
+ object 3
+ threshold percentage up 66 down 33
 ```
 
 Weighted tracking:
@@ -4503,10 +4503,10 @@ Weighted tracking:
 
 ```
 track 234 list threshold weight
- object 2 weight 100
- object 3 weight 50
- object 4 weight 50
- threshold weight up 150 down 100
+ object 2 weight 100
+ object 3 weight 50
+ object 4 weight 50
+ threshold weight up 150 down 100
 ```
 
 **Track Timers**
@@ -4530,7 +4530,7 @@ show track timers
 
 ```
 int fa0/0
- ip verify unicast source reachable-via any allow-default allow-self-ping
+ ip verify unicast source reachable-via any allow-default allow-self-ping
 ```
 
 # IPv6
@@ -4561,8 +4561,8 @@ Neighbor Solicitation and Router Advertisements
 
 | Addresses | Differences in Binary | Summary Range Start | Summary |
 | ---- | ---- | ---- | ---- |
-| 2001:db8:24:131`a`::<br><br>2001:db8:24:131`b`:: | 131a = 0001 0011 0001 101`0`<br>131b = 0001 0011 0001 101`1` | 0001 0011 0001 101`x` = 131a<br>Subnets differ at 63th bit = /63 | 2001:10:0:12:24:131a::/63 |
-| 2001:cfb:1`4`::<br><br>2001:cfb:1`5`::<br><br>2001:cfb:1`6`::<br><br>2001:cfb:1`7`:: | 0014 = 0000 0000 0001 01`00`<br>0015 = 0000 0000 0001 01`01`<br>0016 = 0000 0000 0001 01`10`<br>0017 = 0000 0000 0001 01`11` | 0000 0000 0001 01`xx` = 0014<br>Subnets differ at 46th bit = /46 | 2001:cfb:14::/46 |
+| 2001:db8:24:131`a`::<br><br>2001:db8:24:131`b`:: | 131a = 0001 0011 0001 101`0`<br>131b = 0001 0011 0001 101`1` | 0001 0011 0001 101`x` = 131a<br>Subnets differ at 63th bit = /63 | 2001:10:0:12:24:131a::/63 |
+| 2001:cfb:1`4`::<br><br>2001:cfb:1`5`::<br><br>2001:cfb:1`6`::<br><br>2001:cfb:1`7`:: | 0014 = 0000 0000 0001 01`00`<br>0015 = 0000 0000 0001 01`01`<br>0016 = 0000 0000 0001 01`10`<br>0017 = 0000 0000 0001 01`11` | 0000 0000 0001 01`xx` = 0014<br>Subnets differ at 46th bit = /46 | 2001:cfb:14::/46 |
 
 ## Addresses
 **IPv6 Address Ranges**
@@ -4588,13 +4588,13 @@ Neighbor Solicitation and Router Advertisements
 
 Summary
 - An anycast address is an address shared by multiple systems, with the closest system being the receiver of the packet.
-- An address with `::` at the end specifies an anycast interface.
+- An address with `::` at the end specifies an anycast interface.
 - The `anycast` keyword is optional and only required if there are multiple hosts on the same subnet (connected to the same interface on the router) using the same address.
 
 ```
 int fa0/0
- description TO_SERVERS
- ipv6 address 2001:10:0:12::/64 anycast
+ description TO_SERVERS
+ ipv6 address 2001:10:0:12::/64 anycast
 ```
 
 **EUI-64 address**
@@ -4602,23 +4602,23 @@ int fa0/0
 - A MAC address is split in the middle and a 16-bit hex value FFFE is inserted between these two to form a 64-bit address.
 - Afterwards the 7th bit is flipped in the OUI part of the MAC address.
 
-| Mac-Address | Mac-Address +  FFFE | Flip 7th bit in OUI | EUI-64 Address |
+| Mac-Address | Mac-Address +  FFFE | Flip 7th bit in OUI | EUI-64 Address |
 | ---- | ---- | ---- | ---- |
 | a0:12:7a:cb:6b:40 | a0:12:7a:ff:fe:cb:6b:40 | 1010 0000 = a0<br>1010 0010 = a2 | ::a212:7aff:fecb:6b40 |
 | b6:14:9b:aa:12:fe | b6:14:9b:ff:fe:aa:12:fe | 1011 0110 = b6<br>1011 0100 = b4 | ::b414:9bff:feaa:12fe |
 
 ```
 int fa0/0
- mac-address a012.7acb.6b40
- ipv6 address 2001:10:0:12::/64 eui-64
+ mac-address a012.7acb.6b40
+ ipv6 address 2001:10:0:12::/64 eui-64
 ```
 
 Same as:
 
 ```
 int fa0/0
- mac-address a012.7acb.6b40
- ipv6 address 2001:10:0:12:a212:7aff:fecb:6b40/64
+ mac-address a012.7acb.6b40
+ ipv6 address 2001:10:0:12:a212:7aff:fecb:6b40/64
 ```
   
 ## DHCPv6
@@ -4631,7 +4631,7 @@ DHCPv6 Messages
 | Request | Sent by a client to request addresses or configuration settings from a specific server. | DHCPRequest |
 | `Reply` | Sent by a server to a specific client in response to a Solicit, Request, Renew, Rebind  <br>Information-Request, Confirm, Release, or Decline message. | DHCPAck |
 
-DHCPv6 rapid configuration only uses the `Solicit` and `Reply` message. Enable with `ipv6 dhcp server DHCP_POOL rapid-commit` command.
+DHCPv6 rapid configuration only uses the `Solicit` and `Reply` message. Enable with `ipv6 dhcp server DHCP_POOL rapid-commit` command.
 
 DHCPv6 multicast groups
 
@@ -4644,31 +4644,31 @@ DHCPv6 multicast groups
 |FEC0::|Deprecated|
 
 **DHCPv6 Modes**
-- Stateful. DHCPv6 is used for address and other information (DNS). Uses `managed-config-flag` (M-bit) and `other-config-flag` (O-bit).
+- Stateful. DHCPv6 is used for address and other information (DNS). Uses `managed-config-flag` (M-bit) and `other-config-flag` (O-bit).
 - Stateless. SLAAC is used for address, other information (DNS) is obtained via DHCPv6. Uses `other-config-flag` (O-bit) only.
 
 **Default-Gateway**
 - The default gateway is a link-local address that is discovered through RAs.
-- Routers will only send out RAs if i`pv6 unicast-routing` is enabled.
-- Routers will not receive a default-gateway if `ipv6 unicast-routing` is enabled.
+- Routers will only send out RAs if i`pv6 unicast-routing` is enabled.
+- Routers will not receive a default-gateway if `ipv6 unicast-routing` is enabled.
 - Hosts normally pick the first router they discover through ND as the default-gateway.
 - This decision can be influenced with the `router-preference` command (default preference is `medium`). Routers will preempt
 - Optionally advertise the DNS server address through RAs (not supported on all platforms).
 
 ```
 int fa0/0
- ipv6 nd router-preference high
- ipv6 nd ra dns server 1::1
+ ipv6 nd router-preference high
+ ipv6 nd ra dns server 1::1
 ```
 
-Stop a router from becoming the default gateway with the `ipv6 nd ra lifetime 0` interface command.
+Stop a router from becoming the default gateway with the `ipv6 nd ra lifetime 0` interface command.
 - This does not disable SLAAC or RAs, hosts will just not install a default route towards the router.
 
 Stop a router from sending RA messages and becoming the default gateway:
 
 ```
 int fa0/0
- ipv6 nd ra suppress all
+ ipv6 nd ra suppress all
 ```
 
 The `suppress` keyword indicates not to send periodic RAs.
@@ -4679,7 +4679,7 @@ Configure hosts to obtain an address from the routers subnet and add a default g
 
 ```
 int fa0/0
- ipv6 address autoconfig default
+ ipv6 address autoconfig default
 ```
 
 The `default` keyword will also add the advertising (remote) router as the default-gateway even if `ipv6-unicast routing` is enabled.
@@ -4688,40 +4688,40 @@ The `default` keyword will also add the advertising (remote) router as the defau
 
 ```
 ipv6 dhcp pool STATELESS
- dns-server 1::1  
- domain-name lab.local
+ dns-server 1::1  
+ domain-name lab.local
 
 int fa0/0
- ipv6 dhcp server STATELESS  
- ipv6 nd other-config-flag
+ ipv6 dhcp server STATELESS  
+ ipv6 nd other-config-flag
 ```
 
 Clients:
 
 ```
 int fa0/0
- ipv6 address autoconfig
+ ipv6 address autoconfig
 ```
 
 **Stateful DHCP**
 
 ```
 ipv6 dhcp pool STATEFUL
- address prefix 2001:10:0:12::/64
- dns-server 1::1
- domain-name lab.local
+ address prefix 2001:10:0:12::/64
+ dns-server 1::1
+ domain-name lab.local
 
 int fa0/0
- ipv6 dhcp server STATEFUL
- ipv6 nd managed-config-flag
+ ipv6 dhcp server STATEFUL
+ ipv6 nd managed-config-flag
 ```
 
 Clients:
 
 ```
 int fa0/0
- ipv6 enable
- ipv6 address dhcp
+ ipv6 enable
+ ipv6 address dhcp
 ```
 
 **DHCPv6 Relay**
@@ -4732,24 +4732,24 @@ Relay server:
 
 ```
 int fa0/1
- description TO_CLIENTS
- ipv6 address 2001:10:0:12::254/64
- ipv6 nd managed-config-flag
- ipv6 dhcp relay destination fe80::1 fa0/0
+ description TO_CLIENTS
+ ipv6 address 2001:10:0:12::254/64
+ ipv6 nd managed-config-flag
+ ipv6 dhcp relay destination fe80::1 fa0/0
 ```
 
 DHCPv6 server:
 
 ```
 ipv6 dhcp pool STATEFUL
- address prefix 2001:10:0:12::/64
- dns-server 1::1
- domain-name lab.local
+ address prefix 2001:10:0:12::/64
+ dns-server 1::1
+ domain-name lab.local
 
 int fa0/0
- description TO_DHCP_RELAY
- ipv6 address fe80::1 link-local
- ipv6 dhcp server STATEFUL
+ description TO_DHCP_RELAY
+ ipv6 address fe80::1 link-local
+ ipv6 dhcp server STATEFUL
 ```
 
 ## Prefix-Delegation
@@ -4759,24 +4759,24 @@ IPv6 Prefix-Delegation (PD)
 ```
 ipv6 local pool LOCAL 2001:db8:abcd::/56 60
 ipv6 dhcp pool PD_POOL
- prefix-delegation pool LOCAL lifetime infinite infinite
+ prefix-delegation pool LOCAL lifetime infinite infinite
 
 int fa0/0
- description TO_CLIENT
- ipv6 address 2001:db8:abcd::1/64
- ipv6 dhcp server PD_POOL
+ description TO_CLIENT
+ ipv6 address 2001:db8:abcd::1/64
+ ipv6 dhcp server PD_POOL
 ```
 
 Client:
 
 ```
 int fa0/0
- description OUTSIDE
- ipv6 address autoconfig default
- ipv6 dhcp client pd PD_PREFIXES
+ description OUTSIDE
+ ipv6 address autoconfig default
+ ipv6 dhcp client pd PD_PREFIXES
 int fa0/1
- description INSIDE
- ipv6 address PD_PREFIXES ::0:0:0:0:254/64
+ description INSIDE
+ ipv6 address PD_PREFIXES ::0:0:0:0:254/64
 ```
 
 # IPv6 Tunneling
@@ -4809,20 +4809,20 @@ The 6RD feature is an extension of the 6to4 feature that uses encapsulation.
 ```
 ipv6 unicast-routing
 int se1/0
- ip address 10.0.123.1 255.255.255.0
+ ip address 10.0.123.1 255.255.255.0
 int lo0
- ip address 192.168.0.1 255.255.255.255
+ ip address 192.168.0.1 255.255.255.255
 
 int tun0
- ipv6 address 2002:c0a8:1::1/64
- tunnel source lo0
- tunnel mode ipv6ip 6to4
+ ipv6 address 2002:c0a8:1::1/64
+ tunnel source lo0
+ tunnel mode ipv6ip 6to4
 
 int lo1
- description PREFIXES_OVER_TUNNEL
- ipv6 address 2002:c0a8:1:1::1/64
- ipv6 address 2002:c0a8:1:2::1/64
- ipv6 address 2002:c0a8:1:3::1/64
+ description PREFIXES_OVER_TUNNEL
+ ipv6 address 2002:c0a8:1:1::1/64
+ ipv6 address 2002:c0a8:1:2::1/64
+ ipv6 address 2002:c0a8:1:3::1/64
 
 ipv6 route 2002::/16 tunnel0
 ipv6 route 2::2/128 20002:c0a8:2::1
@@ -4830,7 +4830,7 @@ ipv6 route 2::2/128 20002:c0a8:2::1
 
 **ISATAP**
 - Automatically converts IPv4 addresses and inserts these in the IPv6 address.
-- Preferably use `eui-64` addressing. Free to choose network portion of the address.
+- Preferably use `eui-64` addressing. Free to choose network portion of the address.
 - The last 32-bits after `0000:5EFE` are used for the converted IPv4 address (in the host portion of the address)
 - By default, tunnel interfaces disable periodic router advertisements (RA).
 - RAs must be enabled on ISATAP tunnels to support client auto configuration. Enable with `no ipv6 nd ra suppress`.
@@ -4844,39 +4844,39 @@ ipv6 route 2::2/128 20002:c0a8:2::1
 ```
 ipv6 unicast-routing
 int fa0/0
- ip address 10.0.123.1 255.255.255.0
+ ip address 10.0.123.1 255.255.255.0
 int lo0
- ip address 192.168.0.1 255.255.255.255
+ ip address 192.168.0.1 255.255.255.255
 
 int tun0
- ipv6 address 2001:10:0:123::/64 eui-64
- tunnel source lo0
- tunnel mode ipv6ip isatap
- no ipv6 nd ra suppress
+ ipv6 address 2001:10:0:123::/64 eui-64
+ tunnel source lo0
+ tunnel mode ipv6ip isatap
+ no ipv6 nd ra suppress
 ```
 
 Same as:
 
 ```
 int tun0
- ipv6 address fe80::5efe:c0a8:1 link-local
- ipv6 address 2001:10:0:123:0:5EFE:C0A8:1/64
- tunnel source lo0
- tunnel mode ipv6ip isatap
- no ipv6 nd ra suppress
+ ipv6 address fe80::5efe:c0a8:1 link-local
+ ipv6 address 2001:10:0:123:0:5EFE:C0A8:1/64
+ tunnel source lo0
+ tunnel mode ipv6ip isatap
+ no ipv6 nd ra suppress
 
 router eigrp ISATAP
- address-family ipv4 autonomous-system 1
-  network 192.168.0.1 0.0.0.0
-  network 10.0.123.0 0.0.0.255
- address-family ipv6 autonomous-system 1
-  neighbor fe80::5efe:c0a8:2 tun0
-  neighbor fe80::5efe:c0a8:3 tun0
+ address-family ipv4 autonomous-system 1
+  network 192.168.0.1 0.0.0.0
+  network 10.0.123.0 0.0.0.255
+ address-family ipv6 autonomous-system 1
+  neighbor fe80::5efe:c0a8:2 tun0
+  neighbor fe80::5efe:c0a8:3 tun0
 
 int lo1
- description PREFIXES_OVER_TUNNEL
- ipv6 address 1::1/128
- ipv6 address 11::11/128
+ description PREFIXES_OVER_TUNNEL
+ ipv6 address 1::1/128
+ ipv6 address 11::11/128
 ```
 
 ## Static
@@ -4887,19 +4887,19 @@ Static Tunneling Methods
 |Static IPv6IP|Carries only IPv6 packets over IPv4.  <br>Point-to-Point. Uses protocol 41.|
 |Static GRE|Carries IPv6, CLNS + other traffic over IPv4.  <br>Point-to-Point. Uses protocol 47. (default method)|
 
-The only difference between GRE and IPv6IP configuration is the tunnel mode.
+The only difference between GRE and IPv6IP configuration is the tunnel mode.
 
 ```
 ipv6 unicast-routing
 int se1/0
- ip add 10.0.12.1 255.255.255.0
+ ip add 10.0.12.1 255.255.255.0
 
 int tun0
- tunnel source se1/0
- tunnel destination 10.0.12.2
- ipv6 address fe80::1 link-local
- ipv6 address 2001:10:0:12::1/64
- tunnel mode ipv6ip
+ tunnel source se1/0
+ tunnel destination 10.0.12.2
+ ipv6 address fe80::1 link-local
+ ipv6 address 2001:10:0:12::1/64
+ tunnel mode ipv6ip
 ```
 
 # MPLS
@@ -4959,17 +4959,17 @@ Routers that reside connecting to CE devices are called Edge-LSRs (LER).
 
 ```
 vrf definition 1
- rd 192.168.0.1:1
- address-family ipv4
-  route-target both 1:1
+ rd 192.168.0.1:1
+ address-family ipv4
+  route-target both 1:1
 
 router bgp 1
- no bgp default ipv4-unicast
- neighbor 192.168.0.2 remote-as 1
- neighbor 192.168.0.2 update-source Loopback0
- add vpnv4
-  neighbor 192.168.0.2 activate
-  neighbor 192.168.0.2 send-community both
+ no bgp default ipv4-unicast
+ neighbor 192.168.0.2 remote-as 1
+ neighbor 192.168.0.2 update-source Loopback0
+ add vpnv4
+  neighbor 192.168.0.2 activate
+  neighbor 192.168.0.2 send-community both
 ```
 
 **VPNv4 mBGP Peering Rules**
@@ -4981,11 +4981,11 @@ router bgp 1
 
 ```
 route-map NEXT_HOP
- set ip next-hop 192.168.0.1
+ set ip next-hop 192.168.0.1
 router bgp 1
- add vpnv4
-  neighbor 10.0.12.2 route-map NEXT_HOP out
-  neighbor 192.168.0.2 route-reflector-client
+ add vpnv4
+  neighbor 10.0.12.2 route-map NEXT_HOP out
+  neighbor 192.168.0.2 route-reflector-client
 ```
 
 VRF Route-Leaking between Sites:
@@ -4994,20 +4994,20 @@ VRF Route-Leaking between Sites:
 ip prefix-list Lo1 permit 11.11.11.11/32
 
 route-map EXPORT_MAP permit 10
- match ip address prefix Lo1
- set extcommunity rt 11:11 additive
+ match ip address prefix Lo1
+ set extcommunity rt 11:11 additive
 
 vrf definition 1
- rd 192.168.0.1:1
- address-family ipv4
-  route-target both 1:1
-  export map EXPORT_MAP
+ rd 192.168.0.1:1
+ address-family ipv4
+  route-target both 1:1
+  export map EXPORT_MAP
 
 vrf definition 2
- rd 192.168.0.1:2
- address-family ipv4
-  route-target both 2:2
-  route-target import 11:11
+ rd 192.168.0.1:2
+ address-family ipv4
+  route-target both 2:2
+  route-target import 11:11
 ```
 
 ## BGP
@@ -5021,23 +5021,23 @@ If same AS on CE:
 ```
 ip bgp-community new-format
 router bgp 1
- no bgp default ipv4-unicast
- neighbor 192.168.0.3 remote-as 1
- neighbor 192.168.0.3 update-source Loopback0
- address-family vpnv4
-  neighbor 192.168.0.3 activate
-  neighbor 192.168.0.3 send-community both
- address-family ipv4 vrf 2
-  neighbor 172.0.58.8 remote-as 65001
-  neighbor 172.0.58.8 activate
-  neighbor 172.0.58.8 send-community
-  neighbor 172.0.58.8 as-override
-  neighbor 172.0.58.8 soo 1:1
+ no bgp default ipv4-unicast
+ neighbor 192.168.0.3 remote-as 1
+ neighbor 192.168.0.3 update-source Loopback0
+ address-family vpnv4
+  neighbor 192.168.0.3 activate
+  neighbor 192.168.0.3 send-community both
+ address-family ipv4 vrf 2
+  neighbor 172.0.58.8 remote-as 65001
+  neighbor 172.0.58.8 activate
+  neighbor 172.0.58.8 send-community
+  neighbor 172.0.58.8 as-override
+  neighbor 172.0.58.8 soo 1:1
 
 router bgp 65001
- address-family ipv4
-  neighbor 172.0.58.5 remote-as 1
-  neighbor 172.0.58.5 allowas-in
+ address-family ipv4
+  neighbor 172.0.58.5 remote-as 1
+  neighbor 172.0.58.5 allowas-in
 ```
 
 **BGP Multipathing**
@@ -5049,8 +5049,8 @@ router bgp 65001
 - Specify the eibgp keyword otherwise multipathing is only applied for iBGP routes.
 
 ```
- address-family ipv4 vrf 2
-  maximum-path eibgp 32
+ address-family ipv4 vrf 2
+  maximum-path eibgp 32
 ```
 
 ## BGP GRE
@@ -5059,17 +5059,17 @@ BGP GRE Tunnels (Old way)
 
 ```
 int tun0
- ip address 13.0.0.1 255.255.255.0
- tunnel source lo0
- tunnel destination 192.168.0.3
+ ip address 13.0.0.1 255.255.255.0
+ tunnel source lo0
+ tunnel destination 192.168.0.3
 
 route-map NEXT_HOP_TUNNEL
- set ip next-hop 13.0.0.1
+ set ip next-hop 13.0.0.1
 router bgp 3
- neighbor 192.168.0.3 remote-as 3
- neighbor 192.168.0.3 update-source lo0
- address-family ipv4
- neighbor 192.168.0.3 route-map NEXT_HOP_TUNNEL out
+ neighbor 192.168.0.3 remote-as 3
+ neighbor 192.168.0.3 update-source lo0
+ address-family ipv4
+ neighbor 192.168.0.3 route-map NEXT_HOP_TUNNEL out
 ```
 
 ## EIGRP / RIP
@@ -5080,29 +5080,29 @@ router bgp 3
 - The value/cost of the pre-bestpath community is the composite metric of the redistributed EIGRP route.
 - Routes without this cost community are evaluated as if they had a cost value of 2147483647, which is half of the maximum possible value.
 - Possible to modify the Cost Community ID. Lower values are better. Apply on EIGRP redistribution point or between VPNv4 neighbors.
-- Ignore the cost community with the `bgp bestpath cost-community ignore` command.
+- Ignore the cost community with the `bgp bestpath cost-community ignore` command.
 
 ```
 router eigrp VPNV4
- address-family ipv4 unicast vrf 2 autonomous-system 1
- network 172.0.17.0 0.0.0.255
-  topology base
-   redistribute bgp 1 metric 100000 10 255 1 1500
+ address-family ipv4 unicast vrf 2 autonomous-system 1
+ network 172.0.17.0 0.0.0.255
+  topology base
+   redistribute bgp 1 metric 100000 10 255 1 1500
 
 router bgp 1
- add ipv4 vrf 2
-  redistribute eigrp 1
+ add ipv4 vrf 2
+  redistribute eigrp 1
 
 ip prefix-list CE_Lo0 permit 192.168.0.6/32
 
 route-map SET_EXT_COMM permit 10
- match ip address prefix CE_Lo0
- set extcommunity cost pre-bestpath 127 2662400
+ match ip address prefix CE_Lo0
+ set extcommunity cost pre-bestpath 127 2662400
 route-map SET_EXT_COMM permit 99
 
 router bgp 1
 address-family ipv4 vrf 2
- redistribute eigrp 1 route-map SET_EXT_COMM
+ redistribute eigrp 1 route-map SET_EXT_COMM
 ```
 
 **RIP**
@@ -5112,19 +5112,19 @@ address-family ipv4 vrf 2
 ```
 router bgp 1
 address-family ipv4 vrf 2
- redistribute rip route-map RIP
+ redistribute rip route-map RIP
 
 router rip
- address-family ipv4 vrf 2
-  no auto
-  version 2
-  redistribute bgp 1 metric 1
+ address-family ipv4 vrf 2
+  no auto
+  version 2
+  redistribute bgp 1 metric 1
 
 router rip
- no auto
- version 2
- offset-list 0 in 7 FastEthernet0/0
- offset-list 0 out 7 FastEthernet0/0
+ no auto
+ version 2
+ offset-list 0 in 7 FastEthernet0/0
+ offset-list 0 out 7 FastEthernet0/0
 ```
 ## LDP / TDP
 
@@ -5159,7 +5159,7 @@ no mpls ip
 mpls label range 100 199
 mpls ip
 int fa0/0
- mpls ip
+ mpls ip
 
 show mpls ldp discovery detail
 show mpls ldp neighbor detail
@@ -5167,11 +5167,11 @@ show tcp brief
 ```
 
 **MPLS Transport Address**
-- The transport address can circumvent the RID for MPLS LDP neighbor advertisement.  
+- The transport address can circumvent the RID for MPLS LDP neighbor advertisement.  
 
 ```
 int fa0/0
- mpls ldp discovery transport-address 10.0.12.1
+ mpls ldp discovery transport-address 10.0.12.1
 ```
 
 **MPLS LDP Authentication**
@@ -5185,15 +5185,15 @@ mpls ldp password required
 mpls ldp password rollover duration
 ```
 
-A `password rollover` takes effect after the duration when passwords are configured without the use of a key chain.
+A `password rollover` takes effect after the duration when passwords are configured without the use of a key chain.
 - This feature is used when statically configured neighbor passwords (not with the option) need to be changed on the router.
 
 ```
 ip access-list standard LDP_AUTH
- permit 192.168.0.0 0.0.0.255
+ permit 192.168.0.0 0.0.0.255
 key chain LDP
- key 1
-  key-string cisco
+ key 1
+  key-string cisco
 
 mpls ldp password required
 mpls ldp password option 1 for LDP_AUTH key-chain LDP
@@ -5223,7 +5223,7 @@ Only add labels for /32 prefixes (preferred):
 
 ```
 mpls ldp label
- allocate global host-routes
+ allocate global host-routes
 ```
 
 Other methods (not preferred):
@@ -5235,25 +5235,25 @@ ip prefix-list LOOPBACKS permit 192.168.0.3/32
 ip prefix-list LOOPBACKS permit 192.168.0.4/32
 
 mpls ldp label
- allocate global prefix-list LOOPBACKS
+ allocate global prefix-list LOOPBACKS
 ```
 
 Or:
 
 ```
 ip access-list standard LDP_ADV
- permit host 192.168.0.1
- permit host 192.168.0.2
- permit host 192.168.0.3
- permit host 192.168.0.4
+ permit host 192.168.0.1
+ permit host 192.168.0.2
+ permit host 192.168.0.3
+ permit host 192.168.0.4
 no mpls ldp advertise-labels
 mpls ldp advertise-labels for LDP_ADV
 
 ip access-list standard LDP_REC
- permit host 192.168.0.1
- permit host 192.168.0.2
- permit host 192.168.0.3
- permit host 192.168.0.4
+ permit host 192.168.0.1
+ permit host 192.168.0.2
+ permit host 192.168.0.3
+ permit host 192.168.0.4
 mpls ldp neighbor 192.168.0.2 labels accept LDP_REC
 ```
 
@@ -5261,10 +5261,10 @@ Or, in the case of OSPF IGP:
 
 ```
 router ospf 1
- prefix-suppression
+ prefix-suppression
 
 int fa0/0
- ip ospf prefix-suppression
+ ip ospf prefix-suppression
 ```
 
 **MPLS TTL**
@@ -5303,14 +5303,14 @@ If both CE routers connect to the PE are using OSPF area 0, the process ID that 
 
 ```
 router ospf 17 vrf 2
- network 172.0.17.0 0.0.0.255 area 0
- redistribute bgp 1 subnets
- domain-id 12.12.12.12
- capability vrf-lite
+ network 172.0.17.0 0.0.0.255 area 0
+ redistribute bgp 1 subnets
+ domain-id 12.12.12.12
+ capability vrf-lite
 
 router bgp 1
- add ipv4 vrf 2
-  redistribute ospf 26 vrf 2
+ add ipv4 vrf 2
+  redistribute ospf 26 vrf 2
 ```
 
 **OSPF Backdoor CE-CE using Sham-Links**
@@ -5329,24 +5329,24 @@ Sham-links are Type-5 external LSAs. Networks sent over the sham-link are Type-1
 
 ```
 int lo1
- description SHAM LOOPBACK
- vrf forwarding 2
- ip add 1.1.1.1 255.255.255.255
+ description SHAM LOOPBACK
+ vrf forwarding 2
+ ip add 1.1.1.1 255.255.255.255
 
 router bgp 1
- address-family ipv4 vrf 2
-  network 1.1.1.1 mask 255.255.255.255
+ address-family ipv4 vrf 2
+  network 1.1.1.1 mask 255.255.255.255
 
 ip prefix-list SHAM_LOOPBACK permit 1.1.1.1/32
 ip prefix-list SHAM_LOOPBACK permit 2.2.2.2/32
 
 route-map BLOCK_SHAM deny 10
- match ip address prefix-list SHAM_LOOPBACK
+ match ip address prefix-list SHAM_LOOPBACK
 route-map BLOCK_SHAM permit 99
 
 router ospf 17 vrf 2
- area 0 sham-link 1.1.1.1 2.2.2.2
- redistribute bgp 1 subnets route-map BLOCK_SHAM
+ area 0 sham-link 1.1.1.1 2.2.2.2
+ redistribute bgp 1 subnets route-map BLOCK_SHAM
 ```
 
 ## QoS
@@ -5359,7 +5359,7 @@ The DSCP value in the IP packet can also be replaced by the EXP bits, this is ca
 
 QoS Matching on PE using Groups
 - On ingress interface, it is not possible to match on a IPP or DSCP value, because the MPLS header is still on the frame.
-- On egress interface, it is not possible to match on the EXP bits to set IPP / DSCP bits, because the label is already popped.  
+- On egress interface, it is not possible to match on the EXP bits to set IPP / DSCP bits, because the label is already popped.  
 
 The solution is to use QoS groups, which are local to the device itself.
 - A packet is marked with a QoS group value only while it is being processed within the device.
@@ -5367,26 +5367,26 @@ The solution is to use QoS groups, which are local to the device itself.
 
 ```
 class-map match-all EXP5
- match mpls experimental topmost 5
+ match mpls experimental topmost 5
 
 policy-map MPLS_INGRESS
- class EXP5
-  set qos-group 5
+ class EXP5
+  set qos-group 5
 
 int fa0/0
- description MPLS_CORE
- service-policy input MPLS_INGRESS
+ description MPLS_CORE
+ service-policy input MPLS_INGRESS
 
 class-map match-all QOS_GROUP5
- match qos-group 5
+ match qos-group 5
 
 policy-map MPLS_EGGRESS
- class QOS_GROUP5
-  set ip dscp af41  
+ class QOS_GROUP5
+  set ip dscp af41  
 
 int s1/0
- description VRF_CE
- service-policy output MPLS_EGGRESS
+ description VRF_CE
+ service-policy output MPLS_EGGRESS
 ```
 
 **Table-Maps**
@@ -5395,31 +5395,31 @@ int s1/0
 
 ```
 class-map match-all EXP5
- match mpls experimental topmost 5
+ match mpls experimental topmost 5
 policy-map MPLS_INGRESS
- class EXP5
-  set qos-group 5
+ class EXP5
+  set qos-group 5
 
 int fa0/0
- description MPLS_CORE
- service-policy input MPLS_INGRESS
+ description MPLS_CORE
+ service-policy input MPLS_INGRESS
 
 table-map TABLE_MAP
- map from 1 to 8     
- map from 2 to 16     
- map from 3 to 24    
- map from 4 to 32
- map from 5 to 40
- map from 6 to 48
- map from 7 to 56    
+ map from 1 to 8     
+ map from 2 to 16     
+ map from 3 to 24    
+ map from 4 to 32
+ map from 5 to 40
+ map from 6 to 48
+ map from 7 to 56    
 
 policy-map MPLS_EGGRESS
- class class-default
-  set dscp qos-group table TABLE_MAP
+ class class-default
+  set dscp qos-group table TABLE_MAP
 
 int s1/0
- description VRF_CE
- service-policy output MPLS_EGGRESS
+ description VRF_CE
+ service-policy output MPLS_EGGRESS
 ```
 
 **MPLS Implicit-null / Explicit-null**
@@ -5432,13 +5432,13 @@ An explicit-null label is used in QoS combined with MPLS.
 - If a POP is performed (implicit-null) at the penultimate LSR, the EXP bits in the MPLS header are removed as well.
 - With explicit-null the MPLS header is left intact until it reaches the Egress LSR.
 - Explicit Null is advertised in place of Implicit Null for directly connected prefixes.
-- Configure with the `mpls ldp explicit-null` global command. Default is to enable explicit-null for all local prefixes.
+- Configure with the `mpls ldp explicit-null` global command. Default is to enable explicit-null for all local prefixes.
 
 Limit explicit-null for route 10.10.10.0 only:
 
 ```
 ip access-list standard EXP_NULL
- permit host 10.10.10.0
+ permit host 10.10.10.0
 mpls ldp explicit-null for EXP_NULL
 ```
 
@@ -5446,7 +5446,7 @@ Limit explicit-null to peer 192.168.0.2 only:
 
 ```
 ip access-list standard EXP_NULL
- permit host 192.168.0.2
+ permit host 192.168.0.2
 mpls ldp explicit-null to EXP_NULL
 ```
 
@@ -5492,18 +5492,18 @@ An interface can be configured in three different modes (RPF must succeed):
 Anycast RP
 - PIM Register and Join messages go to the closest RP in the topology.
 - When PIM Register is received, MSDP Source Active (SA) is sent to MSDP peers which synchronize (S,G) information.
-- The `originator-id` must point to a unique address on the router (do not use the same loopback used for the MSDP peering).
-- The anycast loopback (not the peering loopback) is specified with the `rp-candidate` (BSR) or `send-rp-announce` (Auto-RP) command.
+- The `originator-id` must point to a unique address on the router (do not use the same loopback used for the MSDP peering).
+- The anycast loopback (not the peering loopback) is specified with the `rp-candidate` (BSR) or `send-rp-announce` (Auto-RP) command.
 
 ```
 int lo0
- description MSDP_PEERING
- ip address 192.168.0.1 255.255.255.0255
- ip pim sparse-mode
+ description MSDP_PEERING
+ ip address 192.168.0.1 255.255.255.0255
+ ip pim sparse-mode
 int lo1
- description ANYCAST_RP
- ip address 12.12.12.12 255.255.255.255
- ip pim sparse-mode
+ description ANYCAST_RP
+ ip address 12.12.12.12 255.255.255.255
+ ip pim sparse-mode
 
 ip msdp originator-id lo0
 ip msdp peer 192.168.0.2 connect-source lo0
@@ -5525,8 +5525,8 @@ debug ip msdp peer
 
 ```
 int lo0
- ip address 192.168.0.1 255.255.255.0255
- ip pim sparse-mode
+ ip address 192.168.0.1 255.255.255.0255
+ ip pim sparse-mode
 
 ip msdp peer 192.168.0.2 connect-source lo0
 ip pim bsr-candidate lo0
@@ -5538,15 +5538,15 @@ ip pim rp-candidate lo0
 - Auto-RP needs a RP to form multicast trees and allow traffic to flow.
 - However the location of the RP has to be discovered through multicast as well.
 - This creates a chicken and the egg situation. In order to find the RP, some kind of `dense-mode` solution is needed.
-o Statically assign the mapping agent and the RP for the 224.0.1.39-40 addresses. Kind of defeats the purpose of Auto-RP.
-o Configure interfaces with `ip pim parse-dense mode`. Uses dense mode for all groups without an RP, sparse for all others.
-o Configure the `ip pim autorp listener`. Allows usage of `sparse-mode` only interfaces and basically configures an ACL for the 224.0.1.39-40 addresses to be allowed to run in dense mode (preferred method).
+o Statically assign the mapping agent and the RP for the 224.0.1.39-40 addresses. Kind of defeats the purpose of Auto-RP.
+o Configure interfaces with `ip pim parse-dense mode`. Uses dense mode for all groups without an RP, sparse for all others.
+o Configure the `ip pim autorp listener`. Allows usage of `sparse-mode` only interfaces and basically configures an ACL for the 224.0.1.39-40 addresses to be allowed to run in dense mode (preferred method).
 
 **Mapping Agent**
 - Receive candidate messages (announcements) and decide which one will be the RP (Highest IP address wins).
 - The mapping agents listen on 224.0.1.39 and propagate the decision to all other routers via 224.0.1.40.
 - All routers join the 224.0.1.40 group by default, but only the mapping agents join 224.0.1.39.
-- Configure with `ip pim send-rp-discovery`, the scope has be large enough to reach the DR for the PIM segments.
+- Configure with `ip pim send-rp-discovery`, the scope has be large enough to reach the DR for the PIM segments.
 
 **Rendezvous Point (RP)**
 - Send multicast announcements (Dense Mode) to announce their RP candidacy to 224.0.1.39.
@@ -5563,8 +5563,8 @@ Static Auto-RP groups without listener (configure on all mrouters, including RP)
 
 ```
 ip access-list standard AUTO_RP
- permit host 224.0.1.40
- permit host 224.0.1.39
+ permit host 224.0.1.40
+ permit host 224.0.1.39
 ip pim rp-address 192.168.0.1 AUTO_RP
 ```
 
@@ -5574,15 +5574,15 @@ ip pim rp-address 192.168.0.1 AUTO_RP
 
 ```
 ip access-list standard RP1
- permit host 192.168.0.1
+ permit host 192.168.0.1
 ip access-list standard RP2
- permit host 192.168.0.2
+ permit host 192.168.0.2
 
 ip access-list standard GROUP_224_231
- permit 224.0.0.0 7.255.255.255
+ permit 224.0.0.0 7.255.255.255
 
 ip access-list standard GROUP_232_239
- permit 232.0.0.0 7.255.255.255
+ permit 232.0.0.0 7.255.255.255
 
 ip pim rp-announce-filter rp-list RP1 group-list GROUP_224_231
 ip pim rp-announce-filter rp-list RP2 group-list GROUP_232_239
@@ -5592,12 +5592,12 @@ Deny all other RPs:
 
 ```
 ip access-list standard OTHER_RP
- deny host 192.168.0.3
- deny host 192.168.0.4
- permit any
+ deny host 192.168.0.3
+ deny host 192.168.0.4
+ permit any
 
 ip access-list standard GROUP_224_239
- permit 224.0.0.0 15.255.255.255
+ permit 224.0.0.0 15.255.255.255
 
 ip pim rp-announce-filter rp-list OTHER_RP group-list GROUP_224_239
 ```
@@ -5609,7 +5609,7 @@ ip pim rp-announce-filter rp-list OTHER_RP group-list GROUP_224_239
 
 ## BSR
 **Bootstrap Router (BSR)**
-- The `rp-candidate` is the actual RP. The `bsr-candidate` is the mapping agent
+- The `rp-candidate` is the actual RP. The `bsr-candidate` is the mapping agent
 - Messages are flooded hop-by-hop by all multicast routers, this is because 224.0.0.13 is a link-local address.
 
 Designed for Sparse-Mode, there is no need for Dense-Mode. Flooding is a control-plane feature and can be debugged.
@@ -5620,7 +5620,7 @@ Designed for Sparse-Mode, there is no need for Dense-Mode. Flooding is a control
 
 ```
 ip access-list standard GROUP_224_231
- permit 224.0.0.0 7.255.255.255
+ permit 224.0.0.0 7.255.255.255
 
 ip pim rp-candidate Loopback 0 group-list GROUP_224_231
 ip pim bsr-candidate Loopback 0
@@ -5638,8 +5638,8 @@ debug ip pim bsr
 
 ```
 ip access-list standard BIDIR_RANGE
- permit 228.0.0.0 0.255.255.255
- permit 229.0.0.0 0.255.255.255
+ permit 228.0.0.0 0.255.255.255
+ permit 229.0.0.0 0.255.255.255
 
 ip pim bidir-enable
 ip pim bsr-candidate Loopback0
@@ -5656,17 +5656,17 @@ ip pim rp-candidate Loopback0 bidir BIDIR_RANGE
 
 State refresh messages can be used to 'refresh' the state before the 3min prune timer.
 - This will stop all routers from pruning and un-pruning on the specified interval.
-- Only has to be enabled on interface pointing to source, mrouter closest to source will relay `state-refresh` messages.
-- Disable state-refresh with the `ip pim state-refresh disable` command.
+- Only has to be enabled on interface pointing to source, mrouter closest to source will relay `state-refresh` messages.
+- Disable state-refresh with the `ip pim state-refresh disable` command.
 
 ```
 int fa0/0
- ip pim state-refresh origination-interval 60
+ ip pim state-refresh origination-interval 60
 ```
 
 **PIM-DM Assert**
 - Prevents multiple senders from replicating the same multicast stream on to the wire.
-- Used in `dense-mode` and enabled automatically.
+- Used in `dense-mode` and enabled automatically.
 
 In order to trigger a PIM Assert the (S,G) has to match exactly.
 - IE both transferring routers need to connected to the same segment.
@@ -5695,7 +5695,7 @@ The winner is decided by:
 - Multicast sources also inform the RP that they are sending multicast traffic, this is the (S,G) state (`register message`).
 - This information is propagated through the network, by all routers that know the location of the RP.
 - 3min state, after 3min the client will re-register with the RP. The RP informs routers to stop sending with `register-stop` message.
-- As long as the source is transmitting this `register-stop-register-stop` state will continue
+- As long as the source is transmitting this `register-stop-register-stop` state will continue
 - This is similar to Dense-Mode, except that it is only between the RP and the source router (instead of all routers).
 
   
@@ -5723,10 +5723,10 @@ debug ip mfib pak
 
 ```
 interface Tunnel 12
- ip address 12.0.0.1 255.255.255.0
- ip pim sparse-mode
- tunnel source Loopback 0
- tunnel destination 192.168.0.2
+ ip address 12.0.0.1 255.255.255.0
+ ip pim sparse-mode
+ tunnel source Loopback 0
+ tunnel destination 192.168.0.2
 
 ip mroute 0.0.0.0 0.0.0.0 Tunnel 12
 ```
@@ -5739,23 +5739,23 @@ ip mroute 0.0.0.0 0.0.0.0 Tunnel 12
 - Works similar in concept to a static `mroute`, only the information is propagated by BGP.
 - Advertise the network that needs to go over a different path instead of the unicast routing path.
 
-Change the `next_hop` to the next BGP destination that the neighboring router must take.
+Change the `next_hop` to the next BGP destination that the neighboring router must take.
 - Remember that multicast will only try to go over PIM enabled interfaces.
 
 Instruct R3 to choose R4 as the next-hop for mtraffic destined towards 172.16.0.0/24 (R1 is the RP):
 
 ```
-router bgp 234
- neighbor 10.0.234.3 remote-as 234
- add ipv4 multicast 
-  network 172.16.0.0 m 255.255.255.0
-  network 1.1.1.1 m 255.255.255.255
-  neighbor 10.0.234.3 activate
-  neighbor 10.0.234.3 route-map NEXT_HOP_MC out
-  distance bgp 20 20 200
+router bgp 234
+ neighbor 10.0.234.3 remote-as 234
+ add ipv4 multicast 
+  network 172.16.0.0 m 255.255.255.0
+  network 1.1.1.1 m 255.255.255.255
+  neighbor 10.0.234.3 activate
+  neighbor 10.0.234.3 route-map NEXT_HOP_MC out
+  distance bgp 20 20 200
 
 route-map NEXT_HOP_MC permit 10
-   set ip next-hop 10.0.234.4
+   set ip next-hop 10.0.234.4
 ```
 
 ## SSM
@@ -5768,14 +5768,14 @@ Configure router closest to receiver on same link:
 
 ```
 ip access-list standard SSM_RANGE
- permit host 232.0.0.1
- permit host 232.0.0.2
+ permit host 232.0.0.1
+ permit host 232.0.0.2
 
 ip pim ssm range SSM_RANGE
 int fa0/0
- description MULTICAST_SOURCE
- ip igmp version 3
- ip pim sparse-mode
+ description MULTICAST_SOURCE
+ ip igmp version 3
+ ip pim sparse-mode
 ```
 
 Configure receiver of multicast traffic:
@@ -5784,14 +5784,14 @@ Configure receiver of multicast traffic:
 ip pim ssm default
 int fa0/0
  description MULTICAST_RECEIVER
- ip pim-sparse mode
- ip igmp version 3
+ ip pim-sparse mode
+ ip igmp version 3
 
 int lo0
- ip pim sparse-mode
- ip igmp join-group 232.0.0.1 source 192.168.0.1
- ip igmp join-group 232.0.0.2 source 192.168.0.1
- ip igmp join-group etc..
+ ip pim sparse-mode
+ ip igmp join-group 232.0.0.1 source 192.168.0.1
+ ip igmp join-group 232.0.0.2 source 192.168.0.1
+ ip igmp join-group etc..
 ```
 
 **SSM IGMP Filtering**
@@ -5799,10 +5799,10 @@ Configure router closest to receiver on same link to filter specific groups:
 
 ```
 ip access-list extended SSM_GROUPS
- permit igmp any host 232.0.0.1
+ permit igmp any host 232.0.0.1
 
 int fa0/0
- ip igmp access-group SSM_GROUPS
+ ip igmp access-group SSM_GROUPS
 ```
 
 ## Static RP
@@ -5814,10 +5814,10 @@ int fa0/0
 
 ```
 ip access-list standard GROUP_224_231
- permit 224.0.0.0 7.255.255.255
+ permit 224.0.0.0 7.255.255.255
 
 ip access-list standard GROUP_232_239
- permit 232.0.0.0 7.255.255.255
+ permit 232.0.0.0 7.255.255.255
 
 ip pim rp-address 192.168.0.1 GROUP_224_231 override
 ip pim rp-address 192.168.0.2 GROUP_232_239 override
@@ -5825,11 +5825,11 @@ ip pim rp-address 192.168.0.2 GROUP_232_239 override
 
 **RP Register Filtering**
 - Prevent unauthorized sources from registering with the RP (S,G). Configure on RP.
-- If an unauthorized source sends a register message to the RP, the RP will immediately send back a register-stop message.
+- If an unauthorized source sends a register message to the RP, the RP will immediately send back a register-stop message.
 
 ```
 ip access-list standard GROUP_224_231
- permit 224.0.0.0 7.255.255.255
+ permit 224.0.0.0 7.255.255.255
 
 ip pim accept-register list GROUP_224_231
 ```
@@ -5839,14 +5839,14 @@ ip pim accept-register list GROUP_224_231
 - Configure on mrouters, and optionally on RP.
 - The group address must be in the range specified by the access list.
 - If the RP points to itself, the RP will only accept registers from that particular multicast range.
-- This is basically the same as the ip pim accept-register command.
+- This is basically the same as the ip pim accept-register command.
 
 ```
 ip access-list standard GROUP_224_231
- permit 224.0.0.0 7.255.255.255
+ permit 224.0.0.0 7.255.255.255
 
 ip access-list standard GROUP_232_239
- permit 232.0.0.0 7.255.255.255
+ permit 232.0.0.0 7.255.255.255
 
 ip pim accept-rp 192.168.0.1 GROUP_224_231
 ip pim accept-rp 192.168.0.2 GROUP_232_239
@@ -5854,12 +5854,12 @@ ip pim accept-rp 192.168.0.2 GROUP_232_239
 
 **Dense-Mode Fallback**
 - Dense mode fallback allows the usage of dense mode if the RP becomes unreachable.
-- Requires `sparse-dense-mode` configured on interfaces.
+- Requires `sparse-dense-mode` configured on interfaces.
 
 ```
 ip pim dm-fallback
 int fa0/0
- ip pim sparse-dense-mode
+ ip pim sparse-dense-mode
 ```
 
 # NAT
@@ -5867,33 +5867,33 @@ int fa0/0
 - Some protocols embed IP address information in the Application Level payload.
 - Regular NAT does not check the application level for protocols such as FTP, HTTP, DNS, SIP.
 - ALG allows the use of dynamic ports by clients.
-- ALG is on by default. Disable ALG by specifying the `no-payload` command.
+- ALG is on by default. Disable ALG by specifying the `no-payload` command.
 ## NVI
 NAT Virtual Interface (NVI)
-- No more concept of `nat inside` and `nat outside` interfaces.
-- The `add-route` keyword also adds the NAT_POOL route to the RIB, this can then be redistributed into BGP.
+- No more concept of `nat inside` and `nat outside` interfaces.
+- The `add-route` keyword also adds the NAT_POOL route to the RIB, this can then be redistributed into BGP.
 - Using this method, the outside interface address does not necessarily have to match the NAT_POOL ip range.
 
 ```
 int fa0/0
- description PRIVATE_TO_R2
- ip address 10.0.12.1 255.255.255.0
- ip nat enable
+ description PRIVATE_TO_R2
+ ip address 10.0.12.1 255.255.255.0
+ ip nat enable
 int se1/0
- description PUBLIC_TO_R4
- ip address 14.0.0.1 255.255.255.0
- ip nat enable
+ description PUBLIC_TO_R4
+ ip address 14.0.0.1 255.255.255.0
+ ip nat enable
 
 ip access-list standard NAT_ACL
- permit 10.0.12.0 0.0.0.255
+ permit 10.0.12.0 0.0.0.255
 
 ip nat pool NAT_POOL 12.0.0.2 12.0.0.10 prefix-length 24 add-route
 ip nat source list NAT_ACL pool NAT_POOL
 
 router bgp 1
- neighbor 14.0.0.4 remote-as 4
- address-family ipv4
-  network 12.0.0.0 mask 255.255.255.0
+ neighbor 14.0.0.4 remote-as 4
+ address-family ipv4
+  network 12.0.0.0 mask 255.255.255.0
 ```
 
 ## Dynamic
@@ -5904,16 +5904,16 @@ router bgp 1
 
 ```
 int fa0/0
- description PRIVATE_TO_R2
- ip address 10.0.12.1 255.255.255.0
- ip nat inside
+ description PRIVATE_TO_R2
+ ip address 10.0.12.1 255.255.255.0
+ ip nat inside
 int se1/0
- ip address 14.0.0.1 255.255.255.0
- description PUBLIC_TO_R4
- ip nat outside
+ ip address 14.0.0.1 255.255.255.0
+ description PUBLIC_TO_R4
+ ip nat outside
 
 ip access-list standard NAT_ACL
- permit 10.0.12.0 0.0.0.255
+ permit 10.0.12.0 0.0.0.255
 
 ip nat inside source list NAT_ACL int se1/0 overload
 ```
@@ -5922,30 +5922,30 @@ ip nat inside source list NAT_ACL int se1/0 overload
 
 ```
 ip access-list standard NAT_ACL
- permit 10.0.12.0 0.0.0.255
+ permit 10.0.12.0 0.0.0.255
 
 ip nat pool NAT_POOL 14.0.0.2 14.0.0.10 prefix-length 24
 ip nat inside source list NAT_ACL pool NAT_POOL overload
 ```
 
 **Dynamic NAT Pool using Route-Maps**
-- Use `route-maps` alongside dynamic NAT pools to provide more granular control.
+- Use `route-maps` alongside dynamic NAT pools to provide more granular control.
 - Can translate different traffic types to different outside addresses.
 
 ```
 ip access-list extended NAT_ICMP
- permit icmp 10.0.12.0 0.0.0.255 any
+ permit icmp 10.0.12.0 0.0.0.255 any
 ip access-list extended NAT_TCP
- permit tcp 10.0.12.0 0.0.0.255 any
+ permit tcp 10.0.12.0 0.0.0.255 any
 ip access-list extended NAT_UDP
- permit udp 10.0.12.0 0.0.0.255 any
+ permit udp 10.0.12.0 0.0.0.255 any
 
 route-map NAT_ICMP_RM permit 10
- match ip address NAT_ICMP
+ match ip address NAT_ICMP
 route-map NAT_TCP_RM permit 10
- match ip address NAT_TCP
+ match ip address NAT_TCP
 route-map NAT_UDP_RM permit 10
- match ip address NAT_UDP
+ match ip address NAT_UDP
 
 ip nat pool NAT_POOL_ICMP 14.0.0.2 14.0.0.10 prefix-length 24
 ip nat inside source route-map NAT_ICMP_RM pool NAT_POOL_ICMP overload
@@ -5960,41 +5960,41 @@ ip nat inside source route-map NAT_UDP_RM pool NAT_POOL_UDP overload
 ## Policy
 Policy NAT
 - Uses `tracking` alongside `route-maps` in order to provide continuous NAT services on multiple outside interfaces.
-- If main neighbor goes offline, remote the `static route` and switch over to the other neighbor.
+- If main neighbor goes offline, remote the `static route` and switch over to the other neighbor.
 - Poor man's NAT redundancy.
 - Does not work with NAT pools.
 
 ```
 int fa0/0
- description PRIVATE_TO_R2
- ip address 10.0.12.1 255.255.255.0
- ip nat inside
+ description PRIVATE_TO_R2
+ ip address 10.0.12.1 255.255.255.0
+ ip nat inside
 int se1/0
- description PUBLIC_TO_R3
- ip address 13.0.0.1 255.255.255.0
- ip nat outside
+ description PUBLIC_TO_R3
+ ip address 13.0.0.1 255.255.255.0
+ ip nat outside
 int se1/1
- description PUBLIC_TO_R4
- ip address 14.0.0.1 255.255.255.0
- ip nat outside
+ description PUBLIC_TO_R4
+ ip address 14.0.0.1 255.255.255.0
+ ip nat outside
 
 ip sla 1
- icmp-echo 13.0.0.3 source-interface se1/0
-  frequency 5
+ icmp-echo 13.0.0.3 source-interface se1/0
+  frequency 5
 track 1 ip sla 1
 
 ip route 0.0.0.0 0.0.0.0 13.0.0.3 track 1
 ip route 0.0.0.0 0.0.0.0 14.0.0.4 5
 
 ip access-list standard NAT_ACL
- permit 10.0.12.0 0.0.0.255
+ permit 10.0.12.0 0.0.0.255
 
 route-map NAT_13 permit 10
- match ip address NAT_ACL
- match int se1/0
+ match ip address NAT_ACL
+ match int se1/0
 route-map NAT_14 permit 10
- match ip address NAT_ACL
- match int se1/1
+ match ip address NAT_ACL
+ match int se1/1
 
 ip nat inside source route-map NAT_13 interface se1/0 overload
 ip nat inside source route-map NAT_14 interface se1/1 overload
@@ -6011,17 +6011,17 @@ Send Telnet traffic to R2 and R3 in a round-robin fashion:
 
 ```
 int fa0/0
- description PRIVATE_TO_R2_R3
- ip address 10.0.123.1 255.255.255.0
- ip nat inside
+ description PRIVATE_TO_R2_R3
+ ip address 10.0.123.1 255.255.255.0
+ ip nat inside
 int fa0/1
- description PUBLIC_TO_R4
- ip address 14.0.0.1 255.255.255.0
- ip nat outside
+ description PUBLIC_TO_R4
+ ip address 14.0.0.1 255.255.255.0
+ ip nat outside
 
 ip alias 14.0.0.100 23
 ip access-list standard ROTARY_NAT
- permit host 14.0.0.100
+ permit host 14.0.0.100
 
 ip nat pool NAT_POOL 10.0.123.2 10.0.123.3 prefix-length 24 type rotary
 ip nat inside destination list ROTARY_NAT pool NAT_POOL
@@ -6035,13 +6035,13 @@ ip nat inside destination list ROTARY_NAT pool NAT_POOL
 
 ```
 int fa0/0
- description PRIVATE_TO_R2
- ip address 10.0.12.1 255.255.255.0
- ip nat inside
+ description PRIVATE_TO_R2
+ ip address 10.0.12.1 255.255.255.0
+ ip nat inside
 int se1/0
- ip address 14.0.0.1 255.255.255.0
- description PUBLIC_TO_R4
- ip nat outside
+ ip address 14.0.0.1 255.255.255.0
+ description PUBLIC_TO_R4
+ ip nat outside
 
 ip nat inside source static 10.0.12.2 14.0.0.100 extendable
 ip nat inside source static 10.0.12.2 14.0.0.200 extendable
@@ -6067,30 +6067,30 @@ Configure a pool that contains IG addresses and map these to an access-list that
 
 ```
 ip access-list standard NAT_ACL
- permit 10.0.12.0 0.0.0.255
+ permit 10.0.12.0 0.0.0.255
 
 ip nat pool NAT_POOL 14.0.0.2 14.0.0.10 prefix-length 24
 ip nat inside source list NAT_ACL pool NAT_POOL
 ```
 
 **Reversible Static NAT Pool using Route-Maps**
-- Use `route-maps` alongside static NAT pools to provide more granular control.
-- The `reversible` keyword enables outside-to-inside initiated sessions to use route_maps for destination-based NAT.
+- Use `route-maps` alongside static NAT pools to provide more granular control.
+- The `reversible` keyword enables outside-to-inside initiated sessions to use route_maps for destination-based NAT.
 
 ```
 ip access-list extended NAT_ICMP
- permit icmp 10.0.12.0 0.0.0.255 any
+ permit icmp 10.0.12.0 0.0.0.255 any
 ip access-list extended NAT_TCP
- permit tcp 10.0.12.0 0.0.0.255 any
+ permit tcp 10.0.12.0 0.0.0.255 any
 ip access-list extended NAT_UDP
- permit udp 10.0.12.0 0.0.0.255 any
+ permit udp 10.0.12.0 0.0.0.255 any
 
 route-map NAT_ICMP_RM permit 10
- match ip address NAT_ICMP
+ match ip address NAT_ICMP
 route-map NAT_TCP_RM permit 10
- match ip address NAT_TCP
+ match ip address NAT_TCP
 route-map NAT_UDP_RM permit 10
- match ip address NAT_UDP
+ match ip address NAT_UDP
 
 ip nat pool NAT_POOL_ICMP 14.0.0.2 14.0.0.10 prefix-length 24
 ip nat inside source route-map NAT_ICMP_RM pool NAT_POOL_ICMP reversible
@@ -6107,30 +6107,30 @@ ip nat inside source route-map NAT_UDP_RM pool NAT_POOL_UDP reversible
 - The SNAT feature allows multiple routers to share NAT tables.
 - When used alongside HSRP, the standby router can take over the NAT translations.
 - The standby router can share state with the active router, keeping the NAT sessions alive.
-- The `mapping-id` must be the same between peers. The `redundancy` string must match the `standby name`.
+- The `mapping-id` must be the same between peers. The `redundancy` string must match the `standby name`.
 - The configuration of the standby router is identical, with the exception of the `ip nat stateful id`.
 
 ```
 int fa0/0
- standby 1 name SNAT
- standby 1 ip 10.0.123.254
- ip nat inside
+ standby 1 name SNAT
+ standby 1 ip 10.0.123.254
+ ip nat inside
 int se1/0
- ip nat outside
+ ip nat outside
 
 ip nat stateful id 1
-  redundancy SNAT
-   mapping-id 12
+  redundancy SNAT
+   mapping-id 12
 
 access-list standard NAT
- permit 10.0.123.0 0.0.0.255
+ permit 10.0.123.0 0.0.0.255
 ip nat pool NAT_POOL 12.0.0.100 12.0.0.100 prefix-length 24 add-route
 ip nat inside source list NAT pool NAT_POOL mapping-id 12 overload
 
 router bgp 12
- neighbor 14.0.0.4 remote-as 4
+ neighbor 14.0.0.4 remote-as 4
 add ipv4
- network 12.0.0.0 mask 255.255.255.0
+ network 12.0.0.0 mask 255.255.255.0
 
 show ip snat peer 10.0.123.2
 show ip snat distributed
@@ -6217,22 +6217,22 @@ OSPF Supports the following authentication types:
 
 ```
 router ospf 1
- area 0 authentication
+ area 0 authentication
 
 int fa0/0
- ip ospf authentication-key cisco
- ip ospf authentication
+ ip ospf authentication-key cisco
+ ip ospf authentication
 ```
 
 **MD5 Authentication (Type 2)**
 
 ```
 router ospf 1
- area 0 authentication message-digest
+ area 0 authentication message-digest
 
 int fa0/0
- ip ospf message-digest-key 1 md5 cisco
- ip ospf authentication message-digest
+ ip ospf message-digest-key 1 md5 cisco
+ ip ospf authentication message-digest
 ```
 
 **Virtual Link Authentication**
@@ -6241,27 +6241,27 @@ int fa0/0
 
 ```
 router ospf 1
- area 0 authentication message-digest
- area 1 virtual-link 192.168.0.2 authentication message-digest message-digest-key 1 md5 0 cisco
+ area 0 authentication message-digest
+ area 1 virtual-link 192.168.0.2 authentication message-digest message-digest-key 1 md5 0 cisco
 ```
 
 **OSPF IPv6 Authentication**
 - Requires the use of IPsec to enable authentication. Only supports full hexadecimal keys.
-- To use the IPsec AH header, you use only the `ipv6 ospf authentication` command.
+- To use the IPsec AH header, you use only the `ipv6 ospf authentication` command.
 - When MD5 authentication is used, the key must be 32 hex digits long.
 - When SHA-1 authentication is used, the key must be 40 hex digits long.
 
 ```
 ipv6 router ospf 1
- area 0 authentication ipsec spi 256 md5 1234567890abcdef1234567890abcdef
+ area 0 authentication ipsec spi 256 md5 1234567890abcdef1234567890abcdef
 
 int fa0/0
- ipv6 ospf authentication ipsec spi 256 md5 1234567890abcdef1234567890abcdef
+ ipv6 ospf authentication ipsec spi 256 md5 1234567890abcdef1234567890abcdef
 ```
 
 **OSPF IPv6 Encryption**
 - Requires the use of IPsec to enable encryption. Only supports full hexadecimal keys.
-- To use the IPsec ESP header, you use the ipv6 ospf encryption command.
+- To use the IPsec ESP header, you use the ipv6 ospf encryption command.
 - When ESP is set to a non-null value, both encryption and authentication are provided.
 - It is not possible to configure encryption and authentication using different commands.
 
@@ -6269,20 +6269,20 @@ ESP Null:
 
 ```
 ipv6 router ospf 1
- area 0 encryption ipsec spi 256 esp null md5 1234567890abcdef1234567890abcdef
+ area 0 encryption ipsec spi 256 esp null md5 1234567890abcdef1234567890abcdef
 
 int fa0/0
- ipv6 ospf encryption ipsec spi 256 esp null md5 1234567890abcdef1234567890abcdef
+ ipv6 ospf encryption ipsec spi 256 esp null md5 1234567890abcdef1234567890abcdef
 ```
 
 ESP AES-CBC 128:
 
 ```
 ipv6 router ospf 1
- area 0 encryption ipsec spi 256 esp aes-cbc 128 1234567890abcdef1234567890abcdef md5 1234567890abcdef1234567890abcdef
+ area 0 encryption ipsec spi 256 esp aes-cbc 128 1234567890abcdef1234567890abcdef md5 1234567890abcdef1234567890abcdef
 
 int fa0/0
- ipv6 ospf encryption ipsec spi 256 esp aes-cbc 128 1234567890abcdef1234567890abcdef md5 1234567890abcdef1234567890abcdef
+ ipv6 ospf encryption ipsec spi 256 esp aes-cbc 128 1234567890abcdef1234567890abcdef md5 1234567890abcdef1234567890abcdef
 ```
 
 ## Adjacencies
@@ -6303,7 +6303,7 @@ int fa0/0
 
 Stuck in WAIT-State
 - Reason: Unreasonably long dead-interval on broadcast and non-broadcast network type. This is because routers spend the dead-interval time (40 seconds by default) in the wait state before becoming FULL neighbors.
-- Behavior: Routers will appear as DROTHERS  even with priority set to non-zero value. 
+- Behavior: Routers will appear as DROTHERS  even with priority set to non-zero value. 
 
 ```
 show ip ospf interface: State will show as WAIT.  
@@ -6361,18 +6361,18 @@ ip prefix-list Lo3 deny 192.168.0.3/32
 ip prefix-list Lo3 permit 0.0.0.0/0 le 32
 
 router ospf 1
- area 0 filter-list prefix Lo3 in
+ area 0 filter-list prefix Lo3 in
 ```
 
 **Filtering Type-3 LSAs using Summarization**
 - The area range command can also be used to filter all routes that match the criteria.
 - This command only works on inter-area routes, not redistributed routes.
-- The `not-advertise` keyword will filter all the more specific routes and the summary, basically blocking the Type-3 LSAs.
-- Use the `summary-address` keyword for external routes.
+- The `not-advertise` keyword will filter all the more specific routes and the summary, basically blocking the Type-3 LSAs.
+- Use the `summary-address` keyword for external routes.
 
 ```
 router ospf 1
- area 0 range 172.16.0.0 255.255.0.0 not-advertise
+ area 0 range 172.16.0.0 255.255.0.0 not-advertise
 ```
 
 **Distribute-Lists**
@@ -6387,7 +6387,7 @@ ip prefix-list Lo3 deny 192.168.0.3/32
 ip prefix-list Lo3 permit 0.0.0.0/0 le 32
 
 router ospf 1
- distribute-list prefix Lo3 in
+ distribute-list prefix Lo3 in
 ```
 
 Alongside gateway:
@@ -6399,7 +6399,7 @@ ip prefix-list R2 permit 0.0.0.0/0 le 32
 ip prefix-list PREFIXES permit 0.0.0.0/0 le 32
 
 router ospf 1
- distribute-list prefix PREFIXES gateway R2 in
+ distribute-list prefix PREFIXES gateway R2 in
 ```
 
 **Distribute-List Filtering from NSSA area**
@@ -6412,8 +6412,8 @@ ip prefix-list Lo3 deny 192.168.0.3/32
 ip prefix-list Lo3 permit 0.0.0.0/0 le 32
 
 router ospf 1
- area 13 nssa
- distribute-list prefix Lo3 in
+ area 13 nssa
+ distribute-list prefix Lo3 in
 ```
 
 **Outgoing Database Filter**
@@ -6422,10 +6422,10 @@ router ospf 1
 
 ```
 int fa0/0
- ip ospf database-filter all out
+ ip ospf database-filter all out
 
 router ospf 1
- neighbor 10.0.12.2 database-filter all out
+ neighbor 10.0.12.2 database-filter all out
 ```
 
 **Prefix-Suppression**
@@ -6434,29 +6434,29 @@ router ospf 1
 - Basically, all primary addresses will be suppressed.
 - Secondary IP addresses are only advertised by enabling OSPF on the interface, not the network statement.
 - If prefix suppression was enabled for the entire process, only secondary addresses and loopbacks would be advertised.
-- By specifying the secondaries none keyword, the secondary address is not advertised into OSPF.
+- By specifying the secondaries none keyword, the secondary address is not advertised into OSPF.
 
 ```
 router ospf 1
- prefix-suppression
- ip ospf 1 area 0 secondaries none
+ prefix-suppression
+ ip ospf 1 area 0 secondaries none
 
 int lo0
- ip ospf prefix-suppression disable
+ ip ospf prefix-suppression disable
 ```
 
 ## LFA / FRR
 **Fast Reroute (FRR) Direct LSA**
 - IOS only supports per-link LFA.
 - The high priority enables FRR for /32 prefixes only, the low priority enables FRR for all prefixes.
-- The fast-reroute keep-all-paths option keeps all information in the table, including paths that were not chosen.
+- The fast-reroute keep-all-paths option keeps all information in the table, including paths that were not chosen.
 - When an area is specified, external routes are not a candidate for FRR. This is because they do not belong to an area.
 
 ```
 router ospf 1
- fast-reroute per-prefix enable area 0 prefix-priority high
- fast-reroute per-prefix enable prefix-priority high
- fast-reroute keep-all-paths
+ fast-reroute per-prefix enable area 0 prefix-priority high
+ fast-reroute per-prefix enable prefix-priority high
+ fast-reroute keep-all-paths
 ```
 
 Configure a custom high prefix priority:
@@ -6465,17 +6465,17 @@ Configure a custom high prefix priority:
 ip prefix-list FRR permit 0.0.0.0/0 ge 30
 
 route-map FRR permit 10
- match ip address prefix FRR
+ match ip address prefix FRR
 
 router ospf 1
- prefix-priority high route-map FRR
+ prefix-priority high route-map FRR
 ```
 
 Exclude interface in calculation:
 
 ```
 int fa0/0
- ip ospf fast-reroute per-prefix candidate disable
+ ip ospf fast-reroute per-prefix candidate disable
 ```
 
 **FRR Tie Breakers**
@@ -6497,11 +6497,11 @@ Manually specify tie breakers and index number (lower is more preferred).
 - The `required` keyword forces matching. If no match, do not go to next-tie breaker and don't use the path.
 - When manually configuring tie-breakers, others not included will not be used.
 
-```
+```cisco
 router ospf 1
- fast-reroute per-prefix tie-break lowest-metric required index 10
- fast-reroute per-prefix tie-break node-protecting required index 20
- fast-reroute per-prefix tie-break srlg required index 30
+ fast-reroute per-prefix tie-break lowest-metric required index 10
+ fast-reroute per-prefix tie-break node-protecting required index 20
+ fast-reroute per-prefix tie-break srlg required index 30
 
 show ip ospf fast-reroute prefix
 show ip route repair-paths
@@ -6529,7 +6529,7 @@ Type 2: Network (DR)
 - Contents: Router IDs of all connected routers, netmask of subnets. (This is not included in Type-1 LSA in multi-access segments. Prefix information is not included.
 - Originator: DR on the shared (broadcast, non-broadcast) segment. BDR in case of DR failure.
 - Triggers an SPF recalculation.
-- Flooding scope: Own Area,  information remains unchanged, not altered by others.
+- Flooding scope: Own Area,  information remains unchanged, not altered by others.
 
 Type 3: Summary (ABR)
 - Contents: Calculated routing information for area routes,
@@ -6594,12 +6594,12 @@ Type 11: Grace LSA (All Routers)
 
 ```
 int fa0/0
- ip ospf ttl-security hops 1
+ ip ospf ttl-security hops 1
 
 router ospf 1
- ttl-security all-interfaces hops 1
+ ttl-security all-interfaces hops 1
 int fa0/0
- ip ospf ttl-security disable
+ ip ospf ttl-security disable
 ```
 
 **OSPF Ignore MTU**
@@ -6608,7 +6608,7 @@ int fa0/0
 
 ```
 int fa0/0
- ip ospf mtu-ignore
+ ip ospf mtu-ignore
 ```
 
 **Incremental SPF (iSPF)**
@@ -6617,5 +6617,5 @@ int fa0/0
 
 ```
 router ospf 1
- ispf
+ ispf
 ```
