@@ -233,7 +233,7 @@ Alert Incoming SIP Crisis Calls? n
                                         Far-end Network Region: 1
 
 Far-end Domain: smn.rosneft.ru
-                                            Bypass If IP Threshold Exceeded? n
+                                             Bypass If IP Threshold Exceeded? n
 Incoming Dialog Loopbacks: eliminate                  RFC 3389 Comfort Noise? n
          DTMF over IP: rtp-payload            Direct IP-IP Audio Connections? y
 Session Establishment Timer(min): 3                     IP Audio Hairpinning? n
@@ -259,7 +259,7 @@ Alert Incoming SIP Crisis Calls? n
                                         Far-end Network Region: 1
 
 Far-end Domain: smn.rosneft.ru
-                                            Bypass If IP Threshold Exceeded? n
+                                             Bypass If IP Threshold Exceeded? n
 Incoming Dialog Loopbacks: eliminate                  RFC 3389 Comfort Noise? n
          DTMF over IP: rtp-payload            Direct IP-IP Audio Connections? y
 Session Establishment Timer(min): 3                     IP Audio Hairpinning? n
@@ -886,7 +886,7 @@ Management → Configuration download → Save to disk)
 ![Configuration download](assets/image199.png)
 
 ## Тест
-Тест — набираю любой мобильный номер, начинающийся на 8916.
+Набираю любой мобильный номер, начинающийся на 8916.
 
 ![equinox call number](assets/image200.png)
 
