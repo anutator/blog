@@ -106,7 +106,7 @@ ip access-list standard QUIET
  permit host 192.168.0.1
 ```
 
-Secure Shell (SSH) 
+Secure Shell (SSH)
 - Enable SSH without ip domain-name by using the label keyword.
 - Normally the first generated RSA key is linked to SSH. Override this with the keypair-name command.
 
@@ -368,7 +368,7 @@ line vty 0 4
 ## Dynamic
 **Dynamic Access-Lists (Lock-and-Key)**
 - Blocks traffic until users telnet into the router and are authenticated.
-- A single time-based dynamic entry is added to the existing ACL.  
+- A single time-based dynamic entry is added to the existing ACL.
 - Idle timeouts are configured with the `autocommand`. Absolute timeouts are configured in the ACL.
 - The absolute timeout value must be greater than the idle timeout value, if using both.
 - If using none, the access-list entry will remain indefinitely.
@@ -2290,7 +2290,7 @@ router eigrp 1
 ## Metric
 EIGRP Composite Metric (Weight Calculation)
 - EIGRP uses metric weights along with a set of vector metrics to compute the composite metric for local RIB and route selections.
-- Type of service (first K value) must always be zero.  
+- Type of service (first K value) must always be zero.
 - The formula is `[K1*bandwidth + (K2*bandwidth)/(256 - load) + K3*delay] * [K5/(reliability + K4)]`.
 
 `256*[(10^7/slowest bandwidth in kbps) + all link delays in tens microseconds]`
@@ -6618,4 +6618,2208 @@ int fa0/0
 ```
 router ospf 1
  ispf
+```
+
+## OSPFv3
+OSPFv3
+- Multiple instances of OSPFv3 can be run on a link.
+- An OSPFv3 process can be configured to be either IPv4 or IPv6.
+- Not compatible with OSPFv2.
+
+```
+ipv6 unicast-routing
+int fa0/0
+ ip add 10.0.12.1 255.255.255.0
+ ipv6 add fe80::1 link-local
+ ospfv3 1 ipv4 area 0
+ ospfv3 1 ipv6 area 0
+ ospfv3 network broadcast
+
+int lo0
+ ip add 192.168.0.1 255.255.255.255
+ ipv6 add 1::1/128
+ ospfv3 network point-to-point
+ ospfv3 1 ipv4 area 0
+ ospfv3 1 ipv6 area 0
+```
+
+## Stub / NSSA
+**OSPF Stub Areas**
+- Ignores received Type 5 LSA (External) by ABR, does not sent type Type-4 and Type-5 LSA.
+- Has no knowledge of external prefixes besides default route that is converted to Type-3.
+- Totally stubby area that also stops LSA Type-3 (Summary) except default route.
+- Default route is installed automatically into STUB and TS areas.
+- Only the ABRs need to be configured with no-summary keyword.
+
+```
+router ospf 1
+ area 123 stub no-summary
+```
+
+**OSPF NSSA Areas**
+- NSSA is a stubby area that allows creation of Type-7 LSA that injects external routes into other areas.
+- NSSA Totally stubby (NSSA-TS) is a totally stubby area that allows creation of Type-7 LSA and default route.
+- Default route is not installed automatically NSSA areas
+- Default route is installed automatically into NSSA-TS areas.
+- Only the ABRs need to be configured with the `no-summary` keyword.
+- Specify `no-redistribution` on the NSSA ABR to have local redistributed routes only be redistributed into normal areas, not the NSSA.
+- N1 and N2 type routes will show inside the NSSA area (every router in the area) but they will be converted to regular E1 and E2 when the ABR sends those routes into other areas.
+- When using multiple NSSA ABRs, the router with the highest RID is responsible for translating Type-7 LSAs into the normal area.
+
+```
+router ospf 1
+ area 123 nssa no-summary no-redistribution
+ area 123 nssa default-info-originate metric 1 metric-value metric-type 2 nssa-only
+ area 123 default-cost 1
+```
+
+The `default-cost` keyword will affect the cost of the redistributed default-route. Not other routes.
+
+NSSA `default-information-originate` does not require the presence of a default route when configured on the NSSA ABR.
+- Originating the default on routers within the NSSA the presence of a default route is required.
+- The `nssa-only` keyword will limit the default route to the NSSA area only by  setting the propagate (P) bit in the type-7 LSA to zero.
+- The F-bit indicates that a forwarding address is included in the LSA when set. (Used to forward Type 7 LSA)
+
+OSPF NSSA Forward Address
+- Always inserted into Type-7 LSA (interface IP-address) loopback has preference.
+- Translated by default into Type-5 LSA with forward address intact.
+- Based on this forward address, routers outside the NSSA will choose the best path towards the NSSA ASBR.
+
+```
+router opsf 1
+ area 123 nssa translate type7 suppress-fa
+```
+
+The `suppress-fa` keyword will stop the forwarding address of the Type-7 LSAs from being placed in the Type-5 LSAs.
+- This keyword takes effect only on an NSSA ABR or an NSSA ASBR.
+- The P-bit is used in order to tell the NSSA ABR whether to translate type 7 into type 5. P=1 means translate.
+- When using multiple NSSA ABRs, if suppression is enabled on the translating NSSA ABR (highest RID) ECMP will stop functioning.
+- In this case the translating router (highest RID) will become the next-hop, because the forward address is not known (0.0.0.0).
+
+## Summarization
+**OSPF Summarization**
+- Routes can only be summarized manually at the area boundaries (ABR) or at the ASBR.
+- The area range command summarizes inter-area routes.
+- The area that is specified is the area where the routes are located, not the area that is being summarized into.
+- The discard route is installed pointing to Null0 for internal (inter-area, 110) and for external (redistributed, 254) routes.
+- Disable the discard route with the no discard-route command.
+
+```
+router ospf 1
+ area 1 range 172.16.0.0 255.255.0.0
+
+router ospf 1
+ no discard-route internal
+
+ no discard-route external
+```
+
+The `summary-address` command only summarizes external routes.
+- This can only be performed on the ASBR (usually the router that redistributes the routes).
+- In the case of NSSA, the ABR to the NSSA will also be an ASBR and will be able to further summarize external routes.
+- The nssa-only keyword will keep the summary (and the more specific routes) inside the NSSA.
+- Configure the nssa-only on the redistributing ASBR, not the ABR that connects tot the NSSA area.
+
+```
+router ospf 1
+ summary-address 172.16.0.0 255.255.0.0 nssa-only
+```
+
+## VL / GRE
+**OSPF Virtual-Links**
+- Only work over normal (transit) areas and do not operate over stub areas and NSSA areas.
+- Always in area 0, even if they are configured on other areas. Use `area 0 authentication` by default.
+- Endpoints are the RIDs, not actual ip-addresses.
+- Can only cross one area.
+- P2P in nature and unnumbered, and they carry only OSPF communication such as hellos and LSAs.
+- Existing VLs can easily be spotted by the DNA bit set in the OSPF database, VLs also set the V-bit to 1.
+- Default hello-timer is 10 seconds and dead timer is 40 seconds.
+- The ttl-security hops keyword specifies over how many hops the Virtual-Link is allowed to travel.
+
+```
+router ospf 1
+ area 23 virtual-link 192.168.0.3 ttl-security hops 2
+```
+
+**OSPF GRE**
+- Beware of recursive routing when choosing tunnel endpoints.
+- Tunnel between ABRs, not the routers that should be linked in the same area.
+
+```
+int fa0/0
+ ip ospf 1 area 1234
+int fa0/1
+ ip ospf 1 area 0
+int tun0
+ ip unnumbered fa0/1
+ tunnel source fa0/1
+ tunnel destination 10.0.23.2
+ tunnel mode gre ip
+ ip ospf 1 area 1234
+```
+
+# Quality of Service
+**VoIP**
+Different applications require different treatment, the most important parameters are:
+- Delay: The time it takes from the sending endpoint to reach the receiving endpoint.
+- Jitter: The variation in end to end delay between sequential packets.
+- Packet loss: The number of packets sent compared to the number of received as a percentage.
+
+One-way requirements for voice:
+- Latency ≤ 150 ms (Delay)
+- Jitter ≤ 30 ms
+- Loss ≤ 1%
+- Bandwidth (30-128Kbps)
+
+**Hardware Queue**
+- Hardware transmit (Tx) queue is FIFO by default for ethernet interfaces. Tx queue is 256.
+- Hardware queue is WFQ by default for serial interfaces. Tx queue is 64.
+
+```
+int fa0/0
+ tx-ring-limit 256
+
+show controllers fa0/0 | i tx
+```
+
+**Class of Service (CoS)**
+- 802.1p is L2 information.
+- ToS / DSCP is L3 information, it will remain constant between endpoints.
+
+**802.1p**
+
+|   |   |   |
+|---|---|---|
+|111|7|Reserved|
+|110|6|Reserved|
+|101|5|Voice|
+|100|4|Video|
+|011|3|Voice Signal|
+|010|2|High Data|
+|001|1|Low Data|
+|000|0|Best Effort|
+
+**L3 Type of Service (ToS)**
+- ToS / DSCP uses left 3 bits with IPP, uses left 6 bits with DSCP and 8 bits with ToS.
+- Drop Probability (DP) right-most bit is always 0.
+- Flow Control (FC) is always 0 unless ECN is used.
+- IP Precedence (IPP) part of DSCP is called the Per-Hop Behavior (PHB).
+
+| Class | Binary | DSCP | ToS |
+| ---- | ---- | ---- | ---- |
+| cs1 | 001\|000\|00 | 8 | 32 |
+| af11 | 001\|010\|00 | 10 | 40 |
+| af12 | 001\|100\|00 | 12 | 48 |
+| af13 | 001\|110\|00 | 14 | 56 |
+| cs2 | 010\|000\|00 | 16 | 64 |
+| af21 | 010\|010\|00 | 18 | 72 |
+| af22 | 010\|100\|00 | 20 | 80 |
+| af23 | 010\|110\|00 | 22 | 88 |
+| cs3 | 011\|000\|00 | 24 | 96 |
+| af31 | 011\|010\|00 | 26 | 104 |
+| af32 | 011\|100\|00 | 28 | 112 |
+| af33 | 011\|110\|00 | 30 | 120 |
+| cs4 | 100\|000\|00 | 32 | 128 |
+| af41 | 100\|010\|00 | 34 | 136 |
+| af42 | 100\|100\|00 | 36 | 144 |
+| af43 | 100\|110\|00 | 38 | 152 |
+| cs5 | 101\|000\|00 | 40 | 160 |
+| `ef` | `101\|110\|00` | `46` | `184` |
+| cs6 | 110\|000\|00 | 48 | 192 |
+| cs7 | 111\|000\|00 | 56 | 224 |
+
+## Maps
+**Class-Maps**
+- With `match-all`, all criteria must be met in order to have a match. Default.
+- With `match-any`, only one of the criteria has to be met in order to have a match.
+- The `ip precedence` and `ip dscp` keyword only match on IPv4 traffic.
+
+Match telnet traffic that is not marked with the default value of cs6:
+
+```
+class-map match-all TELNET
+ match protocol telnet
+ match not dscp cs6
+
+policy-map TELNET
+ class TELNET
+  drop
+
+int fa0/0
+ service-policy input TELNET
+```
+
+**Hierarchical Policy-Map**
+- Police traffic matching the ACL to 64000 bps.
+- Police traffic matching a subset of this ACL with IPP0, IPP1, IPP2 to 32000 bps.
+- Police traffic matching a subset of this ACL with IPP2 to 16000 bps.
+- Always nest the most specific subset into the upper level policy-map.
+- In this case IPP2 with 8000 bps is the most specific, so this will be the lowest level policy-map.
+
+```
+ip access-list standard QOS_TRAFFIC
+ permit 10.10.10.0 0.0.0.255
+
+class-map match-all LEVEL_1_CM
+ match access-group name QOS_TRAFFIC
+class-map match-all LEVEL_2_CM
+ match precedence 0 1 2
+ match access-group name QOS_TRAFFIC
+class-map match-all LEVEL_3_CM
+ match precedence 2
+ match access-group name QOS_TRAFFIC
+
+policy-map LEVEL_3_PM
+ class LEVEL_3_CM
+ police 16000
+policy-map LEVEL_2_PM
+ class LEVEL_2_CM
+ police 32000
+ service-policy LEVEL_3_PM
+policy-map LEVEL_1_PM
+ class LEVEL_1_CM
+ police 64000
+ service-policy LEVEL_2_PM
+
+int fa0/0
+ service-policy output LEVEL_1_PM
+```
+
+## NBAR
+**NBAR**
+- NBAR uses deep packet inspection instead of just matching on the specified port.
+- This is more CPU-intensive than matching with an ACL.
+- Managing with an ACL should be used if a previous devices has already performed deep-packet inspection with NBAR.
+- List all known ports with `show ip nbar port-map`.
+- Map a well-known port of a protocol to a new port with `ip nbar port-map http 80 8080`.
+
+NBAR Protocol-Discovery
+- Monitor traffic protocols known to NBAR on a specific interface. CPU intensive.
+
+```
+int fa0/0
+ ip nbar protocol-discovery
+
+show ip nbar protocol-discovery
+```
+
+## Policing / Shaping
+**Policy-Maps**
+- Policy-maps can be applied in both the ingress and egress direction.
+- CBWFQ and LLQ policy-maps can only be applied in the egress direction.
+- Shaping should be applied in the egress direction. But can be applied ingress.
+- Policing should be applied in the ingress direction. But can be applied egress.
+
+**Terminology**
+- Access rate (AR). This is the actual speed of the physical port.
+- Committed Information Rate (CIR). Average rate the shaper is targeting in bps.
+- Time Committed (Tc). Time interval in ms to emit traffic bursts.
+- Burst Committed (Bc). Amount of bits that should be sent every Tc.
+- Burst Excessive (Be). Amount of bits exceeding Bc that could be sent during Tc. Accumulated by idle periods.
+
+**Policing**
+- Can be used to drop incoming packets that do not conform to the policy.
+- Cisco routers have a Tc default value of 125 ms = 8 times a second.
+- If the goal is 50Mbit/sec transmit speed on a 100Mbit/sec interface. The CIR would be specified as 50Mbit.
+- The IOS will automatically calculate the Bc based on the configured CIR (recommended).
+- In order to calculate the Bc the CIR needs to be divided by 8 or 4 (depending on the platform).
+- Conform. Traffic is under Bc.
+- Exceed. Burst size exceeds Bc, but under Bc+Be.
+- Violate. Burst size exceeds Bc+Be.
+
+Tc = CIR/Bc
+Bc = CIR/Tc
+
+CIR = 50 Mbit/sec = 50000000 bits/sec
+Bc = 50000000 / 8 = 6250000 bits / 8 = 781250 bytes
+
+```
+policy-map POLICER
+class class-default
+  police cir 50000000 bc 781250
+   conform-action transmit
+   exceed-action drop
+
+int fa0/0
+ service-policy input POLICER
+```
+
+**Shaping**
+- Shaping is applied by altering the time in which traffic is allowed to send, not the speed of the port.
+- This means that the average traffic sent will be less over time.
+- The IOS will automatically calculate the Bc and Be based on the configured CIR (recommended).
+- With a shape average (CIR) of 50 Mbit, the calculated Bc and Be will be 200000.
+- The Tc will be 250, meaning that every 4ms (1 second / 250) the interface will forward at the line speed.
+- The shaper can also be based on a percentage of the link speed, however this is dependent on the manually configured `bandwidth`, not the hardcoded line speed.
+
+Tc = CIR/Bc
+Bc = CIR/Tc
+
+CIR = 50 Mbit/sec = 50000000 bits/sec
+Bc = 50000000 / 200000 = 250
+
+```
+policy-map SHAPER
+ class class-default
+  shape average 50000000 200000 200000
+
+int fa0/0
+ service-policy output SHAPER
+```
+
+## Pre-Classify
+**QoS Pre-Classification**
+- By default tunneling and VPN operations are applied before the QoS policy. QoS pre-classify (PQ) reverses the order.
+- PQ on crypto map affects all tunnels on that physical interface.
+- PQ on tunnel affects only that specific tunnel interface.
+- PQ is needed when classification is based on IP address, ports, etc. Or a crypto map is used.
+- PQ is not needed when classification is based on ToS. Or a tunnel interface is used.
+- Can be enabled regardless, very little impact on performance.
+
+```
+interface tun0
+ qos pre-classify
+
+crypto map CMAP 10 ipsec-isakmp
+  qos pre-classify
+```
+
+## Rate-Limiting
+**Rate-Limiting**
+- Requires CEF. Can be configured on physical or sub-interface.
+- Works similar to policer without MQC configuration.
+- Like a policer, the CIR is configured in bits. The Bc and Be are configured in bytes.
+- Match on all traffic or specific DHCP, QoS group, ACL (no named ACL support).
+
+```
+int fa0/0
+ rate-limit input 50000000 781250 781250 conform-action transmit exceed-action drop
+
+show interfaces rate-limit
+```
+
+## WRED
+Weighted Random Early Detection (WRED)
+- Only works for TCP traffic. Enable in the egress direction.
+- Drop preference values (AF) are used by WRED.
+- WRED turns any queue on the interface into FIFO. The minimum threshold is the FIFO's queue depth before WRED is activated.
+- The overall size of the queue depth is specified by the `hold-queue` command.
+- The hold-queue must be higher than the minimum threshold configured in WRED.
+
+```
+int fa0/0
+ hold-queue 40 out
+
+show interface | i queue
+```
+
+The default WRED values differ per precedence and DSCP values.
+- Minimum-threshold. Above this threshold WRED engages and starts randomly dropping packets.
+- Maximum-threshold. Above this threshold TAIL-DROP engages and starts dropping packets (WRED is basically disabled).
+- Mark-probability. Amount of packets dropped up until maximum threshold is reached (1 out of 10, 1 out of 5, etc).
+- The Exponential Weighting Constant (EWC) alters how quick WRED reacts.
+- Higher EWC value makes WRED react more slowly, lower EWC value makes WRED react more quickly (default is 9).
+
+Change IPP 0 to 15 min, 30 max and 1/5:
+
+```
+policy-map WRED_IPP
+ class class-default
+  random-detect precedence-based
+  random-detect precedence 0 15 30 5
+ random-detect exponential-weighting-constant 9
+
+int fa0/0
+ service-policy WRED_IPP out
+```
+
+Change DSCP 46 (EF) to 35 min, 40 max, and 1/2:
+
+```
+policy-map WRED_DSCP
+ class class-default
+  random-detect dscp-based
+  random-detect dscp 46 35 40 2
+  random-detect exponential-weighting-constant 9
+
+int fa0/0
+ service-policy WRED_DSCP out
+```
+
+**AF Values**
+- AF11 is IP Precedence 1 (cs1) with low drop preference.
+- AF23 is IP Precedence 2 (cs2) with high drop preference.
+- AF32 is IP Precedence 3 (cs3) with medium drop preference.
+
+| Drop Chance | Class #1 | Class #2 | Class #3 | Class #4 |
+| ---- | ---- | ---- | ---- | ---- |
+| Low | (AF11)<br>001010 | (AF21)<br>010010 | (AF31)<br>011010 | (AF41)<br>100010 |
+| Medium | (AF12)<br>001100 | (AF22)<br>010100 | (AF32)<br>011100 | (AF42)<br>100100 |
+| High | (AF13)<br>001110 | (AF23)<br>010110 | (AF33)<br>011110 | (AF43)<br>100110 |
+
+**Explicit Congestion Notification (ECN)**
+- Mode of WRED that can be enabled to suggests a traffic flow to slow down, instead of actually dropping packets.
+- Uses the last two bits of ToS (Flow Control value). Instead of dropped a packet WRED sets both these bits (ECT and CE) to 1.
+- When the destination receives a TCP packet with both ECT and CE set to 1, it sets the ECE (Explicit Congestion Experienced) flag on its next TCP packet back to the sender. When the sender receives the packet, it is instructed to slow down.
+
+```
+policy-map WRED_ECN
+ class class-default
+  random-detect ecn
+
+int fa0/0
+ service-policy WRED_ECN out
+```
+
+**ECN Values**
+- The 7th bit is the ECT bit and the 8th bit is the CE bit.
+- If a TCP host supports ECN, it sets either (but not both) of the low-order bits in the DSCP byte - ECT or CE - to 1.  
+
+- If a TCP host doesn't support ECN, these will both be set to 0.  
+
+|   |   |
+|---|---|
+|00|Not ECN capable|
+|01|Endpoints are ECN capable|
+|10|Endpoints are ECN capable|
+|11|Congestion experienced|
+
+# RIP
+**RIP Passive Interfaces**
+- Passive interfaces transmit no protocol-related data, but still receive data and networks. This includes RIP updates.
+- RIP passive interfaces still receive routing updates because RIP does not use a hello mechanism.
+- Neighbor relations can still be setup over passive-interfaces by using the neighbor command.
+
+```
+router rip
+ passive-interface default
+ neighbor 10.0.12.1
+```
+
+**RIP Redistribution**
+- Routing protocols or static routes redistributed into RIP require a set metric.
+- With a transparent the redistributed route will inherit the metric that is seen in the routing table of the redistributing router.
+- Use the `transparent` keyword only when you know that the metric is lower than 16.
+- Redistributed OSPF E2 routes (cost 20) will always lead to an infinite metric when using the transparent keyword.
+
+```
+router rip
+ redistribute ospf 1
+ default-metric 5
+```
+
+**RIP Summarization**
+- RIP does not install a discard route by default. Instead it relies on route poisoning when a routers own summary is received.
+- Manually add a discard route to null0 with ip route 0.0.0.0 0.0.0.0 null0.
+- RIP will generate a default route with the `default-route originate `command whether it exists or not in the routing table.
+
+Originate a default-route out of a specific interface (may lead to routing loops):
+
+```
+route-map RIP permit 10
+ set interface se0/0
+
+router rip
+ default-information originate route-map RIP
+```
+
+**RIP Filtering**
+- Filter routes using either the distribute-list or the offset-list command.
+
+Filter all routes from se1/0 (R2):
+
+```
+ip prefix-list PREFIX permit 0.0.0.0/0 le 32
+ip prefix-list NOT_R2 deny 10.0.12.2/32
+ip prefix-list NOT_R2 permit 0.0.0.0/0 le 32
+
+router rip
+ distribute-list prefix PREFIX gateway NOT_R2 in se1/0
+ offset-list 0 in 16 se1/0
+```
+
+**Validate Update Source**
+- Ensures that the source IP address of incoming routing updates is on the same IP network. Enabled by default.
+- Disabling split horizon on the incoming interface will also cause the system to perform this validation check.
+- Disable when using PPP IPCP addressing.
+- For unnumbered IP interfaces no checking is performed.
+
+```
+router rip
+ validate-update-source
+```
+
+**RIP Split Horizon**
+- Does not advertise the same networks out of interfaces from which they are learned. On by default (except FR and ATM).
+- Poison Reverse is a stronger variant of this. The routes are advertised out of the interfaces, but with an unreachable metric.
+- Poisoned Reverse overrides Split Horizon, however it is not implemented in Cisco RIPv2. Not enabled by default in RIPng.
+
+**RIP Authentication**
+- The default authentication mode for RIP is plain-text, even if not specifically configured.
+- RIPv1 does not support authentication. RIPng does not support authentication or encryption by IPsec.
+
+## RIPng
+**RIPng**
+- Passive interfaces are not supported.
+- Static (manual) neighbors cannot be configured (no neighbor command).
+- Split Horizon and Poison Reverse can be activated only on a per-process basis, not on individual interfaces.
+- RIPng Updates are send to FF02::9 using UDP port 521 by default.
+
+```
+ipv6 router rip RIPng
+ timers 30 180 0 120
+ maximum-paths 16
+ distance 120
+ split-horizon
+ poison-reverse
+ port 521 multicast-group FF02::9
+
+show ipv6 rip
+show ipv6 rip database
+show ipv6 rip next-hops
+```
+
+**RIPng Summarization**
+- The `default-information originate` command will originate a default route in addition to all other specific routes.
+- The `default-information only` command will originate a default route and suppress all other specific routes.
+- Like RIPv2, the default-route does not have to exist in order to be advertised.
+- When the default-route is advertised, the router will ignore reception of all other default routes received on any interface.
+- The default metric of the default-route is 1.
+- The summary address copies the metric of the more specific routes it is summarizing.
+
+```
+int fa0/0
+ ipv6 rip RIPng enable
+ ipv6 rip RIPng default-information originate metric 1
+ ipv6 rip RIPng summary-address 2001::/16
+```
+
+**RIPng Metric**
+- The metric is incremented by the receiver instead of the sender.
+- Offset lists are configured only on interfaces and are for all received subnets, use the metric-offset command.
+- The metric-offset specified replaces the original increment of the metric (1). Meaning that a metric-offset with value 4 will increase the metric by adding 3 to the existing value (4-1).
+
+```
+int fa0/0
+ ipv6 rip RIPng enable
+ ipv6 rip RIPng metric-offset 4
+```
+
+## Updates
+**RIP Updates**
+RIP sends routing update based on two conditions:
+- Regular update is sent at a 30 second interval by default. (full update)
+- Request message (flash update) is sent immediately when there is a change to the topology. (full update)
+- Full update is sent when RIP is started, a RIP interface comes up, or when routes are cleared from the RIB.
+- Full updates contains learned and connected RIP routes.
+- RIP Route Poisoning advertises a truly unreachable route to quickly flush it from routing tables.
+- RIPv2 updates are sent to 224.0.0.9 using UDP port 520 by default.
+- RIPv1 updates are sent to 255.255.255.255 using UDP port 520 by default.
+- Send v2 updates to the broadcast address using the `ip rip v2-broadcast interface` command.
+
+By default IOS routers will send v1 and receive v2. Set both to v2 with the version 2 command in the router sub-configuration.
+- Alternatively specify the send and receive version on specific interfaces. Interface configuration takes preference over router.
+
+```
+int fa0/0
+ ip rip send version 1 2
+ ip rip receive version 1 2
+ ip rip v2-broadcast
+```
+
+**RIP Flash-Update-Threshold**
+If there is a change in the network topology at 27 seconds, RIP will send its full routing table in a Flash Update, and then again a Regular Full Update at the 30 second interval. So in 3 seconds 2 of the exact same messages are send flooding the network.
+- This can be an unwanted situation on slow links, the flash-update-threshold can be configured to stop this behavior.
+
+For example if the threshold is set to 10 seconds, a change occurring at 19 seconds (after the last Regular Update) will send a Flash Update, and then again at 30 seconds a Regular Full Update. A change occurring at 20 seconds (after the last Regular Update) is within the 10 second threshold and will be suppressed.
+
+**RIP Timers**
+
+| Таймер  | Описание  |
+|---|---|
+|invalid|180 seconds by default. Reset when update is received.<br>Declares route invalid after timer expires. |
+|hold-down|180 seconds by default. Starts after invalid after timer has expired.<br>Marks route as unreachable and does not accept any updates about the route. |
+|flush|240 seconds by default. Reset when update is received.<br>Removes route from routing table after timer expires. |
+|sleep|Disabled by default. The interval in milliseconds for postponing routing updates<br>in the event of a Flash update. |
+
+Because the flushed after timer expires after 240 seconds, the effective hold-down period is only 60 seconds.
+
+**Triggered Updates**
+When triggered extensions to RIP are enabled, updates are sent on the WAN only if one of the following events occurs:
+- The router receives a specific request for a routing update. (Full database is sent.)
+- Information from another interface modifies the routing database. (Only latest changes are sent.)
+- The interface comes up or goes down. (Partial database is sent.)
+- The router is first powered on, to ensure that at least one update is sent. (Full database is sent.)
+
+```
+int se1/0
+ ip rip triggered
+```
+
+# Spanning Tree
+**PVST+ / Rapid PVST+ (802.1W)**
+- The + means that the STP instance is backwards compatible with IEEE standard STP.
+- PVST creates a separate logical STP instance for each VLAN. This appears as one instance to other non-cisco switches.
+- RSTP is not faster because of increased timers, but because of synchronization.
+- The synchronization process only works on ports that are P2P and full-duplex.
+- If a port negotiates half-duplex with its connected neighbor, the switch assumes that the neighbor is a hub (shared link).
+- If a port negotiates full-duplex operation, the switch will assume that the neighbor is a switch (P2P link).
+
+**RSTP port roles:**
+- Root Port (maintains its usual meaning)
+- Designated Port. Continues to process received and send BPDUs. And receive DTP, VTP, CDP, etc.
+- Alternate Port (a prospective replacement for the Root Port). Basically blocked 802.1D port + uplinkfast.
+- Backup Port (a prospective replacement for the Designated Port on a shared segment)
+
+**STP Cost**
+
+|   |   |   |
+|---|---|---|
+|4 Mbit/s|250|5000000|
+|10 Mbit/s|100|2000000|
+|16 Mbit/s|62|1250000|
+|100 Mbit/s|19|200000|
+|1 Gbit/s|4|20000|
+|2 Gbit/s|3|10000|
+|10 Gbit/s|2|2000|
+
+**STP Timers**
+
+| Таймер  | Описание  |
+|---|---|
+|MessageAge|Estimation of BPDU age since it was originated by root bridge (0 at root).  <br>Every bridge increments this by 1 before forwarding the BPDU.|
+|MaxAge-MessageAge|Remaining lifetime of a BPDU after being received by a bridge.  <br>If port stores BPDU it must be received again within the MaxAge-MessageAge interval.|
+|Hello|Root switch creates and sends a hello every 2 seconds (default).  <br>Contains the RB-ID and SB-ID set to the ID of the root, RPC set to 0 and SPID set to egress port.  <br>Other switches add root path cost to RPC (increment).  <br>Hellos are always received on root port, and forwarded out designated ports with RPC, SBID, SPID, and MessageAge fields updated.|
+|Max-Age|20 seconds by default, set by root. Maximum time a BPDU is stored.<br><br>The time a bridge waits after it stops receiving BPDUs (from the root) on the specified port.|
+|Forward-Delay|15 seconds by default, set by root.|
+
+**STP BPDUs**
+- Only root bridge sends BPDUs in a converged network. Other bridges forward BPDUs.
+- Configuration BPDUs are sent out only from Designated Ports.
+- Designated Ports store the BPDU they send.
+- Root and Blocking ports store the best BPDU they receive.
+- Received superior stored BPDUs will expire in MaxAge-MessageAge seconds if not received within this time period.
+- Access ports send only BPDUs relevant to their access VLAN.
+- Trunk ports always send a set of BPDUs E-formatted BPDUs for VLAN1, always untagged.
+- PVST+ BPDUs tags for VLAN1, but not for native VLAN.
+- Original 802.1D (STP) frames are sent in the native VLAN. This is important when questions are asked to 'Send 802.1D frames in VLAN 50'. This means that the native VLAN should be set to 50.
+
+|   |   |
+|---|---|
+|Root Bridge ID (RBID)|Root switch creates and sends a hello every 2 seconds (default).  <br>Contains the RB-ID and SB-ID set to the ID of the root, RPC set to 0 and SPID set to egress port.|
+|Root Path Cost (RPC)|Path cost to Root Bridge. Set to 0 on root. Other switches add root path cost to RPC (increment), this is a value of 19 (200000) on FastEthernet and 4 (20000) on GigabitEthernet.|
+|Sender Bridge ID (SBID)|Bridge that originated the BPDU. Set by each bridge to own ID. Hellos are always received on root port, and forwarded out designated ports with RPC, SBID, SPID, and MessageAge fields updated.|
+|Sender Port ID (SPID)|Bridge port that originated the BPDU. Set by each bridge to own ID.|
+|Receiver Port ID (RPID)|Not included in the BPDU message, evaluated locally. Port where BPDU was received, not forwarded.|
+
+**STP Root Election (Bridge-ID)**
+- Bridge Priority.
+- Mac-Address.
+  - The actual mac-address is the lowest mac-address (Base ethernet Mac-Address) in use on the system.
+  - This address is one address below the lowest interface address (usually GigabitEthernet 0/1).
+
+**STP Path Selection**
+- Lowest root bridge ID
+- Lowest path cost to root bridge
+- Lowest bridge ID
+- Lowest port ID (on the root bridge)
+  - Configure priority settings on the root bridge. Lower is better, in increments of 16. (128 is default)
+  - Configure cost settings on the non-root switches. Lower is better.
+  - Cost is used over priority settings.
+
+## MSTP
+**Multiple Spanning Tree Protocol (802.1S MSTP)**
+- MSTP uses the long path cost notation by default.
+- Common Spanning Tree (CST) is the entire spanning-tree domain including other versions of STP.
+- Inside the MST region the IST (Internal STP) is present, this is MST0. The IST is the only STP instance that sends and receives BPDUs.
+- Hello, ForwardTime and MaxAge timers can only be tuned for the IST. All other MIST inherit the timers from the IST.
+- Configure the maximum number of switches between any two end stations with the diameter command (MST0 only).
+- The hello-time is the timer at which configuration messages are sent by the root switch.
+- The MST extended system-id is made up of the instance number instead of the VLAN number.
+
+```
+spanning-tree mst 0 root primary diameter 7 hello-time 2
+```
+
+MST Configuration with VTPv3:
+
+```
+vtp version 3
+vtp mode server mst
+do vtp primary mst force
+
+spanning-tree mst configuration
+ name cisco
+ revision 1
+ instance 1 vlan 100-200
+ show pending
+
+show spanning-tree mst configuration
+```
+
+**MST Caveats**
+If one VLAN is active on the link in the instance, the entire instance is active.
+- This can be a problem if other VLANs are pruned (administratively disallowed) that are part of the instance.
+
+Make sure that all VLANs that are part of the instance are allowed on the trunk.
+- If not, either add the VLAN to the allowed list (if not restricted).
+- Or remove other VLANs from the allowed list (prune them) so the MST instance switches to another link.
+- Or put the disallowed VLAN in another instance by itself and make it go over a separate link.
+
+**MST Interoperability**
+The idea is to hide the internal MST from other versions of STP. But maintain backwards compatibility and fast convergence.
+- Other regions will view the MST region as a single switch.
+- Every MST region runs a special instance of spanning-tree known as IST or Internal Spanning Tree (MST0).
+- IST has a root bridge, elected based on the lowest Bridge ID.
+- With multiple MST regions in the network, a switch that receives BPDUs from another region is a boundary switch.
+- Another region can be RSTP or PVST+, the ports to these regions are marked as MST boundary ports.
+- When multiple regions connect together, every region constructs its own IST and all regions build a common CIST.
+- A CIST Root is elected among all regions and CIST Regional Root (IST root) is elected in every region.
+
+|   |   |
+|---|---|
+|CIST Root|The bridge that has the lowest Bridge ID among ALL regions.<br>This could be a bridge inside a region or a boundary switch in a region. |
+|CIST Regional Root|A boundary switch elected for every region based on the shortest external path cost to reach the CIST Root.<br>Path cost is calculated based on costs of the links connecting the regions, excluding the internal regional paths.<br>CIST Regional Root becomes the root of the IST for the given region as well. |
+
+## PortFast
+PortFast
+Interface is moved directly to forwarding state, bypassing learning without forward-time delay (15sec).
+- This only happens when the port transitions from a disabled state, not from a blocking / alternate state.
+- PortFast ports will still transmit BPDUs, but will lose their PortFast state if a BPDU is received.
+- When configured globally PortFast will be enabled on all access ports.
+- Just because PortFast is configured on the port or in the global configuration, doesn't mean that it is operational.
+- Add the `trunk` keyword to enable PortFast on trunk ports.
+
+```
+spanning-tree portfast default
+
+int fa0/0
+ spanning-tree portfast
+```
+
+**BPDUGuard**
+- BPDUGuard supersedes PortFast and can be configured per port or globally. Errdisables port if BPDU is received.
+- Global BPDUGuard is part of PortFast and will only be active if PortFast is also enabled ( meaning it is operational).
+- When configured on the port, BPDUGuard is enabled unconditionally and does not need PortFast to function.
+
+```
+spanning-tree portfast bpduguard default
+
+int fa0/0
+ spanning-tree bpduguard enable
+```
+
+**BPDUFilter**
+- Filters BPDUs on the port in egress direction (global) or both directions (per interface).
+- Global BPDUFilter stops sending outgoing BPDUs on interfaces that have an operational PortFast status.
+- Global BPDUFilter will still sent 11 BPDUs when the interface comes online, this is to prevent misconfigurations.
+- PortFast enabled ports that receive BPDUs will lose their PortFast status, and thus global BPDUFilter will also be disabled.
+
+BPDUFilter configured on the port itself will filter all incoming and outgoing BPDUs.
+- This is the equivalent of turning off STP on the port.
+- PortFast does not have to be enabled on the port for BPDUFilter to be active.
+
+```
+spanning-tree portfast bpdufilter default
+
+int fa0/0
+ spanning-tree bpdufilter enable
+```
+
+**Interoperability PortFast, BPDUFilter and BPDUGuard**
+Global BPDUFilter + BPDUGuard:
+- Guard is triggered first.
+- PortFast triggered second.
+- Filter is triggered third.
+
+This is a valid configuration that err-disables ports that receive BPDUs, and filters outgoing BPDUs.
+
+Per port BPDUFilter + BPDUGuard:
+- Filter is applied first.
+- Guard is triggered second.
+- PortFast is applied third.
+
+BPDUFilter configured on the port itself will filter BPDUs in both directions, and will supersede PortFast and BPDUGuard on the port.
+
+This is not a valid configuration because incoming and outgoing BPDUs will be filtered by BPDUFilter. The guard never receives BPDUs and will never be triggered.
+
+## BBFast / ULFast
+**UplinkFast (802.1D STP)**
+- Deals with direct failures, basically RSTP alternate port on IEEE STP.
+- Blocked ports immediately transition to the forwarding state by skipping listening and learning state.
+- When you enable UplinkFast the priority for all VLANs is set to 49152.
+- The spanning tree port cost is increased by 3000 (short) or 10^7 (long).
+- UplinkFast is enabled / disabled for all VLANs. Only enabled if switch has a blocked port.
+- Use on access layer switches.
+
+```
+spanning-tree uplinkfast
+```
+
+**BackboneFast (802.1D STP)**
+- Deals with indirect failures.
+- Max age is the timer a bridge waits after it stops receiving BPDUs (from the root) on the specified port.
+- Max age unblocks links after 20 seconds, or when 10 BPDUs are missed.
+- Under normal condition this failure process takes 20 seconds + listening + learning = 50 seconds.
+
+```
+spanning-tree backbonefast
+```
+
+BackboneFast removes the max-age timer if inferior BPDUs are received on a (separate) blocked port.
+- The switch will generate a RLQ (Root Link Query) to the root bridge to verify that the other switch has lost connectivity to the root, and thus declares itself root. The root will respond to the RLQ and the switch will remove max-age timer from the blocked port.
+- Must be enabled on all switches in the network. Not supported on Token Ring networks.
+
+## Loop/RootGuard
+**Loopguard**
+Prevents alternate or root ports from becoming designated in response to a unidirectional link.
+- Puts ports into a loop-inconsistent state if BPDUs are no longer received on the interface.
+- Prevents loops by detecting the sudden loss of BPDUs.
+- Only superior BPDUs are considered.
+- Incompatible with RootGuard.
+- Loopguard-enabled ports may send BPDUs when inferior BPDUs are received.
+- UDLD is a better option for etherchannels, because it can block individual ports.
+
+Protects from:
+- Unidirectional links.
+- Switches/links that block BPDUs.
+
+```
+int fa0/0
+ spanning-tree guard loop
+
+spanning-tree loopguard default
+
+show spanning-tree inconsistentports
+```
+
+**Etherchannel Guard**
+- Detect etherchannel misconfiguration between the switch and a connected device.
+- Places interfaces in errdisable state in the event of a misconfiguration.
+
+```
+spanning-tree etherchannel guard misconfig
+```
+
+**Rootguard**
+Ignores superior BPDUs on specified port. Apply on interfaces that connect to switches that should never become the root.
+- Allows interface to participate in STP, but ignores superior BPDUs, state is cleared when superior BPDUs stop.
+- In MST the port does not become root-inconsistent, but is forced to become a designated port.
+- Not VLAN-aware, enabled for all VLANs present on the port. Cannot be enabled globally.
+- Do not enable the root guard on interfaces to be used by the UplinkFast feature.
+o Backup (blocking) ports will go to root-inconsistent state instead of forwarding state.
+
+```
+int fa0/0
+ spanning tree guard root
+```
+
+## UDLD 
+**Unidirectional Link Detection (UDLD)**
+- Exchanges protocol packets that contains the device + port ID and neighbor device + port ID.
+- If device does not see its own ID echoed back it considers the link unidirectional.
+- Message interval is 15 sec by default on FastEthernet, 7 seconds on GigabitEthernet.
+- Detection interval (Expiration time) is 3x message interval = 45 sec.
+- Must be enabled on both sides. When the feature is enabled globally, it only effects fiber ports.
+- Use aggressive mode on Copper links.
+- Enabling UDLD globally will only activate it on fiber ports
+- Aggressive mode detects ports that are stuck in up state (neither transmit/receive but are up). And ports that are up on only one side (fiber).
+- UDLD is a better option for Etherchannels, because it can block individual ports.
+
+```
+udld enable
+udld aggresive
+```
+
+|   |   |
+|---|---|
+|Normal mode|Port is marked undetermined, behaves according to STP state.|
+|Aggressive mode|Tries to re-establish port state, if not successful port is put in errdisable state.|
+
+```
+int fa0/0
+ udld port
+ udld port aggressive
+
+show udld neighbors
+```
+
+# Switching
+**Dynamic Trunking Protocol (DTP)**
+- Point-to-Point (P2P) protocol.
+- ISL is the preferred encapsulation when using DTP.
+- DTP carries VTP domain information.
+- If VTP domain does not matches, DTP will not negotiate a trunk.
+- In this case DTP desirable on both sides will still lead to an operational mode of static access.
+- Desirable has priority over auto. If one side is set to auto, and one side is desirable the port will become a trunk.
+- ISL encapsulates the entire frame.
+- Dot1Q adds a 4-byte header (tag) to the frame, and has a native VLAN concept.
+- Dynamic desirable prefers trunk, dynamic auto prefers access.
+
+Turn off DTP with:
+
+```
+switchport nonegotiate
+switchport mode access
+no switchport
+switchport mode private-vlan
+switchport mode dot1q-tunnel
+```
+
+## 802.1X
+**802.1X Authentication Using EAP**
+- User authentication requires the user to supply a username and password, verified by a RADIUS server.
+- Supplicant identifies using EAP over LAN (EAPoL).
+- Radius server only supports radius type messages, therefore the switch translates between EAPoL and RADIUS.
+
+**802.1X Terminology**
+- Supplicant. Supplies a username/password prompt to the user and sends/receives the EAPoL messages. (client)
+- Authenticator. Translates between EAPoL and RADIUS messages in both directions, and enables/disables ports based on the success/failure of authentication. (switch)
+- Authentication Server. Stores usernames/passwords and verifies that the correct values were submitted before authenticating the user. (radius server)
+
+```
+dot1x system-auth-control
+aaa authentication dot1x default group radius
+
+int fa0/0
+ dot1x portcontrol auto | force-authorized | force-unauthorized
+```
+
+|   |   |
+|---|---|
+|Auto|Using 802.1X. This is the default.|
+|Force-Authorized|Not using 802.1X, but the interface is automatically authorized.|
+|Force-Unauthorized|Not using 802.1X, but the interface is automatically unauthorized.|
+## Bridge Groups
+**Bridge Groups (Fallback Bridging)**
+- Allows non-IP traffic to be communicated between hosts that reside in different VLANs or are connected on routed ports.
+- SVIs allow hosts in different VLANs to communicate using IP addressing. Bridge groups extends this functionality to L2 as well.
+- Can only be applied to SVI interfaces or L3 routed ports (no switchport).
+- An actual IP address is not required to be configured on these SVIs or routed ports for fallback bridging to work.
+
+```
+bridge 1 protocol vlan-bridge
+int fa0/0
+ no switchport
+ bridge group 1
+
+int vlan 10
+ bridge-group 1
+
+show bridge 1 group
+```
+
+## DHCP Snooping
+**DHCP Snooping**
+- The gateway address (giaddr) is automatically set to 0.0.0.0 by the snooping switch.
+- This all-zeroes address needs to be trusted by the DHCP server.
+- Alternative disable the information option 82 on the switch. This will stop the giaddr being set to 0.0.0.0.
+- DHCP option 82 (relay information option) identifies hosts by both the MAC-Address and the switchport. Disabled by default on routers, enabled by default on switches. It allows DHCP relays to inform the DHCP server where the original request came from.
+
+```
+ip dhcp snooping
+ip dhcp snooping vlan 10
+
+int fa0/0
+ description DHCP_SERVER
+ ip dhcp snooping trust
+
+int range fa0/1 - 10
+ description CLIENTS
+ ip dhcp snooping limit rate 10
+```
+
+DHCP server configuration:
+
+```
+int fa0/0
+ description DHCP_SERVER
+ ip dhcp relay information trusted
+```
+
+Or:
+
+```
+ip dhcp relay information trust-all  
+```
+
+**DHCP Snooping + Relay**
+When using a relay router / switch the port to that device also needs to be trusted:
+
+```
+int fa0/0
+ description DHCP_RELAY
+ ip dhcp relay information trusted
+```
+
+When using multiple DHCP Snooping devices untrusted information must be allowed on the switch closest to the server.
+- Alternatively Option82 can be disabled on the switch not connected to the server.
+
+```
+ip dhcp snooping information option allow-untrusted
+no ip dhcp information option
+```
+
+## DAI
+Dynamic Arp Inspection (DAI)
+- Validates ARP packets in a network, looks at the IP-to-MAC-address bindings.
+- Uses the DHCP snooping database by default, alternatively use static entries with an ARP access-list.
+- Only untrusted interfaces (all by default) will be validated. Use the `ip arp inspection trust` command to trust an interface.
+- Untrusted interfaces are also rate-limited to 15 pps, customize with the `ip arp inspection limit` command on an interface.
+- Only works at the ingress level. Optionally err-disable violating ports with `errdisable detect cause arp-inspection` command
+
+```
+ip dhcp snooping vlan 10
+ip arp inspection vlan 10
+
+int fa0/0
+ description DHCP_SERVER
+ ip arp inspection trust
+
+int range fa0/1 -10
+ description CLIENTS
+ ip arp inspection limit 10
+
+show ip arp inspection
+```
+
+**DAI with ARP Access-List**
+- ARP access-lists are checked before the snooping database.
+- Can also be configured without DHCP snooping enabled.
+- Configure an explicit deny in the ACL to stop consulting the snooping database if no match is found.
+- Alternatively add the static keyword behind the ip arp inspection filter command to not check the snooping database.
+
+```
+arp access-list HOST1
+ permit ip host 10.0.10.1 mac host 1234.abcd.1234 log
+ deny ip any mac any
+
+ip arp inspection filter HOST1 vlan 10 static
+```
+
+## Etherchannel
+**Link Aggregation Control Protocol (LACP)**
+- Requirements. Full-duplex, same STP cost and same speed.
+- LACP Suspended ports (not meeting above criteria) can receive, but not send BPDUs.
+- Only 8 LACP links can be active at a time.
+- The master port is the port that is responsible for the STP traffic.
+
+Hot-Standby
+- Places additional links (up to 16) in hot-standby mode to replace links that have become inactive.
+- Only the LACP master switch will replace the link.
+- The system-ID is a combination of the LACP system priority and the switch MAC address. (same as STP, 32678).
+- The LACP master switch is based on the system-ID. Meaning that the default STP root will also be the LACP master.
+- Manually change the priority with the `lacp system-priority` command. Lower priority is better.
+
+Links are activated based on the LACP port priority followed by the port number. Lower priority is better.
+- The priority is equal by default, meaning that the highest port will become hot-standby (fa0/9).
+
+```
+int range fa0/1 - 9
+ shutdown
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 1 mode active
+
+int port-channel 1
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+
+int range fa0/1 - 9
+ no shutdown
+
+show lacp sys-id
+show lacp internal
+show lacp neighbor
+show etherchannel summary
+```
+
+**Port Aggregation Protocol (PAgP)**
+- Only 8 PAgP links can be active at a time.
+- Uses desirable, auto instead of active, passive.
+- Does not support Hot-Standby ports, port-priority settings have nothing to do with standby interfaces.
+- Port-priority and learn methods are used for interoperability between different platforms, not actual traffic distribution.
+
+```
+define interface-range PAGP fa0/1 - 8
+
+int range macro PAGP
+ shutdown
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 1 mode desirable
+
+int port-channel 1
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+
+int range macro PAGP
+ no shutdown
+
+show pagp internal
+show pagp neighbor
+show etherchannel summary
+```
+
+**Load-Balancing (Load-Sharing)**
+- With simple methods the same traffic type will always choose the same link.
+- With complex methods the same traffic type will always choose the same link.
+- Etherchannels actually use load-sharing because one interface is chosen. Traffic is not sent over multiple paths.
+- Change the load-sharing scheme with the `port-channel load-balance` command.
+
+Simple Methods:
+- scr-mac
+- scr-ip
+- dst-mac
+- dst-ip
+
+Complex Methods:
+- scr-dst-mac
+- scr-dst-ip
+- scr-dst-port (N/A)
+
+**Link-State Tracking**
+- Ports connected to servers are configured as downstream ports,
+- Ports connected to other switches are configured as upstream ports.
+- If the upstream trunk ports (Etherchannel) fails, the downstream ports are put in an err-disable state.
+- This is useful when a server connects to two separate switches with two NICs.
+- If one switch loses its connection upstream, the NIC port to that switch is shutdown and the server will move over to the other switch as the primary NIC port.
+
+```
+link state track 1
+int range fa0/23 - 24
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 1 mode active
+ link state group 1 upstream
+
+int po1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ link state group 1 upstream
+
+int fa0/0
+ switchport mode access
+ switchport access vlan 10
+ link state group 1 downstream
+
+show link state group detail
+```
+
+## IGMP Snooping
+**L2 Multicast Address Conversion**
+- 1st octet is irrelevant, replace with 01-00-5E.
+- Convert the 2nd octet to binary and set the first bit to 0.
+- Convert the 2nd, 3rd and 4th octet to hex.
+- In this case the 230.255.124.2 and 227.127.124.2 lead to exactly the same L2 address.
+- A 2nd octet of 255 or 127 will always result in the same value.
+
+| IPv4 address | 1st octet | 2nd octet | 3rd octet | 4th octet | L2 address |
+| ---- | ---- | ---- | ---- | ---- | ---- |
+| 226.144.154.4 | 01-00-5E | 00100000 = 10 | 9A | 04 | 01-00-5E-10-9A-04 |
+| 230.255.124.2 | 01-00-5E | 01111111 = 7F | 7C | 02 | 01-00-5E-7F-7C-02 |
+| 227.127.124.2 | 01-00-5E | 01111111 = 7F | 7C | 02 | 01-00-5E-7F-7C-02 |
+
+**IGMP Snooping / Querier**
+- The switch examines IGMP messages and learns the location of mrouters and hosts.
+- Listens for IGMP Reports/Leaves and limits multicast traffic to specific ports only.
+- Enable IGMP snooping globally or per VLAN (enabled by default on all VLANs).
+- Can also bind static groups (using L2 address conversion) to interfaces.
+
+```
+ip igmp snooping
+ip igmp snooping vlan 10
+ip igmp snooping vlan 1 static 01-00-5E-7F-7C-02 interface fa0/0
+
+show mac address-table multicast
+```
+
+**IGMP Profiles**
+- IGMP Profile allows IGMP access-control at Layer 2.
+- Can only be applied to L2 interfaces.
+- **Permit mode**. Allows specified groups and blocks all others.
+- **Deny mode**. Blocks specified groups and allows all other.
+
+Only allow the specific multicast range:
+
+```
+ip igmp profile 1
+ permit
+ range 224.0.O.O 229.255.255.255
+
+int fa0/0
+ ip igmp filter 1
+
+show ip igmp profile
+```
+
+**PIM Snooping**
+- IGMP Snooping only limits traffic to and from hosts, PIM Snooping also limits traffic to mrouters.
+- Limits multicast traffic to interfaces that have downstream receivers joined to the same multicast group.
+- Listens to PIM hello, join, forward-election and prune messages.
+- Requires IGMP snooping and is applied on VLAN SVIs.
+
+```
+interface vlan 10
+ ip pim snooping
+```
+
+## IP Source Guard
+**IP Source Guard**
+- Checks the source IP address of received packets against the DHCP snooping binding database.
+- IP source guard is a port-based feature that automatically creates an implicit port access control list (PACL).
+- With `prefer port-mode` IP source guard is preferred over VACL configurations.
+- With merge mode IP source guard and VACL configurations are both implemented (default mode).
+
+```
+int fa0/0
+ ip verify source
+
+ip source binding 1234.abcd.1234 vlan 10 10.0.12.1 int fa0/0
+```
+
+## IPv6 Security
+**Router Advertisements (RA) Guard**
+- Apply on ports that should not receive router advertisements (RAs).
+- In other words, another router should not be present on the link.
+- Configure on the switch to allow only RA from a single router on the specified port.
+
+```
+ipv6 prefix-list RA_PREFIX permit 2001:10:0:12::/64
+ipv6 access-list RA_SOURCE
+ permit ipv6 host FE80::1 any
+
+ipv6 nd raguard policy ROUTER
+ device-role router
+ match ra prefix-list RA_PREFIX (optional)
+ match ipv6 access-list RA_SOURCE (optional)
+
+int fa0/0
+ description TRUSTED_ROUTER_PORT
+ ipv6 nd raguard attach-policy ROUTER
+```
+
+Block all other RAs from other sources on the specified VLAN:
+
+```
+ipv6 nd raguard policy HOSTS
+ device-role host
+
+ipv6 snooping logging packet drop
+vlan configuration 1
+ ipv6 nd raguard attach-policy HOSTS
+```
+
+Or:
+
+```
+interface vlan 1
+ ipv6 nd raguard attach-policy HOSTS
+```
+
+- There is no need to specify a policy when applying RA Guard to untrusted hosts. The ipv6 nd raguard command will suffice.
+- The ipv6 snooping logging packet drop command is needed for logging untrusted RA messages.
+
+**RA Guard PACL**
+- It is also possible to configure the concept of RA Guard using a PACL to block unwanted RAs.
+- The `undetermintedtransport` keyword must be included to capture all unwanted traffic.
+
+```
+ipv6 access-list RA_PACL
+ deny icmp any any routeradvertisement
+ deny ipv6 any any undeterminedtransport
+ permit ipv6 any any
+
+int fa0/0
+ description UNTRUSTED_PORT
+ ipv6 traffic-filter RA_PACL in
+```
+
+**DHCPv6 Guard**
+Trust all ports but require matching on link-local source and address range reply:
+
+```
+ipv6 prefix-list TRUSTED_PREFIX permit 2001:10:0:12::/64 le 128
+ipv6 access-list TRUSTED_SERVER
+ permit ipv6 host FE80::1 any
+
+ipv6 dhcp guard policy DHCP
+ device-role server
+ match server access-list TRUSTED_SERVER
+ match reply prefix-list TRUSTED_PREFIX
+
+vlan configuration 1
+ ipv6 dhcp guard attach-policy DHCP
+```
+
+Or:
+
+```
+interface vlan 1
+ ipv6 dhcp guard attach-policy DHCP
+```
+
+**ND Inspection**
+- Control plane feature only, it doesn't inspect actual data traffic and only looks at ND ICMP packets.
+- Builds a table based on NS/NA messages. It then enforces the table.
+- If there is a link local address on the network, the switch will send a NS from the IPv6 address.
+- If there isn't an IPv6 address on the VLAN (L2 switching only), it will send an NS from the IPv6 unspecified address.
+- ND Tracking Policy is optional when enabling ND Inspection.
+- Tracking is basically IP SLA echo only with ND packets. And is useful for two reasons:
+  - Since the table is first-come first-serve, this frees up address space if it's actually not in use.
+  - It allows for a host to move ports by aging out information.
+
+```
+vlan configuration 1
+ ipv6 nd inspection
+
+show ipv6 neighbor binding
+```
+
+Create a static binding to allow a certain host:
+
+```
+ipv6 neighbor binding vlan 1 FE80::1 interface gi1 abcd.abcd.abcd
+
+show ipv6 snooping capture-policy interface
+```
+
+Enable ND Inspection alongside a tracking policy:
+
+```
+ipv6 nd inspection policy ND_POLICY
+ tracking enable [reachable-lifetime] 300
+
+vlan configuration 1
+ ipv6 nd inspection attach-policy ND_POLICY
+```
+
+**Destination Guard**
+- Destination Guard is a "last hop" security feature, the last hop router is the only one that is heavily impacted.
+- Interim routers don't have to NS for the final destination, they just CEF-switch the packet.
+- Needed because of the size of /64 IPv6 subnets and the possible amount of destinations.
+
+```
+ipv6 destination-guard policy DESTINATION_POLICY
+ enforcement always | stressed
+
+vlan configuration 1
+ ipv6 destination-guard attach-policy DESTINATION_POLICY
+
+show ipv6 destination-guard policy
+```
+
+The `stressed` option will only enable Destination Guard during high usage. Default is `always`.
+
+## IPv6 Snooping
+IPv6 Snooping
+- Builds the neighbor database, similar to IPv6 ND inspection.
+- Glean ports are trusted ports.
+- The difference is that it uses and enforces more methods all at once. It can use:
+  - Information from DHCP (Default).
+  - Information from ND (Default).
+  - Static bindings.
+
+```
+ipv6 snooping policy UNTRUSTED_HOSTS
+ security-level guard | inspect
+
+vlan configuration 1
+ ipv6 snooping attach-policy UNTRUSTED_HOSTS
+```
+
+The `guard` keyword enables DHCP Guard, RA Guard, and ND Inspection.
+The `inspect` keyword only enforces ND Inspection.
+The policy is optional when enabling IPv6 Snooping on untrusted ports.
+
+By default, IPv6 snooping enables its version of RA Guard, DHCPv6 Guard and ND Inspection.
+Optionally disable ND Inspection with the `no protocol ndp `command.
+Optionally disable DHCPv6 Guard with the `no protocol dhcp policy` command.
+
+```
+ipv6 snooping policy TRUSTED_ROUTER
+ security-level glean
+
+int gi1
+ ipv6 snooping attach-policy TRUST_ROUTER
+
+show ipv6 neighbor binding
+```
+
+**IPv6 Source Guard**
+- Any traffic other than IPv6 ND/RA and DHCP that doesn't match the source address present in the prebuilt binding table, will get dropped.
+
+```
+vlan configuration 1
+ ipv6 source-guard
+```
+
+## Link-State Track
+Link-State Tracking
+- Downstream ports connect to servers (with more than two NICs)
+- Upstream ports are part of an etherchannel.
+- If the etherchannel fails, the downstream ports will be err-disabled triggering a switchover to another NIC on the server.
+
+```
+link state track 1
+
+int po1
+ link state group 1 upstream
+
+int fa0/0
+ description SERVER
+ link state group 1 downstream
+
+do show link state group detail
+```
+
+## MAC
+**MAC Aging**
+- Default is 300 seconds for all VLANs.
+- It is possible to apply different aging timers for different VLANs.
+
+```
+mac address-table aging-time 500 vlan 10
+show mac address-table aging-time
+```
+
+**MAC Learning**
+- All interfaces and VLANs can learn MAC-addresses.
+- It is possible to disable learning for specific VLANs.
+
+```
+no mac address-table learning vlan 10
+show mac address-table learning
+```
+
+**Static MAC**
+- Does not expire and can be associated with multiple ports.
+- The specified output interface cannot be an SVI.
+- When configuring static MAC-address in a primary private-VLAN, also configure the same address in the secondary VLAN.
+
+```
+mac address-table static 1234.abcd.1234 vlan 10 int fa0/0 fa0/1
+show mac address-table static
+```
+
+**MAC Filtering**
+- Disabled by default and only supports unicast static addresses.
+- Multicast MAC addresses, broadcast MAC-addresses, and router MAC addresses are not supported (forwarded to CPU).
+- Only works on access-ports, L2 ACL takes precedence over L3 ACL.
+- You cannot apply named MAC extended ACLs to Layer 3 interfaces.
+- When filtering the same MAC-address that is also configured statically, the command configured last is applied.
+
+```
+mac access-list extended MAC_ACL
+ deny   any any appletalk
+ permit any any
+
+int fa0/0
+ mac access-group MAC_ACL in
+
+show access-lists
+show mac access-group
+```
+
+Be careful when only permitting only certain addresses. MAC-addresses will time out and the MAC ACL will block the ARP.
+- In this case create static entries that match the ones permitted in the MAC ACL.
+
+```
+mac access-list extended MAC_ACL
+ permit host 1234.abcd.1234 host abcd.1234.abcd
+ deny any any
+
+int fa0/1
+ mac access-group MAC_ACL in
+
+mac address-table static 1234.abcd.1234 vlan 10 int fa0/0
+mac address-table static abcd.1234.abcd vlan 10 int fa0/0
+```
+
+## Macros
+**Switch Macros**
+- End custom macros with the @ sign.
+- Show the individual commands in the cli with the trace keyword.
+
+Global macro:
+
+```
+macro name ACCESS_PORT
+ default int $int
+ int $int
+ switchport mode access
+ switchport access vlan $vlan
+ switchport voice vlan $voice
+ no shut
+end
+@
+macro global trace ACCESS_PORT $int fa0/0 $vlan 10 $voice 60
+```
+
+Interface macro:
+
+```
+macro name ACCESS_PORT
+ switchport mode access
+ switchport access vlan $vlan
+ switchport voice vlan $voice
+
+int fa0/0
+ macro trace ACCESS_PORT $vlan 10 $voice 60
+
+show parser macro
+```
+
+## Native VLAN
+**Native VLAN**
+- All traffic that is untagged is placed in the native VLAN.
+- Primarily used for management traffic nowadays.
+- LLDP and CDP use the native VLAN.
+- Used for the switch behind an IP-Phone. Voice traffic will use the voice VLAN and data traffic from PC will be untagged.
+- 802.1D (STP) frames are sent in the native VLAN.
+
+Native VLAN mismatch errors apply to the CDP protocol. Traffic can actually flow between mismatched switches.
+- PVST will give errors with this configuration. Other STP configurations will work.
+- Native VLANs are useful when the same VLANs exist on opposite ends of the switches, but are not used for the same purpose. For example: **Cat2→Native VLAN 2—Trunk Connection—Native VLAN 3←Cat3**
+
+**Native VLAN Mismatch Trunk**
+
+Cat2:
+
+```
+int fa0/1
+ description CON_TO_R2
+ switchport access vlan 2
+
+no spanning-tree vlan 2
+
+int fa0/24
+ description CON_TO_CAT3
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 2
+ switchport mode trunk
+ no cdp enable
+```
+
+Cat3:
+
+```
+int fa0/1
+ description CON_TO_R3
+ switchport access vlan 3
+
+no spanning-tree vlan 3
+
+int fa0/24
+ description CON_TO_CAT2
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 3
+ switchport mode trunk
+ no cdp enable
+```
+
+Routers:
+
+```
+int fa0/0
+ description CON_TO_CAT2
+ ip address 10.0.23.2 255.255.255.0
+ no shut
+
+int fa0/0
+ description CON_TO_CAT3
+ ip address 10.0.23.3 255.255.255.0
+ no shut
+```
+
+## PACL / VACL
+
+|   |   |
+|---|---|
+|Ingress Direction|PACL is applied first, then VACL, then ACL on same VLAN.|
+|Egress Direction|ACL on VLAN is applied first, then VACL, no support for PACL.|
+
+Port-Based Access Control Lists (PACL)
+- Can only be applied in the ingress direction.
+- Can be configured on a trunk port only with Prefer Port Mode.
+
+Two modes:
+- Prefer Port Mode. Overwrites the effect of other ACL or VACL (not supported on 3750).
+- Merge Mode. PACL, VACL, and ACLs are merged in the ingress direction (default mode).
+
+```
+ip access-list extended PACL
+ deny icmp any any
+ permit ip any any
+
+int fa0/0
+ ip access-group mode merge
+ ip access-group PACL in
+```
+
+**VLAN Access Control Lists (VACL)**
+- Unlike ACLs that are applied on routed packets only, VACLs apply to all packets (L2 and L3).
+- Can be applied to any VLAN and can filter traffic between devices in the same VLAN or between VLANs.
+- Uses traffic matched in ACL with permit statements.
+- Important. When matching on MAC ACL the explicit deny is for L2 traffic only, all unmatched L3 traffic is allowed.
+- The same is true for the reverse (matching on L3 ACL will only explicitly deny L3 traffic).
+
+**VACL for Private-VLANs**
+- Host port to promiscuous port traffic is matched on secondary VLAN access-list.
+- Promiscuous port to host port traffic is matched on primary VLAN access-list.
+- To filter out specific IP traffic apply the VACL to both the primary and secondary VLANs.
+
+L3 Filtering:
+
+```
+ip access-list extended ICMP
+ permit icmp any any
+
+vlan access-map VACL 10
+ match ip address ICMP
+ action drop
+vlan access-map VACL 20
+ action forward
+
+vlan filter VACL vlan-list 10,20
+```
+
+L2 Filtering:
+
+```
+mac access-list extended MAC
+ permit host 1234.abcd.1234 any
+
+vlan access-map VACL 10
+ match mac address MAC
+ action drop
+vlan access-map VACL 20
+ action forward
+
+vlan filter VACL vlan-list 10, 20
+```
+
+**VLAN Access Logging**
+- The content of the log table can be deleted by setting the maxflow to 0.
+- When the log table is full, the software drops logged packets from new flows (500 is default).
+- The default threshold is 0, which means that a syslog message is generated every 5 minutes.
+
+```
+vlan access-log maxflow 500
+vlan access-log threshold 0
+```
+
+## Port Security
+**Protected Ports**
+- Does not forward any traffic to any other port that is also a protected port.
+- Only control traffic (PIM for example) is forwarded.
+- All data traffic passing between protected ports must be forwarded through a Layer 3 device.
+
+```
+int fa0/0
+ switchport protected
+```
+
+**Port Blocking**
+- Block flooding of unknown multicast and unicast traffic out of a port.
+- The default is to flood unknown destinations out of all ports.
+
+```
+int fa0/0
+ switchport block multicast
+ switchport block unicast
+
+show int fa0/0 switchport
+```
+
+**Port-Security**
+- Can only be configured on static access ports or trunk ports, not dynamic (DTP) ports.
+- Not supported on Private-VLAN ports.
+- When using the voice VLAN, set the maximum number of MAC-addresses for both the access and voice VLAN.
+- The port does not forward packets with source addresses outside the group of defined addresses.
+
+Violation modes:
+- Protect. Stops forwarding traffic of new MAC-addresses after limit is reached.
+- Restrict. Works the same as protect, but also sends a trap and syslog message.
+- Shutdown. Err-disables the port, or the entire VLAN when the vlan keyword is added.
+
+Secure MAC address types:
+- Static. Manually defined and stored in running-config.
+- Dynamic. Learned automatically until limit is reached. Removed when switch is rebooted.
+- Sticky. Dynamically learned and stored in running config (requires write).
+- The switchport port-security mac-address sticky command converts all the dynamic secure MAC addresses to sticky.
+
+**Port-Security Aging**
+- Absolute. The secure addresses on the port are deleted after the specified aging time (default).
+- Inactivity. The secure addresses on the port are deleted only if they are inactive.
+- Static address aging is disabled by default. Enable with the `switchport port-security aging static` command.
+- Sticky addresses do not age, dynamic addresses that are converted to sticky will lose aging limitations.
+
+Dynamic port-security with aging:
+
+```
+int fa0/0
+ switchport mode access
+ switchport access vlan 10
+ switchport voice vlan 60
+ switchport port-security
+ switchport port-security maximum 3
+ switchport port-security maximum 2 vlan access
+ switchport port-security maximum 1 vlan voice
+ switchport port-security violation restrict
+ switchport port-security aging type inactivity
+ switchport port-security aging time 60
+```
+
+Static port-security:
+
+```
+int fa0/1
+ switchport mode access
+ switchport access vlan 20
+ switchport port-security maximum 2
+ switchport port-security mac-address ca02.1598.0008
+ switchport port-security mac-address 000e.04b7.801a
+ switchport port-security violation shutdown
+ switchport port-security
+
+show port-security address
+show port-security interface fa0/0
+```
+
+## Private VLANs
+**Private VLANs**
+- All hosts in the private VLAN belong to the same IP subnet as the primary VLAN.
+- Private VLANs require VTPv3 or VTP mode transparent on older versions of VTP.
+- Isolated VLAN forwards frames from isolated to promiscuous ports. (only 1 allowed)
+- Community VLAN forwards frames from community to promiscuous and other community ports. (multiple allowed)
+
+Promiscuous PVLAN Trunk rewrites secondary VLAN ID to primary VLAN ID.
+Isolated PVLAN Trunk translates primary VLAN ID to isolated VLAN ID.
+- Used for connecting to switches without PVLAN support (protected ports).
+
+**Private VLANs Communication**
+It is possible for two isolated PVLAN ports to communicate through the promiscuous port if `ip local-proxy-arp` is configured.
+- The ip proxy-arp is used by routers to answer to ARP queries that are outside the network (on by default).
+- The ip local-proxy-arp is used by routers to answer to ARP queries that are inside the local subnet, used by PVLAN.
+- IP Local-Proxy-ARP needs IP Proxy-ARP active in order to function.
+- Another workaround is to use OSPF PTMP network type.
+- Enabling DHCP Snooping, ARP Inspection and Source Guard on primary VLAN will also enable it on secondary VLANS.
+
+```
+vtp mode transparent
+vlan 100
+  private-vlan primary
+vlan 110
+  private-vlan community
+vlan 120
+  private-vlan isolated
+vlan 100
+ private-vlan association 110,120
+
+int fa0/1
+ description PROMISCUOUS
+ switchport mode private-vlan promiscuous
+ switchport private-vlan mapping 100 110,120
+
+int range fa0/2 - 3
+ description COMMUNITY
+ switchport mode private-vlan host
+ switchport private-vlan association host 100 110
+
+int fa0/4
+ description ISOLATED
+ switchport mode private-vlan host
+ switchport private-vlan association host 100 120
+
+show vlan private-vlan
+```
+
+**SVIs with Private-VLANs**
+- Only work if the SVI is configured the same way as the promiscuous port.
+- The primary VLAN does not have to be specified in the SVI configuration.
+- Using an SVI is required to perform DHCP services on the same switch that has Private-VLANs configured.
+
+```
+interface vlan 100
+ private-vlan mapping 110,120
+```
+
+## QinQ
+**QinQ Tunnel**
+- The native VLAN is not QinQ tagged by default, enforce using the vlan dot1q tag native command.
+- QinQ adds a 4 byte overhead to ethernet frames (1504).
+- Make sure switches increase the system MTU by at least 4 bytes (reload required).
+- It is possible to send over CDP, STP, and other L2 protocols using QinQ.
+
+Configure Cat1:
+
+```
+vlan dot1q tag native
+int fa0/0
+ switchport access vlan 30
+ switchport mode dot1q-tunnel
+ l2protocol-tunnel cdp
+ l2protocol-tunnel dtp
+
+show dot1q-tunnel
+```
+
+## SPAN
+**Switch-Port Analyzer (SPAN)**
+- SPAN does not affect the switching of traffic on sources. You must dedicate the destination port for SPAN use.
+- Source can be multiple ports or a VLAN, but not both. Multiple ports can be combined into a single session.
+- Only a single session per destination port is allowed.
+- Does not capture traffic that is forwarded within the switch (Inter-VLAN).
+- Local SPAN does not copy locally sourced RSPAN and ERSPAN traffic.
+- Allows up to 64 span destination ports per switch.
+
+Capture options:
+- Rx. Received traffic without modification.
+- Tx. Sent traffic after modification by ACL, QoS, etc.
+- Both. Default setting, both directions are captured.
+
+To capture L2 frames such as CDP, BPDU, VTP, DTP add the encapsulation replicate to the destination command.
+- The `filter` keyword can filter on specific VLANs or subnets (using ACL) when the source is a trunk port.
+- Filtering using ACL is called FSPAN and is not supported on the 3750.
+- Whatever you specify in the filter will be the only thing that matched on.
+- The `ingress` keyword allows traffic from the monitoring station to enter the switch on the SPAN destination port.
+
+```
+mon session 1 source interface fa0/0 both
+mon session 1 destination interface fa0/3 encapsulation replicate
+mon session 1 filter vlan 10
+```
+
+**Remote Switch-Port Analyzer (RSPAN)**
+- Sacrifice a VLAN to use for RSPAN with the remote-span keyword under the VLAN configuration.
+- VTPv3 can propagate RPSAN VLAN information.
+- Sacrifice a port to use for RPSAN with the reflector-port keyword.
+  - This is the port that copies packets onto a RSPAN VLAN.
+  - The reflector port cannot be used for any other purpose, however it must be online and connected.
+
+Configuring Remote SPAN Source:
+
+```
+vlan 100
+ name RSPAN
+ remote-span
+monitor session 1 source interface fa0/0 both
+monitor session 1 destination remote vlan 100 reflector-port fa0/24
+```
+
+Configuring Remote SPAN Destination:
+
+```
+vlan 100
+ name RSPAN
+ remote-span
+monitor session 1 source remote vlan 100
+monitor session 1 destination interface fa0/3
+
+show vlan remote-span
+```
+
+**Encapsulated Remote Switch-Port Analyzer (ERSPAN)**
+- Changes only take effect when exiting the sub-configuration mode. Sessions also have to be enabled with `no shutdown`.
+- The `origin ip address` keyword specifies the source IP on the ERSPAN source.
+- The `ip address` keyword specifies the destination IP on the ERSPAN source.
+- The `ip address` keyword specifies the source IP on the ERSPAN destination.
+- The values for `ip address` have to match on both sides.
+
+Configuring ERSPAN Source:
+
+```
+monitor session 1 type erspan-source
+ source interface gi1
+ destination
+  erspan-id 12
+  ip address 192.168.0.1
+  origin ip address 192.168.0.2
+  no shutdown
+```
+
+Configuring ERSPAN Destination:
+
+```
+monitor session 1 type erspan-destination
+ destination interface gi2
+ source
+  erspan-id 12
+  ip address 192.168.0.1
+  no shutdown
+```
+
+## Storm Control
+**Storm Control**
+- Traffic storm control monitors traffic in 1-second traffic storm control intervals.
+- The normal transmission restarts when traffic drops below the falling threshold.
+- If you don't specify a falling value, the rising value will be copied.
+- 100 percent means no traffic storm control, 0 percent suppresses all traffic.
+- The default action is drop traffic (no action configured).
+- Optionally send a trap or err-disable the port with the `storm-control action` command.
+
+```
+int fa0/0
+ storm-control broadcast level bps 500 100
+ storm-control action shutdown
+
+show storm-control fa0/0 broadcast
+```
+
+**Small-Frame Storm Control**
+- Incoming VLAN-tagged packets smaller than 67 bytes are considered small frames.
+- Do not cause the switch storm-control counters to increment.
+
+```
+int fa0/0
+ small violation-rate 1000
+
+show int fa0/0
+```
+
+## Voice VLAN
+Connecting a phone to a switch, two options:
+- Trunk interface. Phone will use VLAN, PC will use Native VLAN.
+- Access interface. Phone will use Voice VLAN, PC will use Access VLAN.
+
+Voice VLAN
+- The voice VLAN feature enables access ports to carry IP voice traffic from an IP phone.
+- Voice traffic is sent with Layer 3 IPP (5) and Layer 2 CoS (5).
+- The internal IP Phone switch will tag VoIP traffic with the Voice VLAN tag. Data from PC is sent untagged to switch.
+- The `switchport voice detect cisco-phone` is a security measure to make sure a cisco phone is connected.
+
+```
+int fa0/0
+ switchport access vlan 10
+ switchport voice vlan 60
+ spanning-tree portfast
+```
+
+**Voice VLAN Dot1p (802.1p)**
+- Use a single VLAN for Data and Voice but the 802.1p CoS tag is added to the voice traffic.
+- The 802.1p CoS field is set to 5 for VoIP and the access VLAN on the switch is used for data frames.
+- Call control CoS field is set to 3. PC traffic should be the default CoS of 0.
+- The benefit of this mode is that you get QoS abilities without needing a separate voice VLAN.
+
+```
+int fa0/0
+ switchport access vlan 10
+ switchport voice vlan dot1p
+ spanning-tree portfast
+```
+
+**Voice VLAN None**
+- Allow the phone to use its own configuration to send untagged voice traffic.
+- This provides the same result as Dot1p, however the decisions are left to the phone.
+
+```
+int fa0/0
+ switchport access vlan 10
+ switchport voice vlan none
+ spanning-tree portfast
+```
+
+**Voice VLAN Untagged**
+- Forces the phone to use untagged voice traffic (native VLAN)
+
+```
+int fa0/0
+ switchport mode trunk
+ switchport trunk native vlan 60
+ switchport voice vlan untagged
+```
+
+**Voice VLAN CoS Extension**
+- Untrusted mode is default and will remark all packets from the PC to CoS 0.
+- It is also possible to remark the PC traffic to a specific value using the extend cos command.
+- Trusted mode will accept whatever CoS value the PC is sending packets with.
+
+```
+int fa0/0
+ switchport priority extend cos 5
+ switchport priority extend trust
+```
+
+**LLDP Voice Vlan**
+- Default DSCP value is EF (46) when configuring the Voice VLAN under the network-policy profile.
+
+```
+network-policy profile 1
+ voice vlan 60 cos 5
+ voice vlan 60 dscp 40
+ voice vlan dot1p cos 5
+ voice vlan none
+ voice vlan untagged
+
+int fa0/0
+ switchport mode access
+ switchport access vlan 10
+ network-policy profile 1
+ lldp med-tlv-select network-policy
+
+show network-policy profile 1
+```
+
+## VLANs
+Default VLANs
+
+|   |   |
+|---|---|
+|VLAN 1002|fddi-default|
+|VLAN 1003|token-ring-default|
+|VLAN 1004|fddi-net-default|
+|VLAN 1005|token-ring-net-default|
+
+VLAN Database
+- When the switch is in VTP server or transparent mode, you can configure VLANs in the VLAN database mode.
+- When you configure VLANs in VLAN database mode, the VLAN configuration is saved in the vlan.dat file.
+- Supports creation of VLAN 1 to 1001, not extended range.
+
+Routed Interface VLAN Allocation
+- A routed interface on the switch (SVI or interface-based) is assigned a VLAN from 1006 and up by default.
+- These VLANs will become unusable for their normal purpose.
+- Can be altered to descend from VLAN 4094 downwards with the `vlan internal allocation policy` command.
+
+## VSS
+**Virtual Switching System (VSS)**
+- Virtual Switch Link (VSL) is an Etherchannel connection between Active and Standby chassis with up to 8 links.
+- Carries control and data traffic between Active and Passive chassis.
+- Control traffic has a higher priority than data, data traffic is load-balanced.
+- Does not preempt by default.
+
+|   |   |
+|---|---|
+|Active chassis|Controls the VSS, provides management functions. Online insertion and Removal (OIR) + console  <br>Switches L2 and L3  <br>Packet forwarding on local interfaces|
+|Standby chassis|Packet forwarding on local interfaces  <br>Sends management traffic to Active chassis|
+
+**Virtual Switch Link Protocol (VSLP)**
+- Contains the Link Management Protocol (LMP) and Role Resolution Protocol (RRP).
+- The LMP runs on all VSL links and exchanges information required to establish communication between the two chassis.
+- After a LMP connection is established, the peer chassis use RRP to negotiate the role (active or passive) for each chassis.
+- With Stateful Switchover (SSO) redundancy, the VSS standby supervisor engine is always ready to assume control following a fault on the VSS active supervisor engine.
+
+VSS Initiation process:
+- Preparse config.
+- Bring up VSL links.
+- Run VSLP (LMP).
+- Run RRP.
+- Interchassis SSO.
+- Continue system bootup.
+
+```
+switch convert mode virtual
+int port-channel 10
+ switch virtual link 1
+```
+
+**VSS Dual Active Recovery Detection**
+- Provides means of communication between both VSS chassis outside the VSL link.
+- If the VSL connection goes down, the active switch will be informed and will go into recovery mode.
+- In this mode, all ports except the VSL ports are shut down.
+- Upon seeing the VSL ports come active again, the switch will reload and come back as the standby chassis with all its ports up.
+- An enhanced version of PAgP is used on the EtherChannel and provides the Dual-Active Detection.
+
+```
+switch virtual domain 1
+ dual-active detection pagp
+ dual-active trust channel-group port channel 10
+
+show switch virtual dual-active pagp
+show pagp dual-active
+```
+
+## VTP
+**VLAN Trunking Protocol (VTP)**
+- When the domain is NULL no VTP messages will be sent.
+- The switch is waiting for the first reception of a VTP message with the domain name set.
+- VTP only operates on trunk ports.
+- VTP does not merge VLAN databases, it only compares the MD5 hash and if it is not equal the highest revision number will win and overwrite the existing database.
+- Devices with same revision number will not update each other when first coming online, because the hash is different.
+- VTP authentication alters the MD5 hash.
+- VTPv1 and v2 are designed to work with ISL, this is why extended range VLANs are not supported.
+- VTP off mode is the same as VTP transparent mode except that VTP advertisements are not forwarded.
+- Extended VLANs can only be configured with VTPv3 or VTPv2 transparent mode. If you configure extended range VLANs with any other mode, the changes are lost when the switch is rebooted.
+- MST and PVST databases are separate, this is why you can configure switches with `vtp mode server mst` or `mode server vlan`.
+- You can configure the switch as a VTP server for the VLAN database but with VTP off for the MST database.
+- The MST database is the instance to VLAN mapping, not the actual VLAN list.
+
+**VTP Pruning**
+- Switches communicate which VLANs it doesn't need frames for. (no trunks or active access ports in a specific VLAN)
+- Other switches will stop forwarding these frames until the switch communicates that it has an active port in the VLAN.
+- Only servers can enable VTP pruning.
+- Specify VLANs that are eligible for pruning with the `switchport trunk pruning vlan` command on the interfaces.
+- VLANs specified with this command will be pruned, anything not specified will not be pruned. Default is prune all VLANs.
+
+**(VTPv3)**
+- VTPv3 provides enhanced authentication, the hidden option hides the password in the configuration.
+- VTPv3 supports extended VLAN range (1006-4094) and private VLANs (and also propagates RPSAN VLAN information).
+- VTPv3 is backwards compatible with v2 and will send VTPv3 and v2 packets to devices over a trunk port.
+- Devices using v1 will automatically update to v2 when communicating with v3 neighbors.
+- If transparent or off mode is selected, VLANs are also present in the running-config.
+- VTPv3 removes possibility to reset the revision to 0 by changing to transparent mode and back.
+- The revision number will be reset to 0 only by modifying the VTP domain name or by configuring a VTP password.
+- Before making any changes to the VTP configuration, change switches to transparent mode.
+
+All configuration changes should be made on the v3 switches with the v2 devices configured as clients.
+- If changes are made on the v2 devices, only v2 neighbors will update their revision numbers.
+- Updates from v3 neighbors will be rejected later on, because of the revision number.
+
+**VTPv3 Server modes**
+- Primary. Can modify vtp, only 1 per domain. Configure with `vtp primary` command.
+- Secondary. Cannot modify vtp, can be promoted.
+
+A primary server is the only switch in a VTPv3 domain whose VLAN database can be propagated throughout the domain.
+- Demote a Primary Server to a Secondary (normal) server by changing modes or by setting a VTP password.
+- MST and VLAN are separate, meaning that different switches can be the primary server for MST or PVST.
+- If the VTP password is configured, you need to enter it when promoting the server to primary.
+
+VTP client can update database if:
+- The new link connecting the new switch is trunking.
+- The new switch has the same VTP domain name as the other switches.
+- The new switch’s revision number is higher than that of the existing switches.
+- The new switch must have the same password, if configured on the existing switches.
+
+Even in VTPv3, a secondary server or a client switch with a higher revision number can overwrite a VLAN database.
+- This can only occur if the above is true, plus the switches agree on the identity of the primary server.
+
+```
+vtp file flash:VTP.dat
+vtp version 3
+vtp mode server
+vtp domain cisco
+vtp password cisco hidden
+do vtp primary vlan force
+cisco
+
+show vtp password
+show vtp device
+show vtp status
+debug sw-vlans vtp events
+```
+
+With the force keyword, the switch does not check for conflicting devices.
+The hidden keyword hides the password in the configuration.
+- After configuring a password it is required in order to promote a server to primary.
+- The hidden password cannot be used with v2 neighbors.
+
+**Disable VTP**
+
+```
+vtp mode off
+int fa0/0
+ no vtp
+```
+
+**VTPv3 Feature Unknown**
+The unknown feature allows you to configure the behavior of the switch databases that it cannot interpret.
+- These databases will be features handled by future extensions of VTP version 3.
+- Default is off for unknown instances, can set to transparent.
+
+```
+vtp mode off unknown
+vtp mode transparent unknown
 ```
