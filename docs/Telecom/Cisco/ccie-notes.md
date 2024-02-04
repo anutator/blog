@@ -1173,18 +1173,18 @@ AS-Path Filters
 Definition and Use of AS-Path Access-Lists
 - AS-Path access-lists match a single character, every number in an AS is a single character.
   - Example. AS 2456 consists of the single characters 2,4,5 and 6.
-- Can match a range of characters using brackets [].
-  - Example. [0-3] consists of 0 or 1 or 2 or 3
+- Can match a range of characters using brackets `[]`.
+  - Example. `[0-3]` consists of 0 or 1 or 2 or 3
 - Can match a group of characters.
-  - Example. (123) matches only 123 when the characters follow each other. However they can be part of a greater AS such as 55123 or 12300.
-  - Example. (123_) matches only 123 when its at the end of the AS, such as 55123 but not 12300.
-  - Example. (_123_) matches only AS123 and it cannot be part of a greater AS.
+  - Example. `(123)` matches only 123 when the characters follow each other. However they can be part of a greater AS such as 55123 or 12300.
+  - Example. `(123_)` matches only 123 when its at the end of the AS, such as 55123 but not 12300.
+  - Example. `(_123_)` matches only AS 123 and it cannot be part of a greater AS.
 
 AS-Path AS-Sequence
 - In IOS the AS-Sequence is the AS_PATH that a route travels through.
 - The AS that the router receives the route from is called the PEER AS.
 - The router that originated the route is called the ORIGIN AS, others are called TRANSIT AS.
-o Example. ^500_400_300_200_100$. 500 is the PEER AS, 100 is the ORIGIN AS, others are TRANSIT AS.
+  - Example. `^500_400_300_200_100$`. 500 is the PEER AS, 100 is the ORIGIN AS, others are TRANSIT AS.
 
 AS-Path Filtering
 Match prefixes that originated in the connected AS:
@@ -1214,9 +1214,9 @@ This matches all numbers but does not allow blank spaces. Meaning that there can
 |`^([0-9]+)_5` |AS 5 which passed through directly connected AS|
 |`^2_([0-9]+)` |Directly connected to AS 2|
 |`^\(1234\)` |Confederation peer 1234.|
-|`_(4\|5)$` |Originated in AS 4 or AS 5|
-|`^(2\|3)$` |Originated in AS 2 or AS 3 that are directly connected|
-|`_2_(4\|5)$` |Originated in AS 4 or AS 5 that passed through AS 2|
+|_(4\|5)$ |Originated in AS 4 or AS 5|
+|^(2\|3)$ |Originated in AS 2 or AS 3 that are directly connected|
+|_2_(4\|5)$ |Originated in AS 4 or AS 5 that passed through AS 2|
 |`^[0-9]+([0-9]+)?$` |Originated in directly connected AS or directly connected to our directly connected AS|
 
 `?` Basically means true or false, the secondary AS that are being matched can appear or not.
@@ -1390,13 +1390,13 @@ router bgp 1
 - Routes received from iBGP are advertised to external peers.
 - So there is no need for RR in this case.
 
-Non-client -> iBGP = Forwarded to eBGP and RR-Clients.
+Non-client → iBGP = Forwarded to eBGP and RR-Clients.
 - When a NC receives a route from an eBGP peer it will be forwarded to the RR, which forwards it to all eBGP peers and iBGP RR-Clients.
 
-External route from RR-Client -> iBGP = Forwarded to eBGP, RR-Clients and non-clients
+External route from RR-Client → iBGP = Forwarded to eBGP, RR-Clients and non-clients
 - When a RR-Client receives a route from an eBGP peer  it will be forwarded to the RR, which forwards it to all eBGP peers and iBGP peers.
 
-External route from RR -> iBGP = Forwarded to eBGP, RR-Clients and non-clients
+External route from RR → iBGP = Forwarded to eBGP, RR-Clients and non-clients
 - When a RR receives a route from an eBGP peer it will be forwarded to all eBGP and iBGP peers.
 
 ## Session
@@ -1433,6 +1433,7 @@ BGP States
 |OPENSENT|TCP session connection is established. Router is OPEN and expects an OPEN message from peer.|
 |OPENCONFIRM|Expecting either KEEPALIVE (meaning that session is approved), or NOTIFICATION.|
 |ESTABLISHED|Routers have a BGP peering session. UPDATES are sent between BGP speakers.|
+
 ## Table-Map
 **BGP Table-Map**
 - Sits between the BGP table and the RIB. Does not filter bgp prefixes received.
@@ -1505,7 +1506,7 @@ clear ip bgp ipv4 unicast table-map
 ```
 
 # Cryptography
-Internet Key Exchange (IKE)
+**Internet Key Exchange (IKE)**
 - IKEv1 uses UDP port 500. UDP port 4500 is used for NAT-Traversal in IKEv2.
 - Encapsulation Header (ESP) is UDP port 50. Authentication Header (AH) is UDP port 51.
 
@@ -1760,13 +1761,13 @@ Next Hop Resolution Protocol (NHRP)
 
 NHRP Dynamic Flags
 
-|   |   |
+| Флаг  | Описание  |
 |---|---|
 |Authoritative|Obtained from NHS.|
 |Implicit|Obtained from forwarded NHRP packet .|
 |Negative|Could not be obtained.|
 |Unique|Request packets are unique, disable if spoke has a dynamic outside IP address.|
-|Registered|Obtained from NHRP registration request (Seen on hub).<br><br>The spoke has instructed the hub not to take a registration from another identical NBMA address.|
+|Registered|Obtained from NHRP registration request (Seen on hub).<br>The spoke has instructed the hub not to take a registration from another identical NBMA address. |
 |Used|Set when data packets are process switched and mapping entry is in use, 60s timer.|
 |Router|NHRP mapping entries for the remote router for access to network.|
 |Local|Local network mapping.|
@@ -4620,11 +4621,11 @@ int fa0/0
  mac-address a012.7acb.6b40
  ipv6 address 2001:10:0:12:a212:7aff:fecb:6b40/64
 ```
-  
+
 ## DHCPv6
 DHCPv6 Messages
 
-| Message Type | Description | IPv4 Equivalent |
+| Тип сообщения | Описание | IPv4 эквивалент |
 | ---- | ---- | ---- |
 | `Solicit` | Sent by a client to locate servers. | DHCPDiscover |
 | Advertise | Sent by a server in response to a Solicit message to indicate availability. | DHCPOffer |
@@ -4635,7 +4636,7 @@ DHCPv6 rapid configuration only uses the `Solicit` and `Reply` message. Enable w
 
 DHCPv6 multicast groups
 
-|   |   |
+| Группа  | Описание  |
 |---|---|
 |FF02::1:2|Link-local DHCP using UDP 546, 547|
 |FF02::1:3|Link-local multicast DNS using UDP 5355|
@@ -4784,7 +4785,7 @@ int fa0/1
 
 **Automatic Tunneling Methods**
 
-|   |   |
+| Метод  | Описание  |
 |---|---|
 |Automatic 6to4|Treats the underlying IPv4 network as an NBMA cloud.<br>Point-to-Multipoint. Uses 2002::/16 address space.  <br>Encapsulates IPv4 address into IPv6 address (converted to HEX).  <br>Does not support dynamic routing protocols. |
 |Automatic IPv4 Compatible|Uses IPv4-compatible IPv6 addresses for the tunnel interfaces.  <br>Point-to-Multipoint. Uses ::/96 address space (::IPv4-Address/96).<br>Deprecated. |
@@ -4882,7 +4883,7 @@ int lo1
 ## Static
 Static Tunneling Methods
 
-|   |   |
+| Метод  | Описание  |
 |---|---|
 |Static IPv6IP|Carries only IPv6 packets over IPv4.  <br>Point-to-Point. Uses protocol 41.|
 |Static GRE|Carries IPv6, CLNS + other traffic over IPv4.  <br>Point-to-Point. Uses protocol 47. (default method)|
@@ -5167,7 +5168,7 @@ show tcp brief
 ```
 
 **MPLS Transport Address**
-- The transport address can circumvent the RID for MPLS LDP neighbor advertisement.  
+- The transport address can circumvent the RID for MPLS LDP neighbor advertisement.
 
 ```
 int fa0/0
@@ -5359,7 +5360,7 @@ The DSCP value in the IP packet can also be replaced by the EXP bits, this is ca
 
 QoS Matching on PE using Groups
 - On ingress interface, it is not possible to match on a IPP or DSCP value, because the MPLS header is still on the frame.
-- On egress interface, it is not possible to match on the EXP bits to set IPP / DSCP bits, because the label is already popped.  
+- On egress interface, it is not possible to match on the EXP bits to set IPP / DSCP bits, because the label is already popped.
 
 The solution is to use QoS groups, which are local to the device itself.
 - A packet is marked with a QoS group value only while it is being processed within the device.
@@ -5453,13 +5454,15 @@ mpls ldp explicit-null to EXP_NULL
 # Multicast
 **Multicast Addressing**
 
-|   |   |   |
-|---|---|---|
-|Link-Local|224.0.0.0/24|Used by network protocols on a local network segment. Non-Routable traffic.|
-|Globally Scoped|224.0.1.0 - 238.255.255.255|Normal range. Can send between organizations and across the Internet.|
-|SSM|232.0.0.0/24|Source-Specific Multicast (SSM)|
-|Private Multicast|239.0.0.0/8|Administratively scoped addresses. Equivalent of RFC1918 address space.|
-|GLOP|233.0.0.0/8|Maps 16bit AS to multicast groups.|
+| Название | IP адреса | Описание |
+| ---- | ---- | ---- |
+| Link-Local | 224.0.0.0/24 | Used by network protocols on a local network segment. Non-Routable traffic. |
+| Globally Scoped | 224.0.1.0 - 238.255.255.255 | Normal range. Can send between organizations and across the Internet. |
+| SSM | 232.0.0.0/24 | Source-Specific Multicast (SSM) |
+| Private Multicast | 239.0.0.0/8 | Administratively scoped addresses. Equivalent of RFC1918 address space. |
+| GLOP | 233.0.0.0/8 | Maps 16bit AS to multicast groups. |
+|  |  |  |
+|  |  |  |
 
 **GLOP Addresses**
 - Convert AS to Hex, then take the separate parts of the 4-part hex and convert them back into decimal groups.
@@ -5538,9 +5541,9 @@ ip pim rp-candidate lo0
 - Auto-RP needs a RP to form multicast trees and allow traffic to flow.
 - However the location of the RP has to be discovered through multicast as well.
 - This creates a chicken and the egg situation. In order to find the RP, some kind of `dense-mode` solution is needed.
-o Statically assign the mapping agent and the RP for the 224.0.1.39-40 addresses. Kind of defeats the purpose of Auto-RP.
-o Configure interfaces with `ip pim parse-dense mode`. Uses dense mode for all groups without an RP, sparse for all others.
-o Configure the `ip pim autorp listener`. Allows usage of `sparse-mode` only interfaces and basically configures an ACL for the 224.0.1.39-40 addresses to be allowed to run in dense mode (preferred method).
+  - Statically assign the mapping agent and the RP for the 224.0.1.39-40 addresses. Kind of defeats the purpose of Auto-RP.
+  - Configure interfaces with `ip pim parse-dense mode`. Uses dense mode for all groups without an RP, sparse for all others.
+  - Configure the `ip pim autorp listener`. Allows usage of `sparse-mode` only interfaces and basically configures an ACL for the 224.0.1.39-40 addresses to be allowed to run in dense mode (preferred method).
 
 **Mapping Agent**
 - Receive candidate messages (announcements) and decide which one will be the RP (Highest IP address wins).
@@ -5697,8 +5700,6 @@ The winner is decided by:
 - 3min state, after 3min the client will re-register with the RP. The RP informs routers to stop sending with `register-stop` message.
 - As long as the source is transmitting this `register-stop-register-stop` state will continue
 - This is similar to Dense-Mode, except that it is only between the RP and the source router (instead of all routers).
-
-  
 
 ## RPF Failures/Fixes
 RPF Failures/Fixes
@@ -6303,7 +6304,7 @@ int fa0/0
 
 Stuck in WAIT-State
 - Reason: Unreasonably long dead-interval on broadcast and non-broadcast network type. This is because routers spend the dead-interval time (40 seconds by default) in the wait state before becoming FULL neighbors.
-- Behavior: Routers will appear as DROTHERS  even with priority set to non-zero value. 
+- Behavior: Routers will appear as DROTHERS  even with priority set to non-zero value.
 
 ```
 show ip ospf interface: State will show as WAIT.  
@@ -6577,7 +6578,7 @@ Type 11: Grace LSA (All Routers)
 
 **OSPF Packet Types**
 
-|   |   |   |
+| Тип  | Название  | Описание  |
 |---|---|---|
 |Type 1|Hello Message|Discovers and monitors neighbors.<br>Sent periodically to 224.0.0.5 on all interfaces (link-local in scope).<br>Virtual-Links use unicast Hello packets.<br>On broadcast and NBMA networks, Hello packets are used to elect DR and BDR. |
 |Type 2|Database Descriptor (DD/DBD)|Synchronizes the link-state databases for all routers. The routers only exchange the list of all LSAs they posses and update the ones that are missing from the database.<br>No actual LSAs are exchanged. |
@@ -6824,7 +6825,7 @@ show controllers fa0/0 | i tx
 | af42 | 100\|100\|00 | 36 | 144 |
 | af43 | 100\|110\|00 | 38 | 152 |
 | cs5 | 101\|000\|00 | 40 | 160 |
-| `ef` | `101\|110\|00` | `46` | `184` |
+| ef | 101\|110\|00 | 46 | 184 |
 | cs6 | 110\|000\|00 | 48 | 192 |
 | cs7 | 111\|000\|00 | 56 | 224 |
 
@@ -7073,11 +7074,10 @@ int fa0/0
 
 **ECN Values**
 - The 7th bit is the ECT bit and the 8th bit is the CE bit.
-- If a TCP host supports ECN, it sets either (but not both) of the low-order bits in the DSCP byte - ECT or CE - to 1.  
+- If a TCP host supports ECN, it sets either (but not both) of the low-order bits in the DSCP byte - ECT or CE - to 1.
+- If a TCP host doesn't support ECN, these will both be set to 0.
 
-- If a TCP host doesn't support ECN, these will both be set to 0.  
-
-|   |   |
+| Значение  | Описание  |
 |---|---|
 |00|Not ECN capable|
 |01|Endpoints are ECN capable|
@@ -7507,14 +7507,14 @@ Ignores superior BPDUs on specified port. Apply on interfaces that connect to sw
 - In MST the port does not become root-inconsistent, but is forced to become a designated port.
 - Not VLAN-aware, enabled for all VLANs present on the port. Cannot be enabled globally.
 - Do not enable the root guard on interfaces to be used by the UplinkFast feature.
-o Backup (blocking) ports will go to root-inconsistent state instead of forwarding state.
+  - Backup (blocking) ports will go to root-inconsistent state instead of forwarding state.
 
 ```
 int fa0/0
  spanning tree guard root
 ```
 
-## UDLD 
+## UDLD
 **Unidirectional Link Detection (UDLD)**
 - Exchanges protocol packets that contains the device + port ID and neighbor device + port ID.
 - If device does not see its own ID echoed back it considers the link unidirectional.
@@ -7531,7 +7531,7 @@ udld enable
 udld aggresive
 ```
 
-|   |   |
+| Режим  | Описание  |
 |---|---|
 |Normal mode|Port is marked undetermined, behaves according to STP state.|
 |Aggressive mode|Tries to re-establish port state, if not successful port is put in errdisable state.|
@@ -8141,7 +8141,7 @@ mac address-table static abcd.1234.abcd vlan 10 int fa0/0
 
 ## Macros
 **Switch Macros**
-- End custom macros with the @ sign.
+- End custom macros with the `@` sign.
 - Show the individual commands in the cli with the trace keyword.
 
 Global macro:
@@ -8237,7 +8237,7 @@ int fa0/0
 
 ## PACL / VACL
 
-|   |   |
+| Направление  | Описание  |
 |---|---|
 |Ingress Direction|PACL is applied first, then VACL, then ACL on same VLAN.|
 |Egress Direction|ACL on VLAN is applied first, then VACL, no support for PACL.|
@@ -8667,7 +8667,7 @@ show network-policy profile 1
 ## VLANs
 Default VLANs
 
-|   |   |
+| Номер VLAN  | Назначение  |
 |---|---|
 |VLAN 1002|fddi-default|
 |VLAN 1003|token-ring-default|
