@@ -83,7 +83,7 @@ change system-parameters ocm-call-classification                Page   2 of   9
 
 (NOTE: Custom tones (pages 2-9) will only be used if USA Default is 'n'.)
 ```
- 
+
 В свойствах транк-группы `ch tru xxx` поставить `Busy Tone Disconnect? y`
 
 ```console title="ch tru 1" hl_lines="11"
@@ -108,7 +108,7 @@ OUTPULSING INFORMATION
 
 Здесь же на 2 странице поэкспериментировать с ` Disconnect Supervision - In`. Выключить его. Но это может вызвать проблемы при переадресации с транка на транк, поэтому надо подобрать или y, или n.
 
-```console "ch tru 1" hl_lines=11"
+```console title="ch tru 1" hl_lines=11"
 change trunk-group 1                                Page 2 of 22
 Group Type: co                      Trunk Type: loop-start
 
@@ -129,7 +129,7 @@ Answer Supervision Timeout: 10           Receive Answer Supervision? n
 `Call Park Timeout Interval (minutes): 10`время парковки вызова (если вызов отправлен на парковку и не обработан в течение этого времени, он вернётся к тому ext, который его на парковку отправил, или к attendant - зависит от `Deluxe Paging and Call Park Timeout to Originator? y/n` )
 `Off-Premises Tone Detect Timeout Interval (seconds): 20`
 
-```console "ch sys fea" hl_lines="5 8"
+```console title="ch sys fea" hl_lines="5 8"
 change system-parameters features Page 1 of 17
 
                              FEATURE-RELATED SYSTEM PARAMETERS
