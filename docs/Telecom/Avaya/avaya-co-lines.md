@@ -5,8 +5,8 @@ share: "true"
 ## Отбой на аналоговых платах (защита от подвисания Сошек)
 Прошивки аналоговых плат последние.
 
-Убедиться, что в `disp sys cu` в Optional Features стоит `Global Call Classification? y`
-```console "disp sys cu" hl_lines="16"
+Убедиться, что в `disp sys cu` в Optional Features стоит `Global Call Classification? y`
+```console title="disp sys cu" hl_lines="16"
 display system-parameters customer-options                      Page   4 of  11
                                 OPTIONAL FEATURES
 
@@ -31,7 +31,7 @@ Hospitality (G3V3 Enhancements)? y               Multimedia IP SIP Trunking? n
         (NOTE: You must logoff & login to effect the permission changes.)
 ```
 
-В параметрах страны `ch sys cou` (не везде есть этот экран), ставим `Enable Busy Tone Disconnect for Analog loop-start Trunks? y`
+В параметрах страны `ch sys cou` (не везде есть этот экран), ставим `Enable Busy Tone Disconnect for Analog loop-start Trunks? y`
 
 ```console title="disp sys cou" hl_lines="9"
 display system-parameters country-options
@@ -52,7 +52,7 @@ TONE DETECTION PARAMETERS
             appear incorrectly
 ```
 
-`ch sys ocm` на 1 странице `USA Default Algorithm? n`, на второй странице настраиваем длительность сигналов, попробовать 225 и 525, 250 и 550. По ГОСТу в России стандартная частота сигнала отбоя 425 Гц при длительности 350 мс через 350 мс тишины, но может быть и другой вариант. В Египте обычно On 250, off 550. Для точного определения интервалов можно включить запись разговора (предварительно настроив Audix) и после ответа положить трубку на удаленной стороне, немного подождать для записи сигналов «занято». Скачать файл и открыть в Audacity или SoundForge. Проверить интервалы по временной шкале.
+`ch sys ocm` на 1 странице `USA Default Algorithm? n`, на второй странице настраиваем длительность сигналов, попробовать 225 и 525, 250 и 550. По ГОСТу в России стандартная частота сигнала отбоя 425 Гц при длительности 350 мс через 350 мс тишины, но может быть и другой вариант. В Египте обычно On 250, off 550. Для точного определения интервалов можно включить запись разговора (предварительно настроив Audix) и после ответа положить трубку на удаленной стороне, немного подождать для записи сигналов «занято». Скачать файл и открыть в Audacity или SoundForge. Проверить интервалы по временной шкале.
 
 ``` title="ch sys ocm" hl_lines="6"
 change system-parameters ocm-call-classification                Page   1 of   9
@@ -83,8 +83,8 @@ change system-parameters ocm-call-classification                Page   2 of   9
 
 (NOTE: Custom tones (pages 2-9) will only be used if USA Default is 'n'.)
 ```
- 
-В свойствах транк-группы `ch tru xxx` поставить `Busy Tone Disconnect? y`
+ 
+В свойствах транк-группы `ch tru xxx` поставить `Busy Tone Disconnect? y`
 
 ```console title="ch tru 1" hl_lines="11"
 change trunk-group 1                                          Page 4 of 22
@@ -96,8 +96,8 @@ ADMINISTRABLE TIMERS
                                Outgoing Rotary Dial Interdigit(msec): 800
       Ringing Monitor(msec): 5200             Incoming Seizure(msec): 500
   Outgoing End of Dial(sec): 10       Outgoing Seizure Response(sec): 5
-Programmed Dial Pause(msec): 1500                 Flash Length(msec): 540 
-Busy Tone Disconnect? y 
+Programmed Dial Pause(msec): 1500                 Flash Length(msec): 540 
+Busy Tone Disconnect? y 
 
 END TO END SIGNALING
   Tone(msec): 350   Pause(msec): 150 
@@ -117,14 +117,14 @@ TRUNK PARAMETERS
       Trunk Termination: rc                 Disconnect Timing(msec): 500 
            Auto Guard? n   Call Still Held? n     Sig Bit Inversion: none 
     Analog Loss Group: 6                         Digital Loss Group: 11 
-                            Trunk Gain: high 
+                            Trunk Gain: high 
 
-Disconnect Supervision - In? n Out? n                 Cyclical Hunt? y 
+Disconnect Supervision - In? n Out? n                 Cyclical Hunt? y 
 Answer Supervision Timeout: 10           Receive Answer Supervision? n 
         Administer Timers? y
 ```
 
-В `ch sys fea` поставить:
+В `ch sys fea` поставить:
 `Trunk-to-Trunk Transfer? none`	 — запрет отправить внешний звонок вовне (отключили возможность переадресации, но возможно с другими подобранными настройками и при разрешенной переадресации с транка на транк всё будет работать)
 `Call Park Timeout Interval (minutes): 10`время парковки вызова (если вызов отправлен на парковку и не обработан в течение этого времени, он вернётся к тому ext, который его на парковку отправил, или к attendant - зависит от `Deluxe Paging and Call Park Timeout to Originator? y/n` )
 `Off-Premises Tone Detect Timeout Interval (seconds): 20`
@@ -184,7 +184,7 @@ change system-parameters features Page 1 of 17
 В ночном режиме Avaya позволяет направлять аналоговые линии одной транковой группы на разные extensions (номера). В `add tru xxx` на странице, где прописываются порты аналоговых плат, к которым подключены CO линии, прописать, куда направляются вызовы в ночном режиме: GROUP MEMBER ASSIGNMENTS, поле Night. Теперь надо принудительно переключить транковую группу в ночной режим. Любому цифровому аппарату (можно даже виртуальному с портом x) назначить кнопку `trunk-ns Grp номерГруппы` и включить эту кнопку из SAT (ASA) командой `enable night-service trunk-group номерГруппы`
 
 ## Personal CO-Line
-Настройка Personal CO-line позволяет совместить корпоративный и  городской номер телефонной сети в одном телефонном аппарате.
+Настройка Personal CO-line позволяет совместить корпоративный и  городской номер телефонной сети в одном телефонном аппарате.
 Для этого нужна плата TN747 и приходящие прямые телефонных пары с ГТС. После установки на кросс расшивается кабель Telko 50. Так как плата TN747 имеет в себе только 8 портов, в кабеле используется 8 пар в таком порядке:
 
 ```
@@ -203,56 +203,56 @@ change system-parameters features Page 1 of 17
 Берем пару с городским номером, кроссируем в первый порт. Далее выполняем команду `add per n` где n — номер группы.
 
 ```
-change personal-CO-line 1                                       Page   1 of   3
-                            PERSONAL CO LINE GROUP
+change personal-CO-line 1                                       Page   1 of   3
+                            PERSONAL CO LINE GROUP
  
- Group Number: 1                    Group Type: wats           CDR Reports? y
-   Group Name: OUTSIDE CALL                                            TAC: 015
-Security Code: 1234                  Coverage Path: 1         Data Restriction? n
-                              Outgoing Display? n
+ Group Number: 1                    Group Type: wats           CDR Reports? y
+   Group Name: OUTSIDE CALL                                            TAC: 015
+Security Code: 1234                  Coverage Path: 1         Data Restriction? n
+                              Outgoing Display? n
 TRUNK PARAMETERS  
-                 Trunk Type: loop-start             Trunk Direction: two-way
-                 Trunk Port: 02A1201        Disconnect Timing(msec): 500
-                 Trunk Name: Ext67000             Trunk Termination: rc
-         Outgoing Dial Type: tone                 Analog Loss Group: 6                                          
+                 Trunk Type: loop-start             Trunk Direction: two-way
+                 Trunk Port: 02A1201        Disconnect Timing(msec): 500
+                 Trunk Name: Ext67000             Trunk Termination: rc
+         Outgoing Dial Type: tone                 Analog Loss Group: 6                                          
          Digital Loss Group: 11
-Disconnect Supervision - In? n                      Call Still Held? n
- Answer Supervision Timeout: 10          Receive Answer Supervision? n
-                 Trunk Gain: high                           Country: 1
-          Charge Conversion: 1  
-              Decimal Point: none  
-            Currency Symbol:  
-                Charge Type: units
+Disconnect Supervision - In? n                      Call Still Held? n
+ Answer Supervision Timeout: 10          Receive Answer Supervision? n
+                 Trunk Gain: high                           Country: 1
+          Charge Conversion: 1  
+              Decimal Point: none  
+            Currency Symbol:  
+                Charge Type: units
 
 
-change personal-CO-line 1                                       Page   2 of   3
-                            PERSONAL CO LINE GROUP
+change personal-CO-line 1                                       Page   2 of   3
+                            PERSONAL CO LINE GROUP
   
 ASSIGNED MEMBERS (Stations with a button for this PCOL Group)
   
-    Extension       Name  
- 1: 6-хх-хх           Senior Engineer
- 2:  
- 3: 6-хх-хх           Middle Engineer
- 4:
+    Extension       Name  
+ 1: 6-хх-хх           Senior Engineer
+ 2:  
+ 3: 6-хх-хх           Middle Engineer
+ 4:
   
 ADMINISTRABLE TIMERS
   
-   Incoming Disconnect(msec): 500             Outgoing Disconnect(msec): 500
-                                              Outgoing Dial Guard(msec): 1600
-  Incoming Glare Guard(msec): 1500           Outgoing Glare Guard(msec): 1500
+   Incoming Disconnect(msec): 500             Outgoing Disconnect(msec): 500
+                                              Outgoing Dial Guard(msec): 1600
+  Incoming Glare Guard(msec): 1500           Outgoing Glare Guard(msec): 1500
   
-                                  Outgoing Rotary Dial Interdigit(msec): 800
-       Ringing Monitor(msec): 5200               Incoming Seizure(msec): 500
-   Outgoing End of Dial(sec): 10         Outgoing Seizure Response(sec): 5
- Programmed Dial Pause(msec): 1500  
-          Flash Length(msec): 540  
+                                  Outgoing Rotary Dial Interdigit(msec): 800
+       Ringing Monitor(msec): 5200               Incoming Seizure(msec): 500
+   Outgoing End of Dial(sec): 10         Outgoing Seizure Response(sec): 5
+ Programmed Dial Pause(msec): 1500  
+          Flash Length(msec): 540  
   
 END TO END SIGNALING  
-    Tone(msec): 350      Pause(msec): 150
+    Tone(msec): 350      Pause(msec): 150
   
 OUTPULSING INFORMATION  
-     PPS: 10    Make(msec): 40   Break(msec): 60      PPM? n
+     PPS: 10    Make(msec): 40   Break(msec): 60      PPM? n
 ```
 
-На телефоне абонента создать  кнопку `per-COline Grp:1` с указанием номера группы.
+На телефоне абонента создать  кнопку `per-COline Grp:1` с указанием номера группы.
