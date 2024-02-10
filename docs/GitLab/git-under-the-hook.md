@@ -92,6 +92,7 @@ The most common way of doing this is by **merging** the branch into the main or 
 
 There are 3 types of merge: the fast-forward merge, three-way merge, and rebasing which I briefly mentioned above.
 
+**Fast-Forward Merge**
 Fast-forward merge, as the name implies, is a quick and easy way to merge your branches and continue working on your project. It doesn't require any extra work and you'll rarely run into a merge conflict with it.
 
 This is because all it does is move its HEAD from the current commit of the main branch onto the latest commit of the branch being merged. It's like moving your project forward in time.
@@ -109,7 +110,6 @@ gitGraph LR:
     merge feature
     commit id: "Master C5"
 ```
-**Fast-Forward Merge**
 
 ![](12.22.33.png)
 Fast-Forward Merge in action
@@ -155,7 +155,6 @@ Prompt to create third commit for the 3-way merge
 3-way Merge successful
 
 **The last method, which is rebasing, transfers the whole feature branch onto the main branch.**
-
 A downside to rebasing which merge doesn't have is loss of project history. When you merge a branch to another branch, you still have access to that branch until you delete it. But when you rebase a branch you lose access to all of that branch's history. This can be good or bad depending on you, (your team), and your project.
 
 ![](Rebasing.png)
@@ -214,7 +213,17 @@ When a merge conflict occurs, Git pauses the merge and waits for you to resolve 
 
 You can resolve the conflicts using Git's conflict resolution markers which look like this when you open the files where the conflict is:
 
-![](1.20.45.png)
+```sh
+<<<<<<<<< HEAD
+Trying to reproduce a merge conflict # (1)!
+=========  # (2)!
+Trying to work out a merge conflict
+>>>>>>>>> merge-conflict-branch  # (3)!
+```
+
+1. изменения, сделанные в текущей/активной ветке
+2. разделитель
+3. изменения, сделанные на предыдущей ветке
 
 The version above `===` is your current checked out version which is why it has the HEAD pointing at it. The version below is the branch you're trying to merge.
 
@@ -232,16 +241,34 @@ To stash your files, you can use the command `git stash`. This saves all your un
 
 ![](3.05.18.png)
 
-![](3.06.41.png)
+```sh title="git stash list"
+stash@{0}: WIP on master: 045f363 added 3 new files # (1)!
+~
+~
+~
+```
 
-Stash List
+1. stash index. Можно сохранят несколько стешей (тайников)
+
+**Stash List**
 When you're ready to apply your stashed changes, just run the command `git stash apply` and it'll apply those changes.
 
 If you have multiple stashes, you can specify which stash to apply by specifying the stash you'd want to apply (for example `stash@{0}`). If you don't specify the stash you want to apply, Git automatically applies the most recent stash changes.
 
-![](3.14.28.png)
+```sh title="git stash apply"
+$ git stash apply
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified: newDemo
 
-Stash Applied
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        demoStash
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
 
 ## How to Undo Changes in Git
 When working on any type of project, there are times when we'll inevitably mess up regardless of how careful we are or how efficient our system is. This could be either a human or computer error.
