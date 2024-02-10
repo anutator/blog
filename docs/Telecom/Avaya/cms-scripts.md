@@ -2,8 +2,6 @@
 title: bash скрипты и файлы CMS для изучения
 share: "true"
 ---
-
-
 Скрипты и файлы для изучения
 
 Файл */etc/rc2.d/S98cms_ndd*. В случае, если на CMS два порта eth, нужно запретить маршрутизацию пакетов с одного порта на другой. У нас,во-первых, только один eth0, а во-вторых, опция включена.
@@ -2224,7 +2222,7 @@ Ciphers aes128-ctr,aes192-ctr,aes256-ctr\nMACs hmac-sha1,hmac-sha2-256,hmac-sha2
 }
 ```
 
-### Скрипт сетевых настроек netconfig 
+### Скрипт сетевых настроек netconfig
  */cms/toolsbin/netconfig*
 
 ```bash title="/cms/toolsbin/netconfig"
