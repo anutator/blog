@@ -50,11 +50,25 @@ So you could say Git is a database of references to your project. That database 
 - the tree of changes which contain references to filenames, file contents, and sometimes other trees,
 - and the blob which represents the actual data held within the files.
 
+```sh title="содержимое каталога .git"
+$ tree .git -L 1
+.git
+├── branches
+├── config
+├── description
+├── HEAD
+├── hooks
+├── index
+├── info
+├── logs
+├── objects
+├── packed-refs
+└── refs
+```
+
 ![](10.48.27.png)
 
-Contents inside the .git folder
-
-Note: The .git folder in some cases is hidden in macOS so you'll have to enable hidden files in your system settings in order to see it.
+Note: The `.git` folder in some cases is hidden in macOS so you'll have to enable hidden files in your system settings in order to see it.
 
 ### How Git keeps track of your files
 When working with Git, there are many moving parts and sometimes we're working with several different files.
@@ -239,7 +253,10 @@ Stashing lets you save all your uncommitted work and saves them as unfinished ch
 
 To stash your files, you can use the command `git stash`. This saves all your uncommitted changes in a stack and leaves you with a clean branch. To get a look at your stash, you can use the command `git stash list`. It doesn't save untracked files, though.
 
-![](3.05.18.png)
+```sh
+$ git stash
+Saved working directory and index state WIP on master: 045f363 added 3 new files
+```
 
 ```sh title="git stash list"
 stash@{0}: WIP on master: 045f363 added 3 new files # (1)!
