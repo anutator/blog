@@ -379,7 +379,10 @@ git reset --soft [commit ID]
 
 This deletes all commits that came after the commit you're going back to.
 
-![](5.46.23.png)
+```sh title="git reset soft"
+$ git reset --soft 41f72ea
+$ git log --all --decorate --oneline --graph
+```
 
 ![](5.44.23.png)
 
@@ -403,7 +406,11 @@ So it first goes back to the commit specified by the commit ID, unstages all sta
 
 You can see why it's not advised to use this command except when you have no other choice.
 
-![](6.08.03.png)
+```sh title="git reset hard"
+$ git reset --hard 0facd5c
+HEAD is now at 0facd5c added new message
+$ git log --all --decorate --oneline --graph
+```
 
 ![](6.08.37.png)
 
