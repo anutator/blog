@@ -2,7 +2,6 @@
 title: Ссылки по базам данных. Материалы для изучения.
 share: "true"
 ---
-
 Инструменты для разработчиков:
 - [ReplyByte](https://github.com/Qovery/replibyte) is a blazingly fast tool to seed your databases with your production data while keeping sensitive data safe.
 - [Altas](https://atlasgo.io/) — open-source schema migration tool.  `curl -sSf https://atlasgo.sh | sh`
@@ -35,11 +34,11 @@ share: "true"
 - [Free MongoDB Course with Python](http://freemongodbcourse.com/) — курс
 
 **YouTube каналы**
-- [Теория БД](https://www.youtube.com/live/zWtJoWGHsiI?si=P47gGj_WaIu9hCx6)от [Дмитрия Елисеева](https://elisdn.ru/). Немного о теории реляционных баз данных. На форуме и в личных сообщениях часто спрашивают о проектировании базы данных и о работе со связями в ActiveRecord во фреймворке. Про сохранение связанных моделей, про их вывод, про сортировку и поиск. Но и при этом многие не знают, откуда эти связи берутся, как организовываются и как за ними нужно следить. Поэтому отдельно поговорили о теории баз данных с практическим уклоном на нормализацию и внешние ключи. 
+- [Теория БД](https://www.youtube.com/live/zWtJoWGHsiI?si=P47gGj_WaIu9hCx6)от [Дмитрия Елисеева](https://elisdn.ru/). Немного о теории реляционных баз данных. На форуме и в личных сообщениях часто спрашивают о проектировании базы данных и о работе со связями в ActiveRecord во фреймворке. Про сохранение связанных моделей, про их вывод, про сортировку и поиск. Но и при этом многие не знают, откуда эти связи берутся, как организовываются и как за ними нужно следить. Поэтому отдельно поговорили о теории баз данных с практическим уклоном на нормализацию и внешние ключи.
 - [Percona Database Performance](https://www.youtube.com/user/PerconaMySQL) - contains technical videos, webinars and screencasts about everything related to MySQL and MongoDB
 - [Postgres Open](https://www.youtube.com/channel/UCCDA5Yte0itW_Bf6UHpbHug) — is a non-profit, community-run conference series in the United States focused on business users, database professionals and developers of PostgreSQL, the open source database.
 - [PGCon](https://www.youtube.com/channel/UCer4R0y7DrLsOXo-bI71O6A) — PostgreSQL Conference for Users and Developers
-- [MongoDB](https://www.youtube.com/user/MongoDB/videos)- 
+- [MongoDB](https://www.youtube.com/user/MongoDB/videos)-
 
 
 **RDBMS (Relational DBMS, Реляционные базы данных)**:

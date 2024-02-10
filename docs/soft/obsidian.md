@@ -4,7 +4,6 @@ tags:
 share: "true"
 title: База знаний Obsidian
 ---
-
 https://obsidian.md/download — скачать пакет для своей ОС, например `.deb`.
 https://github.com/OliverBalfour/obsidian-pandoc/issues/118
 
@@ -12,6 +11,75 @@ https://github.com/OliverBalfour/obsidian-pandoc/issues/118
 - Шифрование: Meld Encrypt (я использую его, шифрует выделенный текст или указанный файл), Cryptsidian. Не плагины, шифровать полностью каталог: [veracrypt](https://www.veracrypt.fr/code/VeraCrypt/), [cryptomator](https://cryptomator.org/).
 - Экспорт из Obsidian в Word: скачать свежую версию [pandoc](https://github.com/jgm/pandoc/releases) для Ubuntu,  [pandoc-3.1.2-1-amd64.deb](https://github.com/jgm/pandoc/releases/download/3.1.2/pandoc-3.1.2-1-amd64.deb), установить. Установить в Obsidian плагин Pandoc plugin. В редакторе `Ctrl+P` (в Mac `Cmd+P`), начать вводить Pan, выбрать куда надо конвертировать.
 - [Github Publisher](https://github.com/ObsidianPublisher/obsidian-github-publisher) — публикация избранных статей через Material for MkDocs. [Документация](https://obsidian-publisher.netlify.app/). Этот сайт публикуется этим плагином.
+- Пробелы типа `&nbsp` или `&emsp` пришлось убрать через плагин VSCode [fix irregular whitespace](https://github.com/karlito40/fix-irregular-whitespace).
+  https://jkorpela.fi/chars/spaces.html
+  https://allalmohamedlamine.medium.com/fixing-and-removing-irregular-spaces-984389e17132
+  http://shpargalkablog.ru/2016/02/space-html.html
+
+Пример списка плагинов:
+SYSTEM INFO:
+Obsidian version: v0.15.9
+Installer version: v0.15.9
+Operating system: Darwin Kernel Version 21.6.0: Sat Jun 18 17:07:22 PDT 2022; root:xnu-8020.140.41~1/RELEASE_ARM64_T6000 21.6.0
+Login status: logged in
+Catalyst license: insider
+Insider build toggle: off
+Live preview: on
+Legacy editor: off
+Base theme: light
+Community theme: Typomagical
+Snippets enabled: 0
+Restricted mode: off
+Plugins installed: 32
+Plugins enabled: 31
+1: Advanced Tables v0.17.3
+2: Sliding Panes (Andy’s Mode) v3.3.0
+3: Dataview v0.5.41
+4: Templater v1.12.0
+5: Natural Language Dates v0.6.1
+6: Note Refactor v1.7.1
+7: Paste URL into selection v1.7.0
+8: Better Word Count v0.8.1
+9: Tag Wrangler v0.5.3
+10: Ozan’s Image in Editor Plugin v2.1.3
+11: Find orphaned files and broken links v1.6.1
+12: PDF to Markdown v0.0.7
+13: Dictionary v2.21.1
+14: Folder Note v0.7.3
+15: Calendar v1.5.10
+16: Mind Map v1.1.0
+17: Checklist v2.2.7
+18: Emoji Toolbar v0.3.1
+19: Tasks v1.11.1
+20: Hotkeys for templates v1.4.3
+21: Obsidian Orthography v2.0.4
+22: Footnote Shortcut v0.0.9
+23: Tidy Footnotes v0.1.1
+24: Periodic Notes v0.0.17
+25: Readwise Official v2.0.1
+26: Smart Typography v1.0.18
+27: Wikilinks to MDLinks v0.0.12
+28: cMenu v1.1.2
+29: Auto Link Title v1.2.5
+30: Local REST API v1.3.9
+31: Excalidraw v1.7.12
+
+RECOMMENDATIONS:
+Custom theme: for cosmetic issues, please first try updating your theme to latest. If still not fixed, please try to make the issue happen in the Sandbox Vault or disable community theme and snippets.
+Community plugins: for bugs, please first try updating all your plugins to latest. If still not fixed, please try to make the issue happen in the Sandbox Vault or disable community plugins.
+
+## Изменение ширины экрана
+Сделать ширину на полный экран
+В проекте в *docs/assets/css/custom_attributes.css* добавить
+
+```css title="docs/assets/css/custom_attributes.css"
+.md-grid {
+  max-width: initial;
+}
+```
+
+Этот файл уже включен в *mkdoc.yml* в `extra_css`, поэтому ничего дополнительно редактировать не надо.
+
 ## Pandoc Plugin
 Как настроить Pandoc Plugin для импорта картинок, если картинки храним не в корневом каталоге vault, а во вложенных каталогах внутри каждого подкаталога. Например у меня в настройках Obsidian картинки хранятся в подкаталоге `assets`. Т.е. я создаю раздел. Obsidian создаёт каталог с названием раздела, например DevOps, Gitlab, Docker, Cisco. Внутри этих каталогов тоже могут быть подкаталоги. Я пишу статью, создается файл `.md`, а картинки хранятся в каталоге `assets`, который находится там же, где файлы `.md`.
 
@@ -179,8 +247,3 @@ await app.plugins.enablePlugin("[Plugin ID]");
 5.  Use `Hot Reload` plugin
 [Hot Reload](https://github.com/pjeby/hot-reload) plugin automatically reloads plugins under certain conditions. See its documentation.
 Also note that this plugin doesn’t exist in the standard community plugins registry, so it has to be installed manually.
-
-
-
-
-
