@@ -287,7 +287,7 @@ Untracked files:
 no changes added to commit (use "git add" and/or "git commit -a")
 ```
 
-## How to Undo Changes in Git
+## Как отменять изменения в Git
 When working on any type of project, there are times when we'll inevitably mess up regardless of how careful we are or how efficient our system is. This could be either a human or computer error.
 
 Normally when working with conventional apps and word processors, we just hit an undo button or the shortcut cntrl/cmd + z and we're back to where we were. But when working with Git we don't have that luxury, so we have to go through a few more steps in order fix/undo those errors.
@@ -311,7 +311,7 @@ git checkout -b [name of your new branch]
 git switch -c [name of your new branch]
 ```
 
-```sh title="отмена изменения с помощью checkout
+```sh title="отмена изменения с помощью checkout"
 $ git checkout 045f363 # (1)!
 M     newDemo
 Note: switching to '045f363¹.
