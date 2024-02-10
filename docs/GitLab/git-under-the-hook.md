@@ -265,7 +265,7 @@ stash@{0}: WIP on master: 045f363 added 3 new files # (1)!
 ~
 ```
 
-1. stash index. Можно сохранят несколько стешей (тайников)
+1. stash index. Можно сохранять несколько стешей (тайников)
 
 **Stash List**
 When you're ready to apply your stashed changes, just run the command `git stash apply` and it'll apply those changes.
@@ -307,13 +307,38 @@ After successfully checking out your commit, you can then turn it into a separat
 
 ```bash
 git checkout -b [name of your new branch]
-or
+# или
 git switch -c [name of your new branch]
 ```
 
-![](4.38.20.png)
+```sh title="отмена изменения с помощью checkout
+$ git checkout 045f363 # (1)!
+M     newDemo
+Note: switching to '045f363¹.
 
-Undoing changes with 'checkout'
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detached Head to false
+
+HEAD is now at 045f363 added 3 new files
+
+$ git switch -c commit-turned-branch 
+Switched to a new branch 'commit-turned-branch'
+```
+
+1. commit SHA
+2. новая ветка, созданная из коммита 045f363
 
 Keep in mind, though, that using checkout might lead to loss of your previous branch due to it being in a detached HEAD state.
 
