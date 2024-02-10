@@ -2,8 +2,6 @@
 title: Git under the hook
 share: "true"
 ---
-As developers, we all use some form of version control system, and the most popular one is Git.
-
 A lot of us use Git, but very few know how it really works under the hood. We mostly just use it with a GUI client or the ones built into our IDEs and code editors. Some of us (myself included) don't even know how to navigate it using the terminal.
 
 This can be detrimental to your projects, as you might run into issues which you won't know how to resolve without fully understanding how Git works on the backend.
@@ -16,7 +14,7 @@ Note: This article is not a detailed guide to working with Git. Instead, it's in
 
 If you want a basic intro to Git and GitHub, [here's a good beginner-friendly guide](https://www.freecodecamp.org/news/git-and-github-for-beginners/).
 
-## What is Git How Does it Work?
+## Что такое Git  и как он работает?
 Git is a distributed version control system that helps developers keep track of changes in their projects. Think of it as an entire timeline of your project from the beginning to the end.
 
 When you create a new project and initialize a Git repository using `git init`, it creates a hidden folder called `.git` which has a bunch of other files and folders inside. These files and folders contain all the content needed for Git to reference that particular directory.
@@ -70,7 +68,7 @@ $ tree .git -L 1
 
 Note: The `.git` folder in some cases is hidden in macOS so you'll have to enable hidden files in your system settings in order to see it.
 
-### How Git keeps track of your files
+### Как Git отслеживает изменения ваших файлов
 When working with Git, there are many moving parts and sometimes we're working with several different files.
 
 In order for Git to keep track of all these files, it creates something called the Secure Hash Algorithm (SHA), which is a series of cryptographic hash functions, and assigns it to each commit. This makes it easier to identify duplicates and give them the same identifier as the original file, therefore saving storage.
@@ -99,7 +97,7 @@ When we switch from one branch to another, Git no longer has access to any of th
 
 I'll talk about rebasing in a second but firstly, I want to talk a bit about merge and merge conflicts.
 
-### What is Git merge and how does it work?
+### Слияние веток Git merge и как оно работает?
 When you create a branch for something you're working on in your project, you typically don't want the rest of your work to be affected if you mess something up. So when you finish that task, you'll want to add it to your main project.
 
 The most common way of doing this is by **merging** the branch into the main or master branch of the project.
@@ -243,12 +241,11 @@ The version above `===` is your current checked out version which is why it has 
 
 In order to resolve the conflict, you have to decide which version you want to leave and which you want to delete or you have to merge the content manually by yourself. After you choose, you can then continue your merge.
 
-## How to Save Uncommitted Changes in Git
+## Как сохранять незакоммиченные изменения (git stash)
 Earlier, I talked about the 3 states of Git, which are modified, staged, and committed.
 
 There are times when we want to quickly switch branches without saving the changes we made to the current branch. This might be to make a quick fix or just checking out stuff, and we're not done working on the current branch. We can do that with **stashing.**
 
-### How stashing works in Git
 Stashing lets you save all your uncommitted work and saves them as unfinished changes which you can later reapply even if you're on a separate branch.
 
 To stash your files, you can use the command `git stash`. This saves all your uncommitted changes in a stack and leaves you with a clean branch. To get a look at your stash, you can use the command `git stash list`. It doesn't save untracked files, though.
@@ -314,7 +311,7 @@ git switch -c [name of your new branch]
 ```sh title="отмена изменения с помощью checkout"
 $ git checkout 045f363 # (1)!
 M     newDemo
-Note: switching to '045f363¹.
+Note: switching to '045f363'.
 
 You are in 'detached HEAD' state. You can look around, make experimental
 changes and commit them, and you can discard any commits you make in this
@@ -412,6 +409,6 @@ You can see why it's not advised to use this command except when you have no oth
 
 The safest way to fix or undo an error is using the `git revert` command. This is because it doesn't alter your commit history but creates a new commit ahead of the one with the error. That way you can still go back to the commit with the error if needed.
 
-## Wrapping Up
+## Заключение
 I hope this article gives you a clear overview of what happens under the hood when you're working with Git. And hopefully you're now familiar with the most crucial parts of Git you should know when working with it.
 If you want to dive deeper into working with Git, I have an [article](https://blog.albasfaisal.com/top-5-resources-for-learning-git) in my blog with some of the best resources for learning Git.
