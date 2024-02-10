@@ -2,7 +2,6 @@
 title: "ACR: запись разговоров"
 share: "true"
 ---
-
 ACR — Avaya Contact Recorder, устанавливается на Linux.
 ## Новое начиная с версии ACR 15.1
 On Demand и Meeting Recording
@@ -42,7 +41,7 @@ The previous, manual, patch application process has been replaced with an automa
 
 Если в системе только один CM или один CS1000, смотреть Appendix Dруководства по установке ACR.
 ## Установка RHEL 7. Создание kickstart скрипта
-[Скачать](%3Chttps://developers.redhat.com/products/rhel/get-started/%3E) 
+[Скачать](%3Chttps://developers.redhat.com/products/rhel/get-started/%3E)
 Залогиниться под аккаунтом Facebook.
 
 При установке на новом железе сначала можно не использовать kickstart скрипт, а начать установку RHEL стандартно, чтобы определить точные имена устройств:
@@ -336,7 +335,7 @@ ks=cdrom:/witness/ks.cfg # (1)!
 ks=hd:fd0:/ks.cfg ks.cfg # (2)! 
 ```
 
-1. `ks.cfg` на CDROM (внутри образа `.iso`)  
+1. `ks.cfg` на CDROM (внутри образа `.iso`)
 2. на виртуальной дискете (образ `.flp`)
 
 **Вариант 2.** Использовать уже установленный AES в качестве http сервера. В WinSCP зайти по SFTP и закинуть файл *ks.cfg* в домашний каталог */home/cust*. Оттуда копируем в каталог веб-сервера */var/www/html*
@@ -1175,8 +1174,8 @@ acr.disablecompress=true
 - EMC Centera
 
 
-· Поддержка расширения [statvfs@openssh.com](mailto:statvfs@openssh.com). Этот extention доступен, если Can check available space — Yes. Почти все SFTP серверы под Windows (Core FTP mini SFTP server,  SolarWinds Free SFTP/SCP Server, Filezilla Server  и пр.) не поддерживают extensions, соответственно [statvfs@openssh.com](mailto:statvfs@openssh.com) недоступен.  
-Для Windows: [https://www.bitvise.com/ssh-server-download](https://www.bitvise.com/ssh-server-download) (простой вариант) или  [https://github.com/PowerShell/Win32-OpenSSH/releases скачать OpenSSH-Win64.zip](https://github.com/PowerShell/Win32-OpenSSH/releases%20скачать%20OpenSSH-Win64.zip) (более сложный).  
+· Поддержка расширения [statvfs@openssh.com](mailto:statvfs@openssh.com). Этот extention доступен, если Can check available space — Yes. Почти все SFTP серверы под Windows (Core FTP mini SFTP server,  SolarWinds Free SFTP/SCP Server, Filezilla Server  и пр.) не поддерживают extensions, соответственно [statvfs@openssh.com](mailto:statvfs@openssh.com) недоступен.
+Для Windows: [https://www.bitvise.com/ssh-server-download](https://www.bitvise.com/ssh-server-download) (простой вариант) или  [https://github.com/PowerShell/Win32-OpenSSH/releases скачать OpenSSH-Win64.zip](https://github.com/PowerShell/Win32-OpenSSH/releases%20скачать%20OpenSSH-Win64.zip) (более сложный).
 Для Linux: [http://www.proftpd.org/](http://www.proftpd.org/) — бесплатный SFTP для Linux, поддерживает extensions.
 
 Бэкап инкрементный, ежедневно добавляются новые файлы. Требование к SFTP серверу для ACR отличаются от других систем, они описаны в Administration Guide (страница 182):
@@ -1304,7 +1303,7 @@ sftp> exit
 ```
 
 ### Win32-OpenSSH portable 64 bit
-В Win32-OpenSSH привязка к Windows аккаунтам, т.е. вход по логину пользователей AD. Там есть то что надо. 
+В Win32-OpenSSH привязка к Windows аккаунтам, т.е. вход по логину пользователей AD. Там есть то что надо.
 
 Установим SFTP/SSH сервер на Windows используя OpenSSH согласно [инструкции](https://winscp.net/eng/docs/guide_windows_openssh_server)
 
@@ -1802,7 +1801,7 @@ Suspecting Corruption in CM station. BP didn't delete/re-add the station to chan
 
 Не пишет разговоры, ошибка в list trace station:
 
-```bash
+```text
 06:49:18     active station      7099 cid 0xd0 
 06:49:18     Connected party   not in private table
 06:49:18   denial event 1246: Svc obsrv exceed max D1=0x9fc4 D2=0xd0
@@ -1815,7 +1814,7 @@ Suspecting Corruption in CM station. BP didn't delete/re-add the station to chan
 
 Разрешить на 11 странице `ch sys fea` двух обозревателей звонка (нижняя строка):
 
-```bash title="ch sys fea" hl_lines="22"
+```console title="ch sys fea" hl_lines="22"
 change system-parameters features                               Page  11 of  19
                         FEATURE-RELATED SYSTEM PARAMETERS
 CALL CENTER SYSTEM PARAMETERS
