@@ -46,6 +46,7 @@ IPSEC PSK: ТутПароль
 | zturn.quadra.ru | 89.208.221.15 - MX-запись и A-запись zmail.quadra.ru <br>89.208.221.15 - A-запись zturn.quadra.ru (для zmail.quadra.ru) | 10.112.203.25 <br> Внутри turn.quadra.ru | resiprocate-turn-server (стандартный пакет)                                  | средствами firewalld проброшены порты Zimbra на zmail.quadra.ru c внешнего интерфейса eth1 |
 | zmail.quadra.ru | нет, сюда проброшены порты                                                                                              | 10.112.203.29 <br>Внутри zmail.quadra.ru | zcs-8.8.15_GA_3869.RHEL7_64.20190918004220.tar <br> zextras_suite-latest.tgz | связан с zturn.quadra.ru                                                                   |
 | zdocs.quadra.ru | нет                                                                                                                     | 10.112.203.21 <br>Внутри zdocs.quadra.ru | zextras-docs-centos7.tgz                                                     | связан с LDAP на zmail.quadra.ru                                                           |
+
 **Добавить**: дополнительный диск для почты на mail сервере.
 **ZCS** — Zimbra Collaboration Suite.
 На инстансы добавлены репозитории EPEL, Remi, CodeIT и репозиторий свежей версии MariaDB.
@@ -1805,7 +1806,7 @@ zmamavisdctl restart
 - В адресе отправителя должно быть указано полное доменное имя (`reject_non_fqdn_sender`).  Параметр отбросит почту, если поле `MAIL FROM` не является правильно сформированным почтовым адресом.
 - Неизвестный домен отправителя (`reject_unknown_sender_domain`). Согласно документации [Postfix documentation,](#reject_unknown_sender_domain) параметр выполняет специфичные проверки, чтобы убедиться, что домен отправителя реально существует в публичном DNS. Если такого домена нет, почта не принимается.
 
-Например почтовый ящик “johnny@hosting” будет отброшен проверкой `reject_non_fqdn_sender`, а ящик “johnny@[hosting666.com](http://hosting666.com)” будет отброшен проверкой `reject_unknown_sender_domain`, потому что домен “[hosting666.com](http://hosting666.com)” не существует.
+Например почтовый ящик “johnny@hosting” будет отброшен проверкой `reject_non_fqdn_sender`, а ящик “johnny@hosting666.com” будет отброшен проверкой `reject_unknown_sender_domain`, потому что домен “hosting666.com” не существует.
 
 ![](zimbra10.png)
 
