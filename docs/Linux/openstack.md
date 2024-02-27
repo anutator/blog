@@ -11,7 +11,7 @@ share: "true"
 - CoreOS + K8 + Terraform или OpenShift
 
 ### Введение
-Throughout the years, corporate computing has seen many developments, which eventually have lead to the rise of cloud computing as we know it:
+Throughout the years, corporate computing has seen many developments, which eventually have lead to the rise of cloud computing as we know it:
 - In the 1990s, corporate computing was centered around servers in a datacenter.
 - In 2000s, corporate computing was largely based on virtualization.
 - In the 2010s, we are seeing the rise of cloud computing to leverage corporate computing.
@@ -38,7 +38,7 @@ Networking is a big topic in OpenStack. In the past, networking was defined by N
 
 Фиксированные занятые ip-адреса в Mail.Ru:
 `10.112.203.250` — основной адрес маршрутизатора Openstack, сейчас он указан для инстансов в dhcp в качестве шлюза. Через него доступен Интернет. На маршрутизаторе прописан статический маршрут на 10.0.0.0/8 через 10.112.203.251 (OpenBSD)
-`10.112.203.19`  — дополнительный адрес маршрутизатора. Сказали, что он выделяется автоматом, но мне непонятно почему.
+`10.112.203.19`  — дополнительный адрес маршрутизатора. Сказали, что он выделяется автоматом, но мне непонятно почему.
 `10.112.203.15` — основной адрес DHCP сервера OpenStack. DNS-суффикс подключения — openstacklocal (жаль, что средствами OpenStack нельзя поменять на msk.quadra.ru.
 `10.112.203.16` — дополнительный адрес DHCP сервера OpenStack
 
@@ -769,11 +769,11 @@ openstack server list
 C:\Distr\xshell\Xshell\Sessions>openstack port list
 openstack port list
 +--------------------------------------+--------------------+-------------------+----------------------------------------------------------------------------+--------+
-| ID                                                      | Name                   | MAC Address           | Fixed IP Addresses                                                                                             | Status |
+| ID                                                      | Name                   | MAC Address           | Fixed IP Addresses                                                                                             | Status |
 +--------------------------------------+--------------------+-------------------+----------------------------------------------------------------------------+--------+
-| 02c52cbb-6b28-4c6c-8db0-d077eb8fa813 |                          | fa:16:3e:5f:50:0b | ip_address='10.112.203.18', subnet_id='dd63f499-a14c-4437-af4a-7cd590de1cd4'    | ACTIVE |
-| 0712c5c4-057a-40ad-9718-2e9878104078 |                          | fa:16:3e:da:8a:a2 | ip_address='10.112.203.20', subnet_id='dd63f499-a14c-4437-af4a-7cd590de1cd4'    | ACTIVE |
-| 2038c49f-200c-4111-93f1-68c2b62ee718 | OBSD1_int203     | fa:16:3e:29:7e:ac | ip_address='10.112.203.251', subnet_id='dd63f499-a14c-4437-af4a-7cd590de1cd4'  | ACTIVE |
+| 02c52cbb-6b28-4c6c-8db0-d077eb8fa813 |                          | fa:16:3e:5f:50:0b | ip_address='10.112.203.18', subnet_id='dd63f499-a14c-4437-af4a-7cd590de1cd4'    | ACTIVE |
+| 0712c5c4-057a-40ad-9718-2e9878104078 |                          | fa:16:3e:da:8a:a2 | ip_address='10.112.203.20', subnet_id='dd63f499-a14c-4437-af4a-7cd590de1cd4'    | ACTIVE |
+| 2038c49f-200c-4111-93f1-68c2b62ee718 | OBSD1_int203     | fa:16:3e:29:7e:ac | ip_address='10.112.203.251', subnet_id='dd63f499-a14c-4437-af4a-7cd590de1cd4'  | ACTIVE |
 ...
 и т.д.
 ```
@@ -784,11 +784,11 @@ openstack port list
 C:\Distr\xshell\Xshell\Sessions>openstack port list --server openbsd
 openstack port list --server openbsd
 +--------------------------------------+--------------+-------------------+-------------------------------------------------------------------------------+--------+
-| ID                                                       | Name               | MAC Address           | Fixed IP Addresses                                                          | Status |
+| ID                                                       | Name               | MAC Address           | Fixed IP Addresses                                                          | Status |
 +--------------------------------------+--------------+-------------------+-------------------------------------------------------------------------------+--------+
 | 2038c49f-200c-4111-93f1-68c2b62ee718 | OBSD1_int203 | fa:16:3e:29:7e:ac | ip_address='10.112.203.251', subnet_id='dd63f499-a14c-4437-af4a-7cd590de1cd4' | ACTIVE |
-| 2f6a51b9-4606-4c11-a66d-a967b145d592 | OBSD1_pfsync | fa:16:3e:40:db:68 | ip_address='192.168.254.1', subnet_id='d8174518-8545-416e-8fef-148681c51d29'    | ACTIVE |
-| c76ad8de-5fad-49d9-8b31-23beb7977661 | OBSD1_extif    | fa:16:3e:24:ca:c8 | ip_address='95.163.182.69', subnet_id='ec5d4a62-5039-460c-833f-7084a19794d2'    | ACTIVE |
+| 2f6a51b9-4606-4c11-a66d-a967b145d592 | OBSD1_pfsync | fa:16:3e:40:db:68 | ip_address='192.168.254.1', subnet_id='d8174518-8545-416e-8fef-148681c51d29'    | ACTIVE |
+| c76ad8de-5fad-49d9-8b31-23beb7977661 | OBSD1_extif    | fa:16:3e:24:ca:c8 | ip_address='95.163.182.69', subnet_id='ec5d4a62-5039-460c-833f-7084a19794d2'    | ACTIVE |
 +--------------------------------------+--------------+-------------------+-------------------------------------------------------------------------------+--------+
 ```
 
@@ -888,7 +888,7 @@ openstack image set --property short-id=centos centos-7.6-1907
 ```
 
 ### Переназначение внешнего адреса
-Был например порт, который был заранее создан и потом назначен в качестве внешнего ip для инстанса `centos_01`. После удаления инстанса порт с ip-адресом `95.163.182.60` DOWN, но при этом из веб-интерфейса не получается его назначить на другую виртуальную машину, например в качестве внешнего интерфейса OpenBSD (будет интерфейсом `OBSD2_ext`).
+Был например порт, который был заранее создан и потом назначен в качестве внешнего ip для инстанса `centos_01`. После удаления инстанса порт с ip-адресом `95.163.182.60` DOWN, но при этом из веб-интерфейса не получается его назначить на другую виртуальную машину, например в качестве внешнего интерфейса OpenBSD (будет интерфейсом `OBSD2_ext`).
 
 ```bash
 C:\Distr\xshell\Xshell\Sessions>openstack port list
