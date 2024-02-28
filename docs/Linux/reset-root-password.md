@@ -8,7 +8,7 @@ share: "true"
 ## Сброс пароля в RedHat
 Перезагрузить систему. Во время появления меню загрузчика GRUB2 **нажать любую клавишу** для прерывания процесса, затем нажать **e** английскую для редактирования (edit).
 
-![Меню загрузчика GRUB2](rhel7.1-boot.png)
+![[rhel7.1-boot.png|rhel7.1-boot.png]]
 
 С помощью курсора или клавиши End перейти в конец строки, которая начинается с `linux16 /vmlinuz-…`, добавить туда `rd.break enforcing=0`. Директива `rd.break` запрашивает прерывание процесса загрузки на ранней стадии, `enforcing=0` помещает систему в режим SELinux Permissive вместо SELinux Enforcing (по умолчанию, если ранее не выключали). Не путать с `selinux=0`, который полностью выключает SELinux.
 
@@ -102,7 +102,8 @@ Disabled
 The method I demonstrate here does not require a second reboot and relabels only `/etc/shadow` since this is the only file whose security content is incorrect after you change the password for _root_. The net result of using this method is several minutes of time saved during the RHCSA exam.
 
 First get to the GRUB command line by rebooting the operating system and add `init=/bin/bash` to the end of the GRUB command which starts with `linux16` in the case of non-UEFI firmware or _linuxefi_ in the case of [UEFI](http://www.uefi.org)-enabled firmware. By the way, _linux16_ means load the binary in 16-bit mode. UEFI does not have a 16–bit mode; hence the different GRUB commands. Do not bother removing the existing _rhgb_ or _quiet_ arguments unless you run into a problem while booting.
-![Добавить init=/bin/bash](grub2-edit-init.png)
+
+!["Добавить init=/bin/bash"](grub2-edit-init.png)
 
 Как обычно жмем `Ctrl-X` чтобы выйти из GRUB и продолжить процесс загрузки. В итоге мы окажемся root в bash shell, где можно изменить пароль для root, загрузить политику SELinux, переразметить (relabel) файл `/etc/shadow` и загрузить операционную систему полностью без второй перезагрузки.
 
