@@ -6,7 +6,7 @@ tags:
 ---
 # Установка почтового сервера Zimbra, защита от спама
 Некоторые почтовые серверы:
-https://github.com/timeweb/rebrain-exim — конфигурационные файлы Exim, Dovecot, RoundCube, Apache2 и Nginx с помощью которых можно настроить полноценный почтовый стек MTA Exim+MDA Dovecot c RoundCube в качестве веб-интерфейса в Ubuntu 20.04 для domain.tld, где вместо domain.tld необходимо использовать желаемое доменное имя. [Тут](https://roundcube.net/) смотреть как ставить.
+https://github.com/timeweb/rebrain-exim — конфигурационные файлы Exim, Dovecot, RoundCube, Apache2 и Nginx с помощью которых можно настроить полноценный почтовый стек MTA Exim+MDA Dovecot c RoundCube в качестве веб-интерфейса в Ubuntu 20.04 для domain.tld, где вместо domain.tld необходимо использовать желаемое доменное имя. [Тут](https://roundcube.net/) про RoundCube.
 [iRedMail - Open Source Mail Server Solution](https://www.iredmail.org/) — обязательно [почитать](https://serveradmin.ru/ustanovka-i-nastroyka-iredmail/)
 https://www.rainloop.net/try-now/
 [https://gitlab.com/simple-nixos-mailserver/nixos-mailserver](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver)
@@ -105,11 +105,11 @@ ip route 10.0.0.0/8 via 10.112.203.250 dev eth0
 
 Программный маршрутизатор 10.112.203.250 был заранее заведен в веб-интерфейсе Mail.Ru (OpenStack). И на нем в свою очередь прописан статический маршрут на сеть Quadra `10.0.0.0/8` через инстанс (виртуальную машину) с OpenBSD, которая связана с такой же OpenBSD в офисе шифрованным туннелем IPSec.
 
-![](zimbra1.png)
+!["Инфраструктура в mail.ru"](zimbra1.png)
 
-![](zimbra2.png)
+!["Инфраструктура в mail.ru, программный маршрутизатор"](zimbra2.png)
 
-![](zimbra3.png)
+!["Программный маршрутизатор в mail.ru, маршрут на сеть 10.0.0.0/8"](zimbra3.png)
 
 Проверим правила маршрутизации и таблицы маршрутизации:
 
@@ -853,7 +853,7 @@ zmprov fc zimlet
 While the Zextras Suite package includes the Zextras Administration Zimlet, the Zextras Chat Zimlet and the Zextras Client Zimlet must be deployed separately.
 
 ###  Инициализация бэкапа
-![](zimbra4.png)
+!["Инициализация бэкапа"](zimbra4.png)
 
 ```bash
 [zimbra@zmail ~]$ zxsuite backup monitor f200b3e9-c694-482e-a46f-a13d58920003
@@ -1226,9 +1226,9 @@ zmlocalconfig -s | grep 'ldap_' | egrep 'password|url|user'
 
 Наоборот подключиться к внешнему LDAP, Active Directory: Настройка→ Домены. Убедиться, что мы находимся на нашем домене. В правом верхнем углу нажать стрелочку→ Настроить проверку подлинности.
 
-![](zimbra5.png)
+!["Домены, Настроить проверку подлинности"](zimbra5.png)
 
-![](zimbra6.png)
+!["Мастер настройки проверки подлинности"](zimbra6.png)
 
 ## Zimbra-Docs
 Доменное имя [zdocs.quadra.ru](http://zdocs.quadra.ru), сетевой интерфейс `eth0` (`10.112.203.21`)
@@ -1510,19 +1510,19 @@ In this scenario, the good connections, or called **other** in this diagram, mus
 
 `Mar 01 19:29:54 zimbrauk postfix/smtpd[24266]: timeout after RCPT from mail.example.com[60.60.60.70]`
 
-![](zimbra7.png)
+!["Схема работы Zimbra без postscreen"](zimbra7.png)
 
 #### Как работает Zimbra c Postscreen
 A typical scenario with Postscreen, where bot and zombies talks with Postscreen, who do all the basic checks, and who can deny the connection if the message is clearly from a bot or zombie, if the connection is not in the temporary whitelist, Postscreen will pass the Email to the local Anti-SPAM and Anti-Virus engines, who can accept it or deny it as usual. You can see how is the Mail Flow in Postscreen on the section below.
 
 In this scenario, the good connections, or called **other** in this diagram, pass the Postscreen security and talks directly with the smtp daemon, who will scan the Email as usual with the AS/AV. All the bot or zombie are rejected by default.
 
-![](zimbra8.png)
+!["Схема работы Zimbra с Postscreen"](zimbra8.png)
 
 #### Обработка заданий в Postscreen
 See attached the workflow for Zimbra Collaboration Postscreen
 
-![](zimbra9.png)
+!["Обработка заданий в Postscreen"](zimbra9.png)
 
 
 #### Атрибуты Zimbra для Postscreen
@@ -1808,7 +1808,7 @@ zmamavisdctl restart
 
 Например почтовый ящик “johnny@hosting” будет отброшен проверкой `reject_non_fqdn_sender`, а ящик “johnny@hosting666.com” будет отброшен проверкой `reject_unknown_sender_domain`, потому что домен “hosting666.com” не существует.
 
-![](zimbra10.png)
+!["Настройка агента передачи сообщений"](zimbra10.png)
 
 Включить то же самое из командной строки:
 
