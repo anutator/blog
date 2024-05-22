@@ -63,10 +63,10 @@ The previous, manual, patch application process has been replaced with an automa
 Двойным щелчком запускаем файл **ks3.jar**. Выбираем соответствующую версию Red Hat. Заполняем форму:
 - Клавиатурная раскладка **Keyboard** — us
 - Часовой пояс **Timezone** — Moscow/Europe
-- Корпоративный сервер NTP (IP адрес или полное доменное имя). Если ничего не указано, по умолчанию останутся публичные NTP сервера. Это важно для правильного времени записей разговоров и одинакового времени в CMS и ACR. **NTP Server** — 172.21.40.117,172.21.40.189
-- IP адрес и маска первой сетевой карты. IP-адрес роутера из той же подсети, что и адрес сетевой карты. **NIC** — ens192. **Netmask** — 255.255.255.192. **Default Router** — 172.21.103.1
-- IP адреc сервера DNS. **DNS Server** — 172.31.42.14,172.21.40.6
-- hostname, предпочтительнее полное доменное имя (например acrmaster.bigcorp.com). **Hostname** — mrc-krl15-ucacr1.rtrn.ru
+- Корпоративный сервер NTP (IP адрес или полное доменное имя). Если ничего не указано, по умолчанию останутся публичные NTP сервера. Это важно для правильного времени записей разговоров и одинакового времени в CMS и ACR.
+- IP адрес и маска первой сетевой карты. IP-адрес роутера из той же подсети, что и адрес сетевой карты. **NIC** — ens192. **Netmask** — 255.255.255.192.
+- IP адреc сервера DNS.
+- hostname, предпочтительнее полное доменное имя (например acrmaster.bigcorp.com).
 - Опционально задать пароли для пользователей root и witness. Если забудешь, поддержку Avaya не получить без переустановки ACR. **Root password (optional)** — свой. **Witness password (optional**) — свой.
 - Галочку на чекбоксе **CRS**, если будет установлен отдельный сервер для проигрывания. Нам не нужно, т.к. всё устанавливаем на одной виртуальной машине.
 - Нажать **Generate**.
@@ -82,8 +82,8 @@ The previous, manual, patch application process has been replaced with an automa
 Выбрать Allow Edits box и сделать изменения. Расширенные настройки указаны ниже.
 
 *NIC bonding ( только RHEL 7), не нужно*
-1. Раскомментировать строку un-bonded network и bonded network alternative.
-2. Изменить имена бэкапных сетевых карт чтобы соответсвовать железу.
+1. Раскомментировать строку **un-bonded network** и **bonded network alternative**.
+2. Изменить имена бэкапных сетевых карт чтобы соответствовать железу.
 3. После установки проверить файлы в */etc/sysconfig/network-scripts*.
 4. Удалить все что ссылается на ens0 или ens1. Оставить ifcfg-bond\*файлы. Пример:
 
@@ -101,9 +101,9 @@ network --device=ens3 --bootproto=static --ip=10.10.12.123 --netmask=255.255.255
 
 
 *Два и более дисков (designated disks), не нужно*
-You must designate a disk for each partition. The typical way to do this is to create /calls on the largest disk and the other partitions on thesmaller one. Allow /var/lib/pgsql to grow to fill the smaller disk. Addthe on disk suffix to each partition
+You must designate a disk for each partition. The typical way to do this is to create */calls* on the largest disk and the other partitions on thesmaller one. Allow /var/lib/pgsql to grow to fill the smaller disk. Addthe on disk suffix to each partition
 
-Пример: (здесь размер каталога /opt/witness увеличен с 10000 Мб до 33000Мб для разрешения больших файлов логов уровня дебаг):
+Пример: (здесь размер каталога */opt/witness* увеличен с 10000 Мб до 33000 Мб для разрешения больших файлов логов уровня дебаг):
 
 ```bash title="ks.cfg"
 part /boot --fstype=ext4 --size=200 --ondisk=sda
@@ -122,7 +122,7 @@ Allow one part pv.xx line per physical disk. Set the ondisk to the device name f
 
 Make sure that each pv.xx appears on the volgroup line. This joins them together into one large volume group
 
-Пример: (note how the default sizes of /opt/witness and /var/lib/pgsqlhave been increased to allow for larger logs and a larger database):
+Пример: (note how the default sizes of */opt/witness* and */var/lib/pgsqlhave* been increased to allow for larger logs and a larger database):
 
 ```bash title="ks.cfg"
 part /boot --fstype=ext4 --size=200 --ondisk=sda
@@ -138,8 +138,7 @@ logvol /calls --fstype=ext4 --size=1000 --grow --vgname=acrvg --name=calls
 
 
 **Удаляем графическую оболочку из установки (делаем)**
-
-По умолчанию kickstart устанавливает рабочий стол Gnome. Если рабочийстол и X windows система не нужны, удалитиь пакеты, которые к нимотносятся, оставив минимальный необходимый набор. Начинающиеся с дефиса\"-\" строки говорять kickstart скрипту НЕ УСТАНАВЛИВАТЬ пакет. Этотрогать нельзя. Пример:
+По умолчанию kickstart устанавливает рабочий стол Gnome. Если рабочий стол и X windows система не нужны, удалить пакеты, которые к ним относятся, оставив минимальный необходимый набор. Начинающиеся с дефиса "-" строки говорят kickstart скрипту НЕ УСТАНАВЛИВАТЬ пакет. Это трогать нельзя. Пример:
 
 ```bash hl_lines="4-7" title="ks.cfg"
 %packages
@@ -152,7 +151,7 @@ logvol /calls --fstype=ext4 --size=1000 --grow --vgname=acrvg --name=calls
 perl
 mkisofs
 perl-libwww-perl
-chrony или ntp в зависимости от версии (ничего не менять)
+chrony или ntp в зависимости от версии (ничего не менять)
 systemd-libs
 tigervnc-server
 -redhat-lsb
@@ -205,7 +204,7 @@ part /boot --fstype=ext4 --size=200
 part / --fstype=ext4 --size=10000
 part /opt/witness --fstype=ext4 --size=10000
 part /var/lib/pgsql --fstype=ext4 --size=10000
-part  swap --recommended
+part  swap --recommended
 part /calls --fstype=ext4 --size=1000 --grow
 ```
 
@@ -217,8 +216,8 @@ part /calls --fstype=ext4 --size=1000 --grow
 | /                  | Операционная система Linux    | Как минимум 5 Гб                                                                                                     |
 | Swap               | Виртуальная память            | Зависит от количества оператиной памяти                                                                              |
 | /opt/witness       | Avaya Contacr Recorder и логи | Минимум 10Гб, рекомендуется 100Гб, т.т. логи уровня дебаг могут использовать несколько Гб в день для большой системы |
-| /var/lib/pgsql     | База данных PostgreSQL        | Примерно 2 Кб на один разговор. Умножаем кол-во разговоров recordings/day x кол-во дней, которое хотим хранить.      |
-| /calls             | Аудиофайоы записей разговоров | Примерно 7.2MB (G.729 стерео) или 3.6MB (G.729 моно) на 1 час записи. Оставшееся место на диске.                     |
+| /var/lib/pgsql     | База данных PostgreSQL        | Примерно 2 Кб на один разговор. Умножаем кол-во разговоров recordings/day x кол-во дней, которое хотим хранить.      |
+| /calls             | Аудиофайоы записей разговоров | Примерно 7.2MB (G.729 стерео) или 3.6MB (G.729 моно) на 1 час записи. Оставшееся место на диске.                     |
 
 ```bash title="ks.cfg"
 # Edit partition sizes as desired to meet the minimums in the installation manual
@@ -226,7 +225,7 @@ part /boot --fstype=ext4 --size=200
 part / --fstype=ext4 --size=5500                 # поменяли size
 part /opt/witness --fstype=ext4 --size=10000
 part /var/lib/pgsql --fstype=ext4 --size=10000
-part  swap --recommended
+part  swap --recommended
 part /calls --fstype=ext4 --size=1000 --grow
 ```
 
@@ -281,7 +280,7 @@ ks=cdrom:/ks.cfg
 
 ![](vm-force-BIOS.png)
 
-Как сослаться на дискету. Во время установки Linux сразу жмем Tab,постле строки, которая оканчивается на quiet, ввести пробел и ссылку наместорасположение файла kickstart
+Как сослаться на дискету. Во время установки Linux сразу жмем Tab, после строки, которая оканчивается на quiet, ввести пробел и ссылку на расположение файла kickstart:
 
 ```bash
 ks=hd:fd0:/ks.cfg
@@ -325,48 +324,48 @@ ks=http://10.0.45.51:8080/ks.cfg
 Возможно, если не считывается kickstart по http, поможет явное прописывание в этой же строке ip-адреса, маски и шлюза:
 
 ```bash
-ks=http://xxx.xxx.xxx.xxx/ks.cfg ksdevice=eth0 ip=xxx.xxx.xxx.xxx netmask=255.255.255.0 gateway=xxx.xxx.xxx.xxx noipv6
+ks=http://xxx.xxx.xxx.xxx/ks.cfg ksdevice=eth0 ip=xxx.xxx.xxx.xxx netmask=255.255.255.0 gateway=xxx.xxx.xxx.xxx noipv6
 ```
 
 Если не работает доступ с виртуальной машины на мой компьютер, есть несколько вариантов: предварительно подготовить установочный диск RHEL **rhel-server-7.4-x86_64-dvd.iso,** добавив в него папку witness, куда и закинуть скрипт. И только после изменений закачать этот `.iso` на виртуальную машину. Тогда при установке RHEL строка для kickstart будет такой:
 
 ```ini
 ks=cdrom:/witness/ks.cfg # (1)! 
-ks=hd:fd0:/ks.cfg ks.cfg # (2)! 
+ks=hd:fd0:/ks.cfg ks.cfg # (2)! 
 ```
 
-1. `ks.cfg` на CDROM (внутри образа `.iso`)
+1. `ks.cfg` на CDROM (внутри образа `.iso`)
 2. на виртуальной дискете (образ `.flp`)
 
 **Вариант 2.** Использовать уже установленный AES в качестве http сервера. В WinSCP зайти по SFTP и закинуть файл *ks.cfg* в домашний каталог */home/cust*. Оттуда копируем в каталог веб-сервера */var/www/html*
 
 ```bash
-cp /home/cust/ks.cfg /var/www/html
+cp /home/cust/ks.cfg /var/www/html
 ```
 
 Остальные файлы кстати являются ссылками на другой каталог
 
 ```bash
-[root@mrc-krl15-ucaes cust]# ls -la /var/www/html
+[root@example-ucaes cust]# ls -la /var/www/html
 total 16
 drwxr-xr-x 2 root root 4096 Mar 28 22:22 .
-drwxr-xr-x 4 root root   31 Nov 10 15:10 ..
-lrwxrwxrwx 1 root root   46 Nov 10 15:13 avaya_logo.gif -> /usr/share/tomcat5/webapps/ROOT/avaya_logo.gif
-lrwxrwxrwx 1 root root   47 Nov 10 15:13 disclaimer.html -> /usr/share/tomcat5/webapps/ROOT/disclaimer.html
-lrwxrwxrwx 1 root root   46 Nov 10 15:13 error_page.jsp -> /usr/share/tomcat5/webapps/ROOT/error_page.jsp
-lrwxrwxrwx 1 root root   43 Nov 10 15:13 favicon.ico -> /usr/share/tomcat5/webapps/ROOT/favicon.ico
-lrwxrwxrwx 1 root root   48 Nov 10 15:13 hd_squares_3.gif -> /usr/share/tomcat5/webapps/ROOT/hd_squares_3.gif
--rwxr-xr-x 1 root root  163 Nov 10 15:13 index.html
-lrwxrwxrwx 1 root root   41 Nov 10 15:13 index.jsp -> /usr/share/tomcat5/webapps/ROOT/index.jsp
-lrwxrwxrwx 1 root root   43 Nov 10 15:13 index.shtml -> /usr/share/tomcat5/webapps/ROOT/index.shtml
+drwxr-xr-x 4 root root   31 Nov 10 15:10 ..
+lrwxrwxrwx 1 root root   46 Nov 10 15:13 avaya_logo.gif -> /usr/share/tomcat5/webapps/ROOT/avaya_logo.gif
+lrwxrwxrwx 1 root root   47 Nov 10 15:13 disclaimer.html -> /usr/share/tomcat5/webapps/ROOT/disclaimer.html
+lrwxrwxrwx 1 root root   46 Nov 10 15:13 error_page.jsp -> /usr/share/tomcat5/webapps/ROOT/error_page.jsp
+lrwxrwxrwx 1 root root   43 Nov 10 15:13 favicon.ico -> /usr/share/tomcat5/webapps/ROOT/favicon.ico
+lrwxrwxrwx 1 root root   48 Nov 10 15:13 hd_squares_3.gif -> /usr/share/tomcat5/webapps/ROOT/hd_squares_3.gif
+-rwxr-xr-x 1 root root  163 Nov 10 15:13 index.html
+lrwxrwxrwx 1 root root   41 Nov 10 15:13 index.jsp -> /usr/share/tomcat5/webapps/ROOT/index.jsp
+lrwxrwxrwx 1 root root   43 Nov 10 15:13 index.shtml -> /usr/share/tomcat5/webapps/ROOT/index.shtml
 -rw-r--r-- 1 root root 4794 Mar 28 22:27 ks.cfg
-lrwxrwxrwx 1 root root   48 Nov 10 15:13 logo-smaller.gif -> /usr/share/tomcat5/webapps/ROOT/logo-smaller.gif
+lrwxrwxrwx 1 root root   48 Nov 10 15:13 logo-smaller.gif -> /usr/share/tomcat5/webapps/ROOT/logo-smaller.gif
 ```
 
 При установке добавляем
 
 ```bash
-ks=https://172.21.103.15/ks.cfg
+ks=https://172.адрес/ks.cfg
 ```
 
 ![](RHEL-start-kickstart-from-AES.png)
@@ -405,7 +404,7 @@ gateway=z.z.z.z
 Проверяем из PuTTY:
 
 ```bash
-[witness@mrc-krl15-ucacr1 ~]$ ls -la
+[witness@example-ucacr1 ~]$ ls -la
 total 170776
 drwx------. 4 witness witness     4096 Mar 30 18:11 .
 drwxr-xr-x. 3 root    root        4096 Mar 30 14:13 ..
@@ -424,7 +423,7 @@ drwxrwxr-x  3 witness witness     4096 Mar 30 18:11 .config
 
 Названия этих файлов могут отличаться в новой версии или при обновлении.
 - **acr-151fp2-linux.iso** — основной диск для Linux с пакетом ACR15.2FP2, установочными пакетами PostgreSQL, Java, Tomcat, документацией, MIB файлами для SNMP мониторинга, некоторые утилиты:
-    - **/utils —** дополнительные утилиты: acr-csapi Java API Toolkit sdk, [ValidateFP](file:///C:\\Users\\ATOROP~1\\AppData\\Local\\Temp\\BNZ.5aba36b139acb4fb\\utils\\ValidateFP.zip) audio WAV file finger print validation utility, [WitsBSUserCredentials](file:///C:\\Users\\ATOROP~1\\AppData\\Local\\Temp\\BNZ.5aba36b139acb4fb\\utils\\WitsBSUserCredentials.zip) утилита для шифрования логинов и паролей, [WSSChangePassword](file:///C:\\Users\\ATOROP~1\\AppData\\Local\\Temp\\BNZ.5aba36b139acb4fb\\utils\\WSSChangePassword.zip) утилита для подготовки ключей безопасности для записи экранов операторов.
+    - **/utils —** дополнительные утилиты: acr-csapi Java API Toolkit sdk, [ValidateFP](file:///C:\\Users\\ATOROP~1\\AppData\\Local\\Temp\\BNZ.5aba36b139acb4fb\\utils\\ValidateFP.zip) audio WAV file finger print validation utility, [WitsBSUserCredentials](file:///C:\\Users\\ATOROP~1\\AppData\\Local\\Temp\\BNZ.5aba36b139acb4fb\\utils\\WitsBSUserCredentials.zip) утилита для шифрования логинов и паролей, [WSSChangePassword](file:///C:\\Users\\ATOROP~1\\AppData\\Local\\Temp\\BNZ.5aba36b139acb4fb\\utils\\WSSChangePassword.zip) утилита для подготовки ключей безопасности для записи экранов операторов.
     - **/mibs** — Simple Network Management Protocol (SNMP) Management Information Base (MIB) файлы для мониторинга.
 - **15.1fp2_ACR_Security_and_3rd_Party_Update_Kit_15.1.2.0003.zip** — обновления PostrgeSQL, Java и Tomcat
 - **acr-15.1fp2-0019.zip** — новыq патч ACR версии 0019.
@@ -444,7 +443,7 @@ drwxrwxr-x  3 witness witness     4096 Mar 30 18:11 .config
 
 ```bash
 rpm acr-15.1fp2-3.rhel7.x86_64.rpm -Uvh
-sh ./postgresql966_rh7.run
+sh ./postgresql966_rh7.run
 ```
 
 Вернуться в пользователя **witness** и установить Java (jdk) и tomcat:
@@ -464,13 +463,13 @@ chown -R witness. /opt/witness
 Пример моей установки:
 
 ```bash
-[root@mrc-krl15-ucacr1 witness]# rpm acr-15.1fp2-3.rhel7.x86_64.rpm -Uvh
+[root@example-ucacr1 witness]# rpm acr-15.1fp2-3.rhel7.x86_64.rpm -Uvh
 Preparing...                          ################################# [100%]
 Updating / installing...
    1:acr-15.1fp2-3.rhel7              ################################# [100%]
 Created symlink from /etc/systemd/system/multi-user.target.wants/acr.service to /usr/lib/systemd/system/acr.service.
 
-root@mrc-krl15-ucacr1 witness]# sh ./postgresql966_rh7.run
+root@example-ucacr1 witness]# sh ./postgresql966_rh7.run
 Verifying archive integrity...  100%   All good.
 Uncompressing ACR PostgreSQL for RH7 version 9.6.6  100%
 warning: postgresql96-libs-9.6.6-1PGDG.rhel7.x86_64.rpm: Header V4 DSA/SHA1 Signature, key ID 442df0f8: NOKEY
@@ -484,11 +483,11 @@ Initializing database ... OK
 CREATE ROLE
 Created symlink from /etc/systemd/system/multi-user.target.wants/postgresql-9.6.service to /usr/lib/systemd/system/postgresql-9.6.service.
 
-[root@mrc-krl15-ucacr1 witness]$ sh ./jdk1.8_161.run
+[root@example-ucacr1 witness]$ sh ./jdk1.8_161.run
 Verifying archive integrity...  100%   All good.
 Uncompressing Server JDK 1.8_161  100%
 
-[root@mrc-krl15-ucacr1 witness]$ sh ./tomcat8524.run
+[root@example-ucacr1 witness]$ sh ./tomcat8524.run
 Verifying archive integrity...  100%   All good.
 Uncompressing Tomcat for ACR version 8.5.24  100%
 ```
@@ -508,8 +507,8 @@ Uncompressing Tomcat for ACR version 8.5.24  100%
 Текущая версия PostgreSQL:
 
 ```bash
-$ su -l postgres -c "/usr/pgsql-9.6/bin/psql -V"
-psql (PostgreSQL) 9.6.6
+$ su -l postgres -c "/usr/pgsql-9.6/bin/psql -V"
+psql (PostgreSQL) 9.6.6
 ```
 
 Текущая версия Java и Tomcat:
@@ -554,11 +553,11 @@ su -c "systemctl start acr.service"  # Запустить сервис запи�
 
 ```ini
 # Generated by parse-kickstart
-UUID="2c0e8a7e-73d2-4817-9cf5-eea9d6a259f6"
-DNS2="172.21.40.6"
-DNS1="172.31.42.14"
-IPADDR="172.21.103.16"
-GATEWAY="172.21.103.1"
+UUID="2c0e8a7e-73d2-4817-9cf5-example"
+DNS2="первый"
+DNS1="второй"
+IPADDR="ip-адрес"
+GATEWAY="шлюз"
 NETMASK="255.255.255.192"
 BOOTPROTO="static"
 DEVICE="ens192"
@@ -591,18 +590,18 @@ cd /opt/witness/patches  # Перейти в каталог патчей
 Пример установки нового патча 0023 (ранее был установлен 0019).Появилось предупреждение, что нужен патч 0022.
 
 ```bash
-[witness@mrc-krl15-ucacr1 ~]$ cd /opt/witness/patches
-[witness@mrc-krl15-ucacr1 patches]$ ls
+[witness@example-ucacr1 ~]$ cd /opt/witness/patches
+[witness@example-ucacr1 patches]$ ls
 baseline.json  patches.db  patchtool.jar  rollback
-[witness@mrc-krl15-ucacr1 patches]$ systemctl stop acr
+[witness@example-ucacr1 patches]$ systemctl stop acr
 ==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ===
 Authentication is required to manage system services or units.
 Authenticating as: root
 Password:
 ==== AUTHENTICATION COMPLETE ===
-[witness@mrc-krl15-ucacr1 patches]$ pwd
+[witness@example-ucacr1 patches]$ pwd
 /opt/witness/patches
-[witness@mrc-krl15-ucacr1 patches]$ ../jdk8/bin/java -cp patchtool.jar Patcher
+[witness@example-ucacr1 patches]$ ../jdk8/bin/java -cp patchtool.jar Patcher
 The current baseline is 15.1fp2
 The current patch is 0019
 The following patches are installed:
@@ -616,7 +615,7 @@ Patch 0022 is required before this patch can be applied
 Скачиваем патч 0022 с сайта Avaya и копируем на сервер. Устанавливаем.
 
 ```bash
-[witness@mrc-krl15-ucacr1 patches]$ ../jdk8/bin/java -cp patchtool.jar Patcher /home/witness/acr-15.1fp2-0022.apa
+[witness@example-ucacr1 patches]$ ../jdk8/bin/java -cp patchtool.jar Patcher /home/witness/acr-15.1fp2-0022.apa
 The changes since the last patch are:
 
 0020
@@ -679,7 +678,7 @@ success
 Теперь применяем патч 0023.
 
 ```bash
-[witness@mrc-krl15-ucacr1 patches]$ ../jdk8/bin/java -cp patchtool.jar Patcher /home/witness/acr-15.1fp2-0023.apa
+[witness@example-ucacr1 patches]$ ../jdk8/bin/java -cp patchtool.jar Patcher /home/witness/acr-15.1fp2-0023.apa
 The changes since the last patch are:
 
 0023
@@ -710,21 +709,21 @@ success
 Выполнять установку патча нужно под пользователем wintess, но я получала сообщение, что нет доступа:
 
 ```bash
-[witness@mrc-krl15-ucacr1 patches]$ ../jdk8/bin/java -cp patchtool.jar Patcher /home/witness/acr-15.1fp2-0010.apa
+[witness@example-ucacr1 patches]$ ../jdk8/bin/java -cp patchtool.jar Patcher /home/witness/acr-15.1fp2-0010.apa
 -bash: ../jdk8/bin/java: Permission denied
 ```
 
 Если же пробуем поставить под root, то выходит предупреждение, что патчер должен выполняться от лица witness.
 
 ```bash
-[root@mrc-krl15-ucacr1 patches]# ../jdk8/bin/java -cp patchtool.jar Patcher /home/witness/acr-15.1fp2-0010.apa
+[root@example-ucacr1 patches]# ../jdk8/bin/java -cp patchtool.jar Patcher /home/witness/acr-15.1fp2-0010.apa
 Incorrect user: the patcher must be run as witness (Linux)
 ```
 
 Причина проблемы: установка jdk и tomcat выполнялась под root-ом, поэтому права на эти каталоги принадлежали root (обратить внимание на строки с root). Исправляется сменой владельца.
 
 ```bash hl_lines="7 13 14 17"
-[witness@mrc-krl15-ucacr1 patches]$ ls -la ..
+[witness@example-ucacr1 patches]$ ls -la ..
 total 76
 drwxr-xr-x. 16 witness witness  4096 Mar 30 18:23 .
 drwxr-xr-x.  4 root    root     4096 Mar 30 14:12 ..
@@ -757,7 +756,7 @@ $ ../jdk8/bin/java -cp patchtool.jar Patcher /home/witness/acr-15.1fp2-0019.apa
 Проверяем что сейчас стоит:
 
 ```bash
-[witness@mrc-krl15-ucacr1 patches]$ ../jdk8/bin/java -cp patchtool.jar Patcher
+[witness@example-ucacr1 patches]$ ../jdk8/bin/java -cp patchtool.jar Patcher
 The current baseline is 15.1fp2
 The current patch is 0019
 The following patches are installed:
@@ -786,8 +785,8 @@ cd <installdir>/keystore
 Пример:
 
 ```bash
-[witness@mrc-krl15-ucacr1 witness]$ cd /opt/witness/keystore/
-[witness@mrc-krl15-ucacr1 keystore]$ ls
+[witness@example-ucacr1 witness]$ cd /opt/witness/keystore/
+[witness@example-ucacr1 keystore]$ ls
 avayapcs511.ks  cacerts  srtpcert.jks  verint.jks
 ```
 
@@ -796,7 +795,7 @@ avayapcs511.ks  cacerts  srtpcert.jks  verint.jks
 === "Linux"
 
     ```bash
-    ../jdk8/bin/keytool Linux # т.е. утилита здесь /opt/witness/jdk8/bin/keytool
+    ../jdk8/bin/keytool Linux # т.е. утилита здесь /opt/witness/jdk8/bin/keytool
     ```
 
 === "Windows"
@@ -828,15 +827,15 @@ keytool -genkeypair -keystore <keystorename> -alias <alias> -keyalg RSA
 Если хотим выбрать шифрование EC, заменяем RSA в конце на него. Наша итоговая строка:
 
 ```bash
-../jdk8/bin/keytool -genkeypair -keystore keystore.jks -alias tomcat -keyalg RSA
+../jdk8/bin/keytool -genkeypair -keystore keystore.jks -alias tomcat -keyalg RSA
 ```
 
 Проверка существования *keystore.jks*. До создания:
 
 ```bash
-[witness@mrc-krl15-ucacr1 keystore]$ pwd
+[witness@example-ucacr1 keystore]$ pwd
 /opt/witness/keystore
-[witness@mrc-krl15-ucacr1 keystore]$ ../jdk8/bin/keytool -list -keystore keystore.jks
+[witness@example-ucacr1 keystore]$ ../jdk8/bin/keytool -list -keystore keystore.jks
 keytool error: java.lang.Exception: Keystore file does not exist: keystore.jks
 ```
 
@@ -1046,23 +1045,23 @@ SIP FEATURE OPTIONS
 Начиная с ACR 10.1 SP2 FP (Feature pack), логический TLINK удален и заменен на настройку имени TSAPI Switch, где надо задать имя AES Switch соединения.
 Add switch connection name configured on AES under AES TSAPI Switch Name(s) on ACR 10.1 SP2 FP (or ACR 11) instead of adding TLINK
 
-| Параметр                                                                                 | Значение      |
-| ---------------------------------------------------------------------------------------- | ------------- |
-| Пул устройств записи                                                                     | main          |
-| Справедливая доля неназначенных записей                                                  | Справедливая  |
-| Максимальное количество одновременных записей                                            | 1200          |
-| Сигнальный программный телефон                                                           | 73005         |
-| Предупреждать при достижении нижнего порога количества доступных лицензированных каналов | 1             |
-| Предупреждать, когда число доступных лицензий на запись экрана падает НИЖЕ               | 4             |
-| IP-адрес данного сервера для записей (RTP, запись экранов и т.д.)                        | 172.21.103.16 |
-| Используйте стереоформат аудио, когда это возможно                                       | Да            |
-| Максимальная продолжительность фрагмента записи (мин.)                                   | 120           |
-| SNMP Read Community                                                                      | Не задано     |
-| Местоположения уведомлений SNMP                                                          | Не задано     |
-| Версия SNMP                                                                              | V1            |
-| Сервер(ы) воспроизведения (по умолчанию первичный и резервный)                           | 172.21.103.16 |
-| Сервер управления ключами                                                                | Не задано     |
-| URL-адреса внешних портов управления для подключения                                     | Не задано     |
+| Параметр                                                                                 | Значение     |
+| ---------------------------------------------------------------------------------------- | ------------ |
+| Пул устройств записи                                                                     | main         |
+| Справедливая доля неназначенных записей                                                  | Справедливая |
+| Максимальное количество одновременных записей                                            | 1200         |
+| Сигнальный программный телефон                                                           | 73005        |
+| Предупреждать при достижении нижнего порога количества доступных лицензированных каналов | 1            |
+| Предупреждать, когда число доступных лицензий на запись экрана падает НИЖЕ               | 4            |
+| IP-адрес данного сервера для записей (RTP, запись экранов и т.д.)                        | тут_адрес    |
+| Используйте стереоформат аудио, когда это возможно                                       | Да           |
+| Максимальная продолжительность фрагмента записи (мин.)                                   | 120          |
+| SNMP Read Community                                                                      | Не задано    |
+| Местоположения уведомлений SNMP                                                          | Не задано    |
+| Версия SNMP                                                                              | V1           |
+| Сервер(ы) воспроизведения (по умолчанию первичный и резервный)                           | тот_же_адрес |
+| Сервер управления ключами                                                                | Не задано    |
+| URL-адреса внешних портов управления для подключения                                     | Не задано    |
 
 ![](ACR-settings-main.png)
 ### Общие настройки→ ucacm
@@ -1099,15 +1098,15 @@ acr.disablecompress=true
 | Формат аудио                                                                                              | g711U                                                               |
 | Имя Avaya Communication Manager                                                                           | ucacm                                                               |
 | Максимальная общая продолжительность вызова (часов)                                                       | 10                                                                  |
-| Адрес(а) AE-сервера                                                                                       | 172.21.103.15                                                       |
-| Имя пользователя DMCC                                                                                     | acr  (пользователь acr из AES)                                      |
-| Пароль DMCC                                                                                               | `*****` (пароль задан в AES)                                          |
+| Адрес(а) AE-сервера                                                                                       | тут_адрес_AES                                                       |
+| Имя пользователя DMCC                                                                                     | acr  (пользователь acr из AES)                                      |
+| Пароль DMCC                                                                                               | `*****` (пароль задан в AES)                                        |
 | Шифрование медиа-потоков                                                                                  | none (отсутствует)                                                  |
-| Код безопасности внутреннего IP-номера                                                                    | `*****`   (пароль задан в CM)                                         |
-| Сервер(ы) AES TSAPI                                                                                       | 172.21.103.15                                                       |
+| Код безопасности внутреннего IP-номера                                                                    | `*****`   (пароль задан в CM)                                       |
+| Сервер(ы) AES TSAPI                                                                                       | тот_же_адрес_AES                                                    |
 | Имя (имена) коммутатора AES TSAPI                                                                         | ucacm                                                               |
-| Идентификатор входа службы AES TSAPI                                                                      | tsapiuser (пользователь tsapiuser из AES)                           |
-| Пароль службы AES TSAPI                                                                                   | `*****`  (пароль задан в AES)                                         |
+| Идентификатор входа службы AES TSAPI                                                                      | tsapiuser (пользователь tsapiuser из AES)                           |
+| Пароль службы AES TSAPI                                                                                   | `*****`  (пароль задан в AES)                                       |
 | Незаписываемые станции/порты IVR для наблюдения через TSAPI                                               | Не задано                                                           |
 | Группа(ы) приема вызовов с учетом квалификации агентов, отслеживаемые через TSAPI                         | 75100                                                               |
 | VDN(s) для наблюдения через TSAPI                                                                         | 72000                                                               |
@@ -1116,7 +1115,7 @@ acr.disablecompress=true
 | Адрес Communication Manager                                                                               | Не задано                                                           |
 | Avaya Oceana™                                                                                             | Не задано                                                           |
 | Записывать с помощью пассивного перехвата IP                                                              | Нет                                                                 |
-| Порты 73001-73005  (73005 программный)                                                                    | 5                                                                   |
+| Порты 73001-73005  (73005 программный)                                                                    | 5                                                                   |
 
 ![](ACR-type-of-data.png)
 
@@ -1148,9 +1147,9 @@ acr.disablecompress=true
 
 | Параметр                                                                                               | Значение                                                                                                               |
 | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| Канал к DMCC на 172.21.103.15                                                                          | АКТИВНЫЙ                                                                                                               |
-| Канал к TSAPI на 172.21.103.15                                                                         | ВКЛЮЧЕН                                                                                                                |
-| Всего вызовов отслежено через CTI с момента запуска                                                    | 1 585                                                                                                                  |
+| Канал к DMCC на адрес_AES                                                                              | АКТИВНЫЙ                                                                                                               |
+| Канал к TSAPI на адрес_AES                                                                             | ВКЛЮЧЕН                                                                                                                |
+| Всего вызовов отслежено через CTI с момента запуска                                                    | 1 585                                                                                                                  |
 | Всего мультимедийных файлов записано на настоящий момент                                               | 921                                                                                                                    |
 | Всего вызовов отслежено через CTI сегодня (или после перезапуска, если он был произведен сегодня)      | 90                                                                                                                     |
 | Всего мультимедийных файлов записано за сегодня (либо с момента перезапуска, если он выполнен сегодня) | 46                                                                                                                     |
@@ -1173,12 +1172,10 @@ acr.disablecompress=true
 - Сервер SFTP
 - EMC Centera
 
+Для Windows: [https://www.bitvise.com/ssh-server-download](https://www.bitvise.com/ssh-server-download) (простой вариант) или  [https://github.com/PowerShell/Win32-OpenSSH/releases скачать OpenSSH-Win64.zip](https://github.com/PowerShell/Win32-OpenSSH/releases%20скачать%20OpenSSH-Win64.zip) (более сложный).
+Для Linux: [http://www.proftpd.org/](http://www.proftpd.org/) — бесплатный SFTP для Linux, поддерживает extensions.
 
-· Поддержка расширения [statvfs@openssh.com](mailto:statvfs@openssh.com). Этот extention доступен, если Can check available space — Yes. Почти все SFTP серверы под Windows (Core FTP mini SFTP server,  SolarWinds Free SFTP/SCP Server, Filezilla Server  и пр.) не поддерживают extensions, соответственно [statvfs@openssh.com](mailto:statvfs@openssh.com) недоступен.
-Для Windows: [https://www.bitvise.com/ssh-server-download](https://www.bitvise.com/ssh-server-download) (простой вариант) или  [https://github.com/PowerShell/Win32-OpenSSH/releases скачать OpenSSH-Win64.zip](https://github.com/PowerShell/Win32-OpenSSH/releases%20скачать%20OpenSSH-Win64.zip) (более сложный).
-Для Linux: [http://www.proftpd.org/](http://www.proftpd.org/) — бесплатный SFTP для Linux, поддерживает extensions.
-
-Бэкап инкрементный, ежедневно добавляются новые файлы. Требование к SFTP серверу для ACR отличаются от других систем, они описаны в Administration Guide (страница 182):
+Бэкап инкрементный, ежедневно добавляются новые файлы. Требование к SFTP серверу для ACR отличаются от других систем, они описаны в Administration Guide (страница 182):
 Требование к SFTP серверу для ACR отличаются от других систем, они описаны в Administration Guide (страница 182):
 - SFTP V3 или выше
 - Поддержка расширения <statvfs@openssh.com>. Этот extension доступен, если `Can check available space — Yes`. Почти все SFTP серверы под Windows (Core FTP mini SFTP server, SolarWinds Free SFTP/SCP Server, Filezilla Server и пр.) не поддерживают extensions, соответственно <statvfs@openssh.com> недоступен. [Bitvise SSH Server](https://www.bitvise.com/ssh-server-download) —простой вариант ssh server для Windows, [Win32-OpenSSH](https://github.com/PowerShell/Win32-OpenSSH/)  —более сложный. [ProFTPD](http://www.proftpd.org/) — бесплатный SFTP для Linux, поддерживает extensions.
@@ -1208,7 +1205,7 @@ The server supports these SFTP extensions:
 
 Скачать [**Bitvise SSH Server**](https://www.bitvise.com/ssh-server-download)  — выбрать **Personal** или платный вариант. Работает с аккаунтами Windows или виртуальными. Функционал :
 
-![cid:image002.png@01D3FFF9.DB7C91B0](image27.png) 
+![cid:image002.png@01D3FFF9.DB7C91B0](image27.png)
 
 ![cid:image003.png@01D3FFF9.DB7C91B0](image28.png)
 
@@ -1223,20 +1220,20 @@ The server supports these SFTP extensions:
 С правами root проверим из консоли, что копируется на SFTP (проще WinSCP). 848033 — корневая папка с архивом ACR. Внутри неё папки с годом, месяцами и днями.
 
 ```bash
-[root@mrc-krl15-ucacr1 ~]# sftp avaya@172.21.40.43
-The authenticity of host '172.21.40.43 (172.21.40.43)' can't be established.
-ECDSA key fingerprint is SHA256:iEM6JQV+UCzzRw5HU17bGrDcZuhOA3mhWYiCHckT/iI.
-ECDSA key fingerprint is MD5:ba:aa:91:82:5a:08:a0:ef:59:9d:6e:2d:52:e8:81:49.
+[root@example-ucacr1 ~]# sftp avaya@адрес_сервервера_backup
+The authenticity of host 'адрес_сервервера_backup (адрес_сервервера_backup)' can't be established.
+ECDSA key fingerprint is SHA256:iEM6JQV+UCzzRw6HU17bGrSluhOA3mhWYiCHckT/iI.
+ECDSA key fingerprint is MD5:ba:aa:91:82:5a:08:af:ef:59:9b:6e:2d:52:e8:81:49.
 Are you sure you want to continue connecting (yes/no)? yes
-Warning: Permanently added '172.21.40.43' (ECDSA) to the list of known hosts.
+Warning: Permanently added 'адрес_сервервера_backup' (ECDSA) to the list of known hosts.
 avaya@172.21.40.43's password:
-Connected to 172.21.40.43.
+Connected to адрес_сервервера_backup.
 
 sftp> ls
 848033                                         SMGR-backup_2018_Jun_09_02_00_24_841.zip
-SMGR-backup_2018_Jun_15_11_30_31_288.zip       full_mrc-krl15-ucacm1_234501_20180615.tar.gz
-full_mrc-krl15-ucacm1_234501_20180622.tar.gz   full_mrc-krl15-ucacm2_140719_20180609.tar.gz
-full_mrc-krl15-ucacm2_141010_20180609.tar.gz
+SMGR-backup_2018_Jun_15_11_30_31_288.zip       full_example-ucacm1_234501_20180615.tar.gz
+full_example-ucacm1_234501_20180622.tar.gz   full_example-ucacm2_140719_20180609.tar.gz
+full_example-ucacm2_141010_20180609.tar.gz
 
 sftp> ls 848033
 848033/0010330001.uid  848033/2018
@@ -1258,10 +1255,10 @@ Fetching /848033/2018/06/22/10/12.tar to 12.tar
 /848033/2018/06/22/10/12.tar                                100%   10MB  11.0MB/s   00:00
 sftp> exit
 
-[root@mrc-krl15-ucacr1 ~]# ls
+[root@example-ucacr1 ~]# ls
 12.tar  848033  anaconda-ks.cfg  original-ks.cfg  SMGR-backup_2018_Jun_09_02_00_24_841.zip
 
-[root@mrc-krl15-ucacr1 ~]# tar -tvf 12.tar
+[root@example-ucacr1 ~]# tar -tvf 12.tar
 -r--r--r-- avaya/avaya    6204 2018-06-21 10:08 848033000002364.xml
 -r--r--r-- avaya/avaya  103994 2018-06-21 10:08 848033000002364.wav
 -r--r--r-- avaya/avaya    6201 2018-06-21 10:10 848033000002365.xml
@@ -1279,10 +1276,10 @@ sftp> exit
 Разархивируем одну запись и её матаданные.
 
 ```bash
-[root@mrc-krl15-ucacr1 ~]# tar xvf 12.tar 848033000002364.*
+[root@example-ucacr1 ~]# tar xvf 12.tar 848033000002364.*
 848033000002364.xml
 848033000002364.wav
-[root@mrc-krl15-ucacr1 ~]# ls
+[root@example-ucacr1 ~]# ls
 12.tar  848033000002364.wav  anaconda-ks.cfg  SMGR-backup_2018_Jun_09_02_00_24_841.zip
 848033  848033000002364.xml  original-ks.cfg
 ```
@@ -1290,7 +1287,7 @@ sftp> exit
 Файл xml c информацией о звонке:
 
 ```bash
-[root@mrc-krl15-ucacr1 ~]# cat 848033000002364.xml
+[root@example-ucacr1 ~]# cat 848033000002364.xml
 <?xml version="1.0" encoding="UTF-8"?>
 ..... тут много текста
 </cti>
@@ -1374,7 +1371,7 @@ Subsystem	sftp	sftp-server.exe -C C:\DISTR
 
 ### Резервное копирование базы PostgreSQL по расписанию
 
-Бэкап базы данных нельзя настроить из веб-интерфейса. Из Linux CLI под root cоздать скрипт */opt/witness/bin/pgbackup.sh*:
+Бэкап базы данных нельзя настроить из веб-интерфейса. Из Linux CLI под root создать скрипт */opt/witness/bin/pgbackup.sh*:
 
 ```bash title="/opt/witness/bin/pgbackup.sh"
 #!/bin/bash
@@ -1514,15 +1511,15 @@ If you want the recording rule to fire then you will need to set `tsapi.numplanl
 Ручная проверка sftp дает положительный результат, можно зайти насервер, другие бэкапы видны.
 
 ```bash
-[witness@mrc-krl15-ucacr1 logs]$ sftp avaya@borisova.rtrs.local
+[witness@example-ucacr1 logs]$ sftp avaya@borisova.rtrs.local
 avaya@borisova.rtrs.local's password:
 Connected to borisova.rtrs.local.
 sftp> ls
 221212.xlsx                                       22222.txt
 222222                                            SMGR-bacup_2018_May_30_01_16_11_872.zip
 SMGR-bacup_2018_May_31_11_00_48_208.zip           backup_SMGR-test_2018_Jun_01_01_33_10_793.zip
-full_mrc-krl15-ucacm1_233001_20180601.tar.gz      full_mrc-krl15-ucacm2_130943_20180530.tar.gz
- full_mrc-krl15-ucacm2_232001_20180601.tar.gz
+full_example-ucacm1_233001_20180601.tar.gz        full_example-ucacm2_130943_20180530.tar.gz
+full_example-ucacm2_232001_20180601.tar.gz
 
 sftp> version
 SFTP protocol version 3
@@ -1548,10 +1545,10 @@ systemctl start acr
 ...
 2018-06-05 12:18:27,661 [IO-1] DEBUG com.swhh.cs.uarchive.v - Prevmedia=null
 2018-06-05 12:18:27,661 [IO-1] DEBUG com.swhh.cs.uarchive.v - Searching for blank media
-2018-06-05 12:18:27,661 [IO-1] DEBUG com.swhh.cs.uarchive.v - Considering sftp://borisova.rtrs.local isUsable=false
+2018-06-05 12:18:27,661 [IO-1] DEBUG com.swhh.cs.uarchive.v - Considering sftp://ivanova.mycompany.local isUsable=false
 2018-06-05 12:18:27,661 [IO-1] DEBUG com.swhh.cs.uarchive.v - No blank media left to try
-2018-06-05 12:18:27,988 [IOJobs Manager thread] ERROR com.swhh.cs.uarchive.aa - Folder sftp://borisova.rtrs.local: net.schmizz.sshj.sftp.SFTPException - Operation unsupported
-2018-06-05 12:18:28,441 [DMCC_poll_172.21.103.15] DEBUG com.swhh.c.g - sending message: com.swhh.c.a.bv 30
+2018-06-05 12:18:27,988 [IOJobs Manager thread] ERROR com.swhh.cs.uarchive.aa - Folder sftp://ivanova.mycompany.local: net.schmizz.sshj.sftp.SFTPException - Operation unsupported
+2018-06-05 12:18:28,441 [DMCC_poll_адрес_AES] DEBUG com.swhh.c.g - sending message: com.swhh.c.a.bv 30
 2018-06-05 12:18:28,473 [DiskManager thread] DEBUG com.swhh.cs.f.o - purgeto=0 lowestInum=848033000000100
 ```
 ### Логи
@@ -1602,8 +1599,8 @@ KB01126108. ACR 10.0 Patch 100068. CTI monitors показывает, что з�
 Решение: перегрузить сервис CSCM, залогиниться под root, сменить владельца и группу на witness:
 
 ```bash
-chown witness. /opt/witness/tomcat5525/shared/lib/cscm{main,res}.jar  # или отдельно сhgrp witness cscmmain.jar)
-cd witness. /opt/witness/tomcat5525/webapps/ROOT.war
+chown witness. /opt/witness/tomcat5525/shared/lib/cscm{main,res}.jar  # или отдельно сhgrp witness cscmmain.jar
+chown witness. /opt/witness/tomcat5525/webapps/ROOT.war
 ```
 ### После апгрейда AES до версии 7.0.1 ACR не может залогиниться на нем
 ACR  v12.x, v15.x. AES обновлен до 7.0.1, на ACR импортировали сертификат с AES, больше ничего не менялось. Но не устанавливается связь между ACR и AES. В логах AES найдена ошибка «unknown protocol» при попытке ACR залогиниться на AES.
@@ -1675,36 +1672,36 @@ Major Alarm 70668 is not a valid vdn and/or cannot be observed via AES TSAPI.
 AES TSAPI Service Observation of 79818 reports error:ACSUniversalFailureConfEvent error=tserverDeviceNotSupported
 ```
 
-Чтобы ACR записывал звонки, он должен регистрировать назначенные портына AES over DMCC.
+Чтобы ACR записывал звонки, он должен регистрировать назначенные порты на **AES over DMCC**.
 
 **Из лога acr.log:**
 
 ```bash title="acr.log"
-2017-10-12 20:48:05,336 [TSAPI thread] INFO  com.swhh.csta.a.k - Attempting to add TSAPI observer to dmcc 22323
-2017-10-12 20:48:05,339[TSAPI thread] INFO  com.swhh.cs.a.p - Filtered out alarm alarms.tsapi.observer [22323] [ACSUniversalFailureConfEvent
- error=tserverDeviceNotSupported]
+2017-10-12 20:48:05,336 [TSAPI thread] INFO  com.swhh.csta.a.k - Attempting to add TSAPI observer to dmcc 22323
+2017-10-12 20:48:05,339[TSAPI thread] INFO  com.swhh.cs.a.p - Filtered out alarm alarms.tsapi.observer [22323] [ACSUniversalFailureConfEvent
+ error=tserverDeviceNotSupported]
 2017-10-12 20:48:05,339[TSAPI thread] ERROR com.swhh.csta.d.c.k - Cannot Observe dmcc 22558: ACSUniversalFailureConfEvent
- error=tserverDeviceNotSupported
-2017-10-12 20:48:05,343[TSAPI thread] INFO  com.swhh.csta.a.k - Attempting to add TSAPI observer to dmcc 22559
-2017-10-12 20:48:05,347 [TSAPI thread] INFO  com.swhh.cs.a.p - Filtered out alarm alarms.tsapi.observer [22559] [ACSUniversalFailureConfEvent
- error=tserverDeviceNotSupported]
+ error=tserverDeviceNotSupported
+2017-10-12 20:48:05,343[TSAPI thread] INFO  com.swhh.csta.a.k - Attempting to add TSAPI observer to dmcc 22559
+2017-10-12 20:48:05,347 [TSAPI thread] INFO  com.swhh.cs.a.p - Filtered out alarm alarms.tsapi.observer [22559] [ACSUniversalFailureConfEvent
+ error=tserverDeviceNotSupported]
 ```
 
-**Из лога AES DMCC error.log:**
+**Из лога AES DMCC error.log:**
 
 ```bash title="error.log"
 2017-10-12 20.48.05,439 :T-100: com.avaya.platform.broker.impl.AsyncServiceMethodImpl invoke
 WARNING: Exception when calling method.invoke
 java.lang.reflect.InvocationTargetException
- at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+ at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 .....
- at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
- at java.lang.Thread.run(Thread.java:724)
-Caused by: ch.ecma.csta.errors.InvalidDeviceIDException: [22323:swlink1:0.0.0.0:0] DeviceID='[22323:swlink1:0.0.0.0:0] ' does not exist.  Call DeviceServices.getDevice to create a device
- at com.avaya.cmapi.intsvc.CstaTerminalMgrImpl.findExistingStation(CstaTerminalMgrImpl.java:173)
- at com.avaya.cmapi.intsvc.CstaTerminalMgrImpl.findExistingStation(CstaTerminalMgrImpl.java:185)
- at com.avaya.cmapi.extsvc.H323RegistrationServices.registerTerminal(H323RegistrationServices.java:99)
- ... 22 more
+ at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+ at java.lang.Thread.run(Thread.java:724)
+Caused by: ch.ecma.csta.errors.InvalidDeviceIDException: [22323:swlink1:0.0.0.0:0] DeviceID='[22323:swlink1:0.0.0.0:0] ' does not exist.  Call DeviceServices.getDevice to create a device
+ at com.avaya.cmapi.intsvc.CstaTerminalMgrImpl.findExistingStation(CstaTerminalMgrImpl.java:173)
+ at com.avaya.cmapi.intsvc.CstaTerminalMgrImpl.findExistingStation(CstaTerminalMgrImpl.java:185)
+ at com.avaya.cmapi.extsvc.H323RegistrationServices.registerTerminal(H323RegistrationServices.java:99)
+ ... 22 more
 ```
 
 Причина: на AES был неправильно настроен аккаунт пользователя CTI userдля ACR TSAPI и для DMCC в веб-интерфейсе **AES Security→ Security Database→ CTIUsers→ List all users** поставить галочку **UNRESTRICTED ACCESS.** Перезапустить сервис ACR.
@@ -1720,7 +1717,7 @@ AES 5.2.1 It seems that Nice keeps getting the error that it can\'tmonitor a dev
 Verified the device is in the Nice devicegroup
 ```
 
-Nice is unable to monitor a station, csta log in AES shows error \"tserverDeviceNotSupported\".
+Nice is unable to monitor a station, csta log in AES shows error \"tserverDeviceNotSupported\".
 
 Причина: Have Avaya verify database values are set correctly for tlinkgroupid...
 
@@ -1729,7 +1726,7 @@ Nice is unable to monitor a station, csta log in AES shows error \"tserverDevic
 
 This is configured upon adding a new station/device to the SDB in AES, select Tlink group ANY in order to be able to monitor the station.
 
-Решение: неправильное значение в базе данных psql db, где устройство имеет колонку tlinkgroupid с неправильным символом '-1' для обработки запросов, а должно быть '0'.
+Решение: неправильное значение в базе данных psql db, где устройство имеет колонку tlinkgroupid с неправильным символом `-1` для обработки запросов, а должно быть `0`.
 
 Пример. Правильная настройка:
 
@@ -1760,11 +1757,8 @@ UPDATE 1
 
 Customer needs to select tlink group ANY (0) upon adding the station/device in AES SBD in order to be able to monitor them.
 ### ACR — address not recognized by TSAPI for one extension
-
-ACR12 \'Address not recognized by TSAPI\' error только для одного номера8015592. SOLN314865.
-
+ACR12  'Address not recognized by TSAPI' error только для одного номера 8015592. SOLN314865.
 Product Affected: Avaya Aura Workforce Optimization
-
 Additional technical details and information related to the request:
 
 ```bash
@@ -1798,8 +1792,7 @@ Suspecting Corruption in CM station. BP didn't delete/re-add the station to chan
 
 ![](image23.png)
 ### Denial event 1246: Svc obsrv exceed max
-
-Не пишет разговоры, ошибка в list trace station:
+Не пишет разговоры, ошибка в `list trace station`:
 
 ```text
 06:49:18     active station      7099 cid 0xd0 
@@ -1949,7 +1942,7 @@ Last login: Fri May 18 14:21:30 2018 from адрес-откуда-входим
 [root@ACR witness]#         все, мы можем выполнять команды от root-а
 ```
 
-В моей инсталляции со скриптом kickstart в группе wheel никого не было,т.е. пользователь witness состоял только в своей основной группе игруппе cdrom.
+В моей инсталляции со скриптом kickstart в группе wheel никого не было, т.е. пользователь witness состоял только в своей основной группе и группе cdrom.
 
 ```bash title="/etc/group" hl_lines="11 12 23"
 root:x:0:
@@ -1980,7 +1973,7 @@ postgres:x:26:
 
 Пользователя rhel не было.
 ### Вход в PostgreSQL
-Для залогинивания в базу данных PostgreSQL достаточно зайти под **witness** без получения дополнительных прав суперпользователя. Теперь заходим сбазу с логином и паролем **eware**.
+Для залогинивания в базу данных PostgreSQL достаточно зайти под **witness** без получения дополнительных прав суперпользователя. Теперь заходим в базу с логином и паролем **eware**.
 
 ```bash
 $ psql -U eware -h localhost
@@ -2066,8 +2059,8 @@ eware=> select * from settings where settingkey like 'flags%';
  flags.purgedinums         | 0
  flags.oldestarcpending    | 848033000030774
  flags.primary             | 
- flags.DMCC.172.21.103.15  | true
- flags.TSAPI.172.21.103.15 | true
+ flags.DMCC.адрес_AES      | true
+ flags.TSAPI.адрес_AES     | true
 (12 rows)
 ```
 
@@ -2235,7 +2228,6 @@ eware=> select * from users;
 ```
 
 ## Пример /etc/sudoers
-
 Можно открыть командой visudo
 
 ```bash title="/etc/sudoers"
